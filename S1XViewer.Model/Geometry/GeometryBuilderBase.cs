@@ -1,0 +1,14 @@
+﻿using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage.Interfaces;
+using System.Xml;
+
+namespace S1XViewer.Model.Geometry
+{
+    public abstract class GeometryBuilderBase : IGeometryBuilder
+    {
+        protected static int _spatialReferenceSystem;
+        protected IOptionsStorage _optionsStorage;
+
+        public abstract Esri.ArcGISRuntime.Geometry.Geometry FromXml(XmlNode node, XmlNamespaceManager mgr);
+    }
+}

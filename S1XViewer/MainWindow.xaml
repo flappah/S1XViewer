@@ -1,0 +1,53 @@
+﻿<Window 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:S1XViewer"
+        xmlns:esri="http://schemas.esri.com/arcgis/runtime/2013" x:Class="S1XViewer.MainWindow"
+        mc:Ignorable="d"
+        Title="IHO S1xx standard Viewer" Height="800" Width="1280">
+    <Window.Resources>
+        <local:MapViewModel x:Key="MapViewModel" />
+    </Window.Resources>
+    <Grid>
+        <StackPanel VerticalAlignment="Top">
+            <Menu Width="Auto" Height="20">
+                <MenuItem Header="_File">
+                    <MenuItem x:Name="AppOpen" Header="_Open" HorizontalAlignment="Left" Width="140" Click="AppOpen_Click"/>
+                    <MenuItem x:Name="RecentFilesMenuItem" Header="_Recent Files"></MenuItem>
+                    <MenuItem x:Name="AppExit" Header="E_xit" HorizontalAlignment="Left" Width="140" Click="AppExit_Click"/>
+                </MenuItem>
+                <MenuItem Header="_Layers">
+                    <MenuItem x:Name="ResetLayers" Header="_Reset" HorizontalAlignment="Left" Width="140" Click="ResetLayers_Click" />
+                </MenuItem>
+                <MenuItem Header="_Tools">
+                    <MenuItem x:Name="Options" Header="O_ptions" HorizontalAlignment="Left" Width="140" Click="OptionsMenu_Click" />
+                </MenuItem>
+                <MenuItem Header="_Help">
+                    <MenuItem x:Name="About" Header="_About" HorizontalAlignment="Left" Width="140"/>
+                </MenuItem>
+            </Menu>
+        </StackPanel>
+        <DockPanel>
+            <StatusBar DockPanel.Dock="Bottom" x:Name="statusBar" HorizontalAlignment="Stretch" Height="27" VerticalAlignment="Bottom" >
+                <ProgressBar x:Name="progressBar" Height="10" Width="200" Margin="5,0,0,0" Minimum="0" Maximum="100"/>
+            </StatusBar>
+            <DockPanel DockPanel.Dock="Bottom">
+                <GroupBox Header="Feature Selection">
+                    <TreeView x:Name="treeViewFeatures" DockPanel.Dock="Left" Height="202" HorizontalAlignment="Left" Width="270" Margin="2,0,0,0"/>
+                </GroupBox>
+                <GroupBox Header="Feature Properties">
+                    <DataGrid x:Name="dataGridFeatureProperties" DockPanel.Dock="Left" HorizontalAlignment="Stretch" Height="202" Margin="2,0,2,0" ColumnHeaderHeight="21" />
+                </GroupBox>
+            </DockPanel>
+            <esri:MapView x:Name="myMapView" 
+                          Map="{Binding Source={StaticResource MapViewModel}}"
+                          Margin="0,21,0,4" 
+                          DockPanel.Dock="Top">
+                
+            </esri:MapView>
+        </DockPanel>        
+        
+    </Grid>
+</Window>
