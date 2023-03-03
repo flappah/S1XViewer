@@ -1,9 +1,7 @@
 ﻿using Esri.ArcGISRuntime.Geometry;
-using Esri.ArcGISRuntime.Mapping;
 using S1XViewer.Base;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
-using System.Globalization;
 using System.Numerics;
 using System.Xml;
 

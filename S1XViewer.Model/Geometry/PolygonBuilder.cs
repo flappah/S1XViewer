@@ -2,10 +2,6 @@
 using S1XViewer.Base;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Numerics;
 using System.Xml;
 

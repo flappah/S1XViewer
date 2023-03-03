@@ -2,7 +2,6 @@
 using S1XViewer.Base;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
-using System;
 using System.Globalization;
 using System.Xml;
 
@@ -30,18 +29,18 @@ namespace S1XViewer.Model.Geometry
             if (node != null && node.HasChildNodes)
             {
                 XmlNode srsNode = null;
-                if (node.Attributes.Count > 0 && node.Attributes[0].Name == "srsName")
+                if (node?.Attributes?.Count > 0 && node.Attributes.Contains("srsName") == true)
                 {
                     srsNode = node;
                 }
-                else if (node.FirstChild.Attributes.Count > 0 && node.FirstChild.Attributes[0].Name == "srsName")
+                else if (node?.FirstChild?.Attributes?.Count > 0 && node.FirstChild.Attributes.Contains("srsName") == true)
                 {
                     srsNode = node.FirstChild;
                 }
 
                 if (srsNode != null)
                 {
-                    if (!int.TryParse(srsNode.Attributes[0].Value.ToString().LastPart(char.Parse(":")), out int refSystem))
+                    if (!int.TryParse(srsNode.Attributes.Find("srsName")?.Value.ToString().LastPart(char.Parse(":")), out int refSystem))
                     {
                         refSystem = 0;
                     }
