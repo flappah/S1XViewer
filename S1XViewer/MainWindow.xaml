@@ -6,12 +6,17 @@
         xmlns:local="clr-namespace:S1XViewer"
         xmlns:esri="http://schemas.esri.com/arcgis/runtime/2013" x:Class="S1XViewer.MainWindow"
         mc:Ignorable="d"
-        Title="IHO S1xx standard Viewer" Height="800" Width="1280">
+        Title="IHO S1xx standard Viewer" Height="800" Width="1280" Icon="/Paomedia-Small-N-Flat-Map.ico">
     <Window.Resources>
         <local:MapViewModel x:Key="MapViewModel" />
     </Window.Resources>
     <Grid>
-        <StackPanel VerticalAlignment="Top">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="27*"/>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="1223*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel VerticalAlignment="Top" Grid.ColumnSpan="3">
             <Menu Width="Auto" Height="20">
                 <MenuItem Header="_File">
                     <MenuItem x:Name="AppOpen" Header="_Open" HorizontalAlignment="Left" Width="140" Click="AppOpen_Click"/>
@@ -29,7 +34,7 @@
                 </MenuItem>
             </Menu>
         </StackPanel>
-        <DockPanel>
+        <DockPanel Grid.ColumnSpan="3">
             <StatusBar DockPanel.Dock="Bottom" x:Name="statusBar" HorizontalAlignment="Stretch" Height="27" VerticalAlignment="Bottom" >
                 <ProgressBar x:Name="progressBar" Height="10" Width="200" Margin="5,5,0,0" Minimum="0" Maximum="100"/>
                 <Label x:Name="labelStatus" Content="" Width="1056" Height="24" FontSize="10"/>
@@ -46,9 +51,9 @@
                           Map="{Binding Source={StaticResource MapViewModel}}"
                           Margin="0,21,0,4" 
                           DockPanel.Dock="Top">
-                
+
             </esri:MapView>
-        </DockPanel>        
-        
+        </DockPanel>
+
     </Grid>
 </Window>

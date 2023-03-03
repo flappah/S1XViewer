@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:S1XViewer"
         mc:Ignorable="d"
-        Title="Options" Height="450" Width="800">
+        Title="Options" Height="450" Width="800" Icon="/Paomedia-Small-N-Flat-Map.ico">
     <Grid>
         <ListView x:Name="listView" Margin="10,23,0,15" HorizontalAlignment="Left" Width="179" SelectedIndex="0">
             <ListView.View>

@@ -69,7 +69,9 @@ namespace S1XViewer
 
             try
             {
-                streamReader = File.OpenText("crs.csv");
+                var assemblyPath = System.Reflection.Assembly.GetAssembly(typeof(OptionsWindow)).Location;
+                string folder = System.IO.Path.GetDirectoryName(assemblyPath);
+                streamReader = File.OpenText($@"{folder}\crs.csv");
                 while (!streamReader.EndOfStream)
                 {
                     string line = streamReader.ReadLine();
@@ -95,6 +97,7 @@ namespace S1XViewer
                     }
                 }
             }
+            catch (Exception) { }
             finally
             {
                 if (streamReader != null)

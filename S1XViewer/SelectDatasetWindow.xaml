@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:S1XViewer"
         mc:Ignorable="d"
-        Title="Select Dataset" Height="450" Width="800">
+        Title="Select Dataset" Height="450" Width="800" Icon="/Paomedia-Small-N-Flat-Map.ico">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="97*"/>

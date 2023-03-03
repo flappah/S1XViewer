@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Paomedia-Small-N-Flat-Map.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="6.5.0" />
     <PackageReference Include="Esri.ArcGISRuntime" Version="200.0.0" />
     <PackageReference Include="Esri.ArcGISRuntime.Hydrography" Version="200.0.0" />
@@ -22,6 +26,16 @@
     <ProjectReference Include="..\S1XViewer.Model\S1XViewer.Model.csproj" />
     <ProjectReference Include="..\S1XViewer.Storage\S1XViewer.Storage.csproj" />
     <ProjectReference Include="..\S1XViewer.Types\S1XViewer.Types.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Paomedia-Small-N-Flat-Map.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="crs.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

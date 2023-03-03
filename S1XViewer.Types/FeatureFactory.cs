@@ -31,7 +31,7 @@ namespace S1XViewer.Types
 
                 // look for the feature in the collection of features Autofac initialized and inserted in the Features property
                 var locatedFeature =
-                    Features.ToList().Find(tp => tp.GetType().Name.Contains(featureTypeString));
+                    Features.ToList().Find(tp => tp.GetType().Name.Equals(featureTypeString));
 
                 // if there's a feature, start XML parsing it and return the feature
                 if (locatedFeature != null)

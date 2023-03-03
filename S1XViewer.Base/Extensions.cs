@@ -2,11 +2,62 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace S1XViewer.Base
 {
     public static class Extensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static bool Contains(this XmlAttributeCollection? collection, string name)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException("collection");
+            }
+
+            foreach (XmlAttribute item in collection)
+            {
+                if (item.Name == name)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static XmlAttribute Find(this XmlAttributeCollection? collection, string name)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException("collection");
+            }
+
+            foreach (XmlAttribute item in collection)
+            {
+                if (item.Name == name)
+                {
+                    return item;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         ///      Checks if one or more of the given itemstrings are contained in the target item
         /// </summary>

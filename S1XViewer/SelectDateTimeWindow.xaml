@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:S1XViewer"
         mc:Ignorable="d"
-        Title="Select DateTime Within Timeframe" Height="209" Width="306">
+        Title="Select DateTime Within Timeframe" Height="209" Width="306" Icon="/Paomedia-Small-N-Flat-Map.ico">
     <Grid HorizontalAlignment="Center" Width="300" Height="176" VerticalAlignment="Top">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="203*"/>
