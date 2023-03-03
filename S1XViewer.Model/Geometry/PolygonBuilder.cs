@@ -71,6 +71,7 @@ namespace S1XViewer.Model.Geometry
 
                 // parse the exterior linearring
                 var spatialReferenceSystem = SpatialReference.Create(_spatialReferenceSystem);
+                var currentCulture = Thread.CurrentThread.CurrentCulture;
 
                 var segments = new List<List<MapPoint>>();
                 var exteriorNode = node["gml:exterior"];
@@ -94,10 +95,14 @@ namespace S1XViewer.Model.Geometry
                             {
                                 var latitudes = new double[splittedPositionArray.Length];
                                 var longitudes = new double[splittedPositionArray.Length];
-
+                                
                                 Parallel.For(0, splittedPositionArray.Length, index =>
                                 {
-                                    if (double.TryParse(splittedPositionArray[index], NumberStyles.Float, new CultureInfo("en-US"), out double positionValue) == true)
+                                    // try to avoid this overload since this one is quite a bit slower than the simple TryParse! 
+                                    //if (double.TryParse(splittedPositionArray[index], NumberStyles.Float, new CultureInfo("en-US"), out double positionValue) == true)
+                                    if (double.TryParse(
+                                        splittedPositionArray[index].Replace(splittedPositionArray[index].Contains('.') ? "." : ",", currentCulture.NumberFormat.NumberDecimalSeparator), 
+                                        out double positionValue) == true)
                                     {
                                         if (((BigInteger)index).IsEven)
                                         {
@@ -122,23 +127,8 @@ namespace S1XViewer.Model.Geometry
                                     }
                                 }
 
-                                //for (int i = 0; i < splittedPositionArray.Length; i += 2)
-                                //{
-                                //    if (double.TryParse(splittedPositionArray[i], NumberStyles.Float, new CultureInfo("en-US"), out double x) == true)
-                                //    {
-                                //        if (double.TryParse(splittedPositionArray[i + 1], NumberStyles.Float, new CultureInfo("en-US"), out double y) == true)
-                                //        {
-                                //            if (invertLatLon)
-                                //            {
-                                //                exteriorMapPoints.Add(new MapPoint(y, x, spatialReferenceSystem));
-                                //            }
-                                //            else
-                                //            {
-                                //                exteriorMapPoints.Add(new MapPoint(x, y, spatialReferenceSystem));
-                                //            }
-                                //        }
-                                //    }
-                                //}
+                                longitudes = null;
+                                latitudes = null;
                             }
                         }
 
@@ -170,7 +160,11 @@ namespace S1XViewer.Model.Geometry
 
                                 Parallel.For(0, splittedPositionArray.Length, index =>
                                 {
-                                    if (double.TryParse(splittedPositionArray[index], NumberStyles.Float, new CultureInfo("en-US"), out double positionValue) == true)
+                                    // try to avoid this overload since this one is quite a bit slower than the simple TryParse!
+                                    //if (double.TryParse(splittedPositionArray[index], NumberStyles.Float, new CultureInfo("en-US"), out double positionValue) == true)
+                                    if (double.TryParse(
+                                        splittedPositionArray[index].Replace(splittedPositionArray[index].Contains('.') ? "." : ",", currentCulture.NumberFormat.NumberDecimalSeparator),
+                                        out double positionValue) == true)
                                     {
                                         if (((BigInteger)index).IsEven)
                                         {
@@ -195,23 +189,8 @@ namespace S1XViewer.Model.Geometry
                                     }
                                 }
 
-                                //for (int i = 0; i < splittedPositionArray.Length; i += 2)
-                                //{
-                                //    if (double.TryParse(splittedPositionArray[i], NumberStyles.Float, new CultureInfo("en-US"), out double x) == true)
-                                //    {
-                                //        if (double.TryParse(splittedPositionArray[i + 1], NumberStyles.Float, new CultureInfo("en-US"), out double y) == true)
-                                //        {
-                                //            if (invertLatLon)
-                                //            {
-                                //                interiorMapPoints.Add(new MapPoint(y, x, spatialReferenceSystem));
-                                //            }
-                                //            else
-                                //            {
-                                //                interiorMapPoints.Add(new MapPoint(x, y, spatialReferenceSystem));
-                                //            }
-                                //        }
-                                //    }
-                                //}
+                                longitudes = null;
+                                latitudes = null;
                             }
                         }
 

@@ -31,7 +31,8 @@
         </StackPanel>
         <DockPanel>
             <StatusBar DockPanel.Dock="Bottom" x:Name="statusBar" HorizontalAlignment="Stretch" Height="27" VerticalAlignment="Bottom" >
-                <ProgressBar x:Name="progressBar" Height="10" Width="200" Margin="5,0,0,0" Minimum="0" Maximum="100"/>
+                <ProgressBar x:Name="progressBar" Height="10" Width="200" Margin="5,5,0,0" Minimum="0" Maximum="100"/>
+                <Label x:Name="labelStatus" Content="" Width="1056" Height="24" FontSize="10"/>
             </StatusBar>
             <DockPanel DockPanel.Dock="Bottom">
                 <GroupBox Header="Feature Selection">

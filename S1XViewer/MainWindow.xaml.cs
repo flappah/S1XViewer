@@ -13,6 +13,7 @@ using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -133,7 +134,7 @@ namespace S1XViewer
             _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
-            myMapView.Map.OperationalLayers.Clear();
+            myMapView?.Map?.OperationalLayers.Clear();
         }
 
         /// <summary>
@@ -158,7 +159,7 @@ namespace S1XViewer
         public void AutoOpen_Click(object sender, RoutedEventArgs e)
         {
             var fileName = ((MenuItem)sender).Header.ToString();
-            if (fileName.ToLower().Contains(".xml") || fileName.ToLower().Contains(".gml"))
+            if (fileName?.ToLower().Contains(".xml") == true|| fileName?.ToLower().Contains(".gml") == true)
             {
                 LoadGMLFile(fileName);
             }
@@ -185,32 +186,64 @@ namespace S1XViewer
         /// <summary>
         ///     Loads the specified exchange set XML file
         /// </summary>
-        /// <param name="fileName"></param>
-        private async Task LoadExchangeSet(string fileName)
+        /// <param name="fullFileName"></param>
+        private async Task LoadExchangeSet(string fullFileName)
         {
             var exchangeSetLoader = _container.Resolve<IExchangesetLoader>();
-            var xmlDocument = exchangeSetLoader.Load(fileName);
+            var xmlDocument = exchangeSetLoader.Load(fullFileName);
             (var productStandard, var productFileNames) = exchangeSetLoader.Parse(xmlDocument);
 
-            if (productStandard.ToUpper().In("S-104", "S-111"))
+            if (productStandard?.ToUpper().In("S-104", "S-111") == true)
             {
                 string selectedFileName = string.Empty;
+                DateTime? selectedDateTime = DateTime.Now;
                 if (productFileNames.Count > 1)
                 {
                     var selectDatasetWindow = new SelectDatasetWindow();
                     selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                     selectDatasetWindow.ShowDialog();
-
                     selectedFileName = selectDatasetWindow.SelectedFilename;
+
+                    var filename = selectedFileName.LastPart(@"\");
+                    if (string.IsNullOrEmpty(filename) == false)
+                    {
+                        var xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
+                        xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
+
+                        var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='{filename}']", xmlNSMgr);
+                        if (datasetDiscoveryMetadataNode != null && datasetDiscoveryMetadataNode.ChildNodes.Count > 0)
+                        {
+                            DateTime beginTime = DateTime.Now;
+                            var beginTimeNode = datasetDiscoveryMetadataNode.SelectSingleNode(@"S100XC:temporalExtent/S100XC:timeInstantBegin", xmlNSMgr);
+                            if (beginTimeNode != null && beginTimeNode.HasChildNodes)
+                            {
+                                DateTime.TryParse(beginTimeNode.InnerText, out beginTime);
+                            }
+
+                            DateTime endTime = DateTime.Now;
+                            var endTimeNode = datasetDiscoveryMetadataNode.SelectSingleNode(@"S100XC:temporalExtent/S100XC:timeInstantEnd", xmlNSMgr);
+                            if (endTimeNode != null && endTimeNode.HasChildNodes)
+                            {
+                                DateTime.TryParse(endTimeNode.InnerText, out endTime);
+                            }
+
+                            var selectDateTimeWindow = new SelectDateTimeWindow();
+                            selectDateTimeWindow.textblockInfo.Text = $"Values available from {beginTime.ToUniversalTime().ToString()} UTC to {endTime.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
+                            selectDateTimeWindow.datePicker.DisplayDateStart = beginTime.ToUniversalTime();
+                            selectDateTimeWindow.datePicker.DisplayDateEnd = endTime.ToUniversalTime();
+                            selectDateTimeWindow.ShowDialog();
+                            selectedDateTime = selectDateTimeWindow.SelectedDateTime;
+                        }
+                    }
                 }
                 else if (productFileNames.Count == 1)
                 {
                     selectedFileName = productFileNames[0];
                 }
 
-                if (String.IsNullOrEmpty(selectedFileName) == false)
+                if (String.IsNullOrEmpty(selectedFileName) == false && selectedDateTime != null)
                 {
-                    await LoadHDF5File(selectedFileName);
+                    await LoadHDF5File(selectedFileName, selectedDateTime);
                 }
             }
             else if (productFileNames.Count > 1)
@@ -287,12 +320,13 @@ namespace S1XViewer
         }
         
         /// <summary>
-                 ///     Loads the specified HDF5 file
-                 /// </summary>
-                 /// <param name="fileName"></param>
-        private async Task LoadHDF5File(string fileName)
+        ///     Loads the specified HDF5 file
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="selectedDateTime"></param>
+        private async Task LoadHDF5File(string fileName, DateTime? selectedDateTime)
         {
-            Title = $"S1xx Viewer ({fileName.LastPart(@"\")})";
+            Title = $"IHO S1xx standard Viewer ({fileName.LastPart(@"\")})";
             _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
@@ -305,16 +339,54 @@ namespace S1XViewer
                 myMapView?.Map?.OperationalLayers?.Add(encLayer);
             }
 
+            progressBar.Value = 50;
             try
             {
-                //var H5FileId = HDF5DotNet.H5F.open(fileName, H5F.OpenMode.ACC_RDONLY);
+                _syncContext.Post(new SendOrPostCallback(txt =>
+                {
+                    if (txt != null)
+                    {
+                        labelStatus.Content = $"Loading {txt} ..";                       
+                    }
+                }), fileName);
+
+                var datetimeStart = DateTime.Now;
+
+                // load HDF file
+                HDF5CSharp.DataTypes.Hdf5Element tree = HDF5CSharp.Hdf5.ReadTreeFileStructure(fileName);
 
 
-                //HDF5DotNet.H5F.close(H5FileId);
+
+                var elapsedTime = (DateTime.Now - datetimeStart).ToString();
+
+                _syncContext.Post(new SendOrPostCallback(txt =>
+                {
+                    if (txt != null)
+                    {
+                        labelStatus.Content = $"Load time: {txt} seconds ..";
+                        progressBar.Value = 0;
+                    }
+                }), elapsedTime);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                BackgroundWorker bgw = new();
+                bgw.DoWork += delegate
+                {
+                    Task.Delay(5000).Wait();
+                };
+                bgw.RunWorkerCompleted += delegate
+                {
+                    _syncContext.Post(new SendOrPostCallback((o) =>
+                    {
+                        labelStatus.Content = "";
+                    }), "");
+                };
+                bgw.RunWorkerAsync();
             }
         }
 
@@ -324,7 +396,7 @@ namespace S1XViewer
         /// <param name="fileName">fileName</param>
         private async Task LoadGMLFile(string fileName)
         {
-            Title = $"S1xx Viewer ({fileName.LastPart(@"\")})";
+            Title = $"IHO S1xx standard Viewer ({fileName.LastPart(@"\")})";
             _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
@@ -343,9 +415,18 @@ namespace S1XViewer
                 xmlDoc.Load(fileName);
                 SaveRecentFile(fileName);
 
+                _syncContext.Post(new SendOrPostCallback(txt =>
+                {
+                    if (txt != null)
+                    {
+                        labelStatus.Content = $"Loading {txt} ..";
+                    }
+                }), fileName);
+
                 IDataPackageParser dataParser = _container.Resolve<IDataPackageParser>();
                 var dataPackageParser = await dataParser.GetDataParserAsync(xmlDoc).ConfigureAwait(false);
-                dataPackageParser.Progress += new ProgressFunction((p) => {
+                dataPackageParser.Progress += new ProgressFunction((p) =>
+                {
                     _syncContext.Post(new SendOrPostCallback(o =>
                     {
                         if (o != null)
@@ -357,7 +438,15 @@ namespace S1XViewer
 
                 var datetimeStart = DateTime.Now;
                 var dataPackage = await dataPackageParser.ParseAsync(xmlDoc).ConfigureAwait(false);
-                var elapsedTime = DateTime.Now - datetimeStart;
+                var elapsedTime = (DateTime.Now - datetimeStart).ToString();
+
+                _syncContext.Post(new SendOrPostCallback(txt =>
+                {
+                    if (txt != null)
+                    {
+                        labelStatus.Content = $"Load time: {txt} seconds ..";
+                    }
+                }), elapsedTime);
 
                 if (dataPackage.Type == S1xxTypes.Null)
                 {
@@ -380,13 +469,29 @@ namespace S1XViewer
                             ShowMetaFeatures((IS1xxDataPackage)o);
                         }
                     }), dataPackage);
-                     
+
                     _dataPackages.Add(dataPackage);
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                BackgroundWorker bgw = new();
+                bgw.DoWork += delegate
+                {
+                    Task.Delay(5000).Wait();
+                };
+                bgw.RunWorkerCompleted += delegate
+                {
+                    _syncContext.Post(new SendOrPostCallback((o) =>
+                    {
+                        labelStatus.Content = "";
+                    }), "");
+                };
+                bgw.RunWorkerAsync();
             }
         }
 

@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace S1XViewer.Model
 {
-    public class S111DataParser : DataParserBase, IS111DataParser
+    public class S111DCF8DataParser : DataParserBase, IS111DCF8DataParser
     {
         public delegate void ProgressFunction(double percentage);
         public override event IDataParser.ProgressFunction? Progress;
