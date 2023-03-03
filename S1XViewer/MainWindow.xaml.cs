@@ -22,7 +22,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Xml;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
@@ -35,7 +34,7 @@ namespace S1XViewer
     {
         private readonly Autofac.IContainer _container;
         private List<IS1xxDataPackage> _dataPackages = new List<IS1xxDataPackage>();
-        private SynchronizationContext _syncContext;
+        private SynchronizationContext? _syncContext;
 
         public MainWindow()
         {
@@ -44,7 +43,7 @@ namespace S1XViewer
             _container = AutofacInitializer.Initialize();
             _syncContext = SynchronizationContext.Current;
 
-            this.Title += " v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            this.Title += " v" + Assembly.GetExecutingAssembly().GetName()?.Version?.ToString() ?? "";
 
             _ = Task.Factory.StartNew(() =>
             {
@@ -264,7 +263,6 @@ namespace S1XViewer
             }
         }
 
-
         /// <summary>
         ///     Loads the specified ENC file
         /// </summary>
@@ -342,7 +340,7 @@ namespace S1XViewer
             progressBar.Value = 50;
             try
             {
-                _syncContext.Post(new SendOrPostCallback(txt =>
+                _syncContext?.Post(new SendOrPostCallback(txt =>
                 {
                     if (txt != null)
                     {
@@ -359,7 +357,7 @@ namespace S1XViewer
 
                 var elapsedTime = (DateTime.Now - datetimeStart).ToString();
 
-                _syncContext.Post(new SendOrPostCallback(txt =>
+                _syncContext?.Post(new SendOrPostCallback(txt =>
                 {
                     if (txt != null)
                     {
@@ -381,7 +379,7 @@ namespace S1XViewer
                 };
                 bgw.RunWorkerCompleted += delegate
                 {
-                    _syncContext.Post(new SendOrPostCallback((o) =>
+                    _syncContext?.Post(new SendOrPostCallback((o) =>
                     {
                         labelStatus.Content = "";
                     }), "");
@@ -415,7 +413,7 @@ namespace S1XViewer
                 xmlDoc.Load(fileName);
                 SaveRecentFile(fileName);
 
-                _syncContext.Post(new SendOrPostCallback(txt =>
+                _syncContext?.Post(new SendOrPostCallback(txt =>
                 {
                     if (txt != null)
                     {
@@ -427,7 +425,7 @@ namespace S1XViewer
                 var dataPackageParser = await dataParser.GetDataParserAsync(xmlDoc).ConfigureAwait(false);
                 dataPackageParser.Progress += new ProgressFunction((p) =>
                 {
-                    _syncContext.Post(new SendOrPostCallback(o =>
+                    _syncContext?.Post(new SendOrPostCallback(o =>
                     {
                         if (o != null)
                         {
@@ -440,7 +438,7 @@ namespace S1XViewer
                 var dataPackage = await dataPackageParser.ParseAsync(xmlDoc).ConfigureAwait(false);
                 var elapsedTime = (DateTime.Now - datetimeStart).ToString();
 
-                _syncContext.Post(new SendOrPostCallback(txt =>
+                _syncContext?.Post(new SendOrPostCallback(txt =>
                 {
                     if (txt != null)
                     {
@@ -454,7 +452,7 @@ namespace S1XViewer
                 }
                 else
                 {
-                    _syncContext.Post(new SendOrPostCallback(o =>
+                    _syncContext?.Post(new SendOrPostCallback(o =>
                     {
                         if (o != null)
                         {
@@ -462,7 +460,7 @@ namespace S1XViewer
                         }
                     }), dataPackage);
 
-                    _syncContext.Post(new SendOrPostCallback(o =>
+                    _syncContext?.Post(new SendOrPostCallback(o =>
                     {
                         if (o != null)
                         {
@@ -486,7 +484,7 @@ namespace S1XViewer
                 };
                 bgw.RunWorkerCompleted += delegate
                 {
-                    _syncContext.Post(new SendOrPostCallback((o) =>
+                    _syncContext?.Post(new SendOrPostCallback((o) =>
                     {
                         labelStatus.Content = "";
                     }), "");
