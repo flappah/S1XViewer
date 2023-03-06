@@ -47,7 +47,7 @@ namespace S1XViewer.Model
             var boundingBoxNodes = xmlDocument.GetElementsByTagName("gml:boundedBy");
             if (boundingBoxNodes != null && boundingBoxNodes.Count > 0)
             {
-                dataPackage.BoundingBox = _geometryBuilderFactory.FromXml(boundingBoxNodes[0], nsmgr);
+                dataPackage.BoundingBox = _geometryBuilderFactory.Create(boundingBoxNodes[0], nsmgr);
             }
 
             // retrieve imembers
@@ -87,7 +87,7 @@ namespace S1XViewer.Model
                         var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
                         if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                         {
-                            geoFeature.Geometry = _geometryBuilderFactory.FromXml(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                            geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
                         }
 
                         geoFeatures.Add(geoFeature);
@@ -99,7 +99,7 @@ namespace S1XViewer.Model
                             var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
                             if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                             {
-                                metaFeature.Geometry = _geometryBuilderFactory.FromXml(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
                             }
 
                             metaFeatures.Add(metaFeature);
@@ -155,7 +155,7 @@ namespace S1XViewer.Model
             var boundingBoxNodes = xmlDocument.GetElementsByTagName("gml:boundedBy");
             if (boundingBoxNodes != null && boundingBoxNodes.Count > 0)
             {
-                dataPackage.BoundingBox = _geometryBuilderFactory.FromXml(boundingBoxNodes[0], nsmgr);
+                dataPackage.BoundingBox = _geometryBuilderFactory.Create(boundingBoxNodes[0], nsmgr);
             }
 
             // retrieve imembers
@@ -184,7 +184,7 @@ namespace S1XViewer.Model
                     var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
                     if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                     {
-                        geoFeature.Geometry = _geometryBuilderFactory.FromXml(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                        geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
                     }
 
                     geoFeatures.Add(geoFeature);
@@ -196,7 +196,7 @@ namespace S1XViewer.Model
                         var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
                         if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                         {
-                            metaFeature.Geometry = _geometryBuilderFactory.FromXml(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                            metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
                         }
 
                         metaFeatures.Add(metaFeature);

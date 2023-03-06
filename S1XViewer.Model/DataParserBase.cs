@@ -1,8 +1,5 @@
 ﻿using S1XViewer.Model.Interfaces;
 using S1XViewer.Types.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace S1XViewer.Model

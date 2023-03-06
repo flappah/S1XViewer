@@ -11,7 +11,12 @@ namespace S1XViewer.Model
         /// <summary>
         ///     Uses Autofac to insert all existing dataparsers in this property.
         /// </summary>
-        public IDataParser[] DataParsers { get; set; } 
+        public IDataParser[] DataParsers { get; set; }
+
+        /// <summary>
+        ///     If standard is specified it takes preference above the standard found in the GML file
+        /// </summary>
+        public string UseStandard { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -30,8 +35,17 @@ namespace S1XViewer.Model
                 throw new Exception("No Dataparsers!");
             }
 
-            string namespaceName = xmlDocument.DocumentElement?.Name ?? string.Empty;
-            string s12xTypeString = namespaceName.Substring(0, namespaceName.IndexOf(":"));
+            string s12xTypeString = string.Empty;
+            if (String.IsNullOrEmpty(UseStandard) == true)
+            {
+                string namespaceName = xmlDocument.DocumentElement?.Name ?? string.Empty;
+                s12xTypeString = namespaceName.Substring(0, namespaceName.IndexOf(":"));
+            }
+            else
+            {
+                s12xTypeString = UseStandard;
+            }
+
             S1xxTypes s12xType;
             try
             {
@@ -71,8 +85,17 @@ namespace S1XViewer.Model
                 throw new Exception("No Dataparsers!");
             }
 
-            string namespaceName = xmlDocument.DocumentElement?.Name ?? string.Empty;
-            string s12xTypeString = namespaceName.Substring(0, namespaceName.IndexOf(":"));
+            string s12xTypeString = string.Empty;
+            if (String.IsNullOrEmpty(UseStandard) == true)
+            {
+                string namespaceName = xmlDocument.DocumentElement?.Name ?? string.Empty;
+                s12xTypeString = namespaceName.Substring(0, namespaceName.IndexOf(":"));
+            }
+            else
+            {
+                s12xTypeString = UseStandard;
+            }
+
             S1xxTypes s12xType;
             try
             {

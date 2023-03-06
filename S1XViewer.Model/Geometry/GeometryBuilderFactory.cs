@@ -10,7 +10,7 @@ namespace S1XViewer.Model.Geometry
     {
         public IGeometryBuilder[] Builders { get; set; }
 
-        public Esri.ArcGISRuntime.Geometry.Geometry FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public Esri.ArcGISRuntime.Geometry.Geometry Create(XmlNode node, XmlNamespaceManager mgr)
         {
             string geometryTypeString;
 

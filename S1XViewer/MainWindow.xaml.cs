@@ -7,6 +7,7 @@ using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.UI.Controls;
 using Microsoft.Win32;
 using S1XViewer.Base;
+using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
@@ -114,7 +115,7 @@ namespace S1XViewer
                 }
                 else if (fileName.ToUpper().Contains(".XML") || fileName.ToUpper().Contains(".GML"))
                 {
-                    LoadGMLFile(fileName);
+                    LoadGMLFile("", fileName);
                 }
                 else if (fileName.Contains(".031"))
                 {
@@ -160,7 +161,7 @@ namespace S1XViewer
             var fileName = ((MenuItem)sender).Header.ToString();
             if (fileName?.ToLower().Contains(".xml") == true|| fileName?.ToLower().Contains(".gml") == true)
             {
-                LoadGMLFile(fileName);
+                LoadGMLFile("", fileName);
             }
         }
 
@@ -192,7 +193,8 @@ namespace S1XViewer
             var xmlDocument = exchangeSetLoader.Load(fullFileName);
             (var productStandard, var productFileNames) = exchangeSetLoader.Parse(xmlDocument);
 
-            if (productStandard?.ToUpper().In("S-104", "S-111") == true)
+            productStandard = productStandard?.Replace("-", "").ToUpper() ?? string.Empty;
+            if (productStandard.In("S104", "S111") == true)
             {
                 string selectedFileName = string.Empty;
                 DateTime? selectedDateTime = DateTime.Now;
@@ -242,7 +244,7 @@ namespace S1XViewer
 
                 if (String.IsNullOrEmpty(selectedFileName) == false && selectedDateTime != null)
                 {
-                    await LoadHDF5File(selectedFileName, selectedDateTime);
+                    await LoadHDF5File(productStandard, selectedFileName, selectedDateTime);
                 }
             }
             else if (productFileNames.Count > 1)
@@ -254,12 +256,12 @@ namespace S1XViewer
                 var selectedFileName = selectDatasetWindow.SelectedFilename;
                 if (String.IsNullOrEmpty(selectedFileName) == false)
                 {
-                    await LoadGMLFile(selectedFileName);
+                    await LoadGMLFile(productStandard, selectedFileName);
                 }
             }
             else if (productFileNames.Count == 1)
             {
-                await LoadGMLFile(productFileNames[0]);
+                await LoadGMLFile(productStandard, productFileNames[0]);
             }
         }
 
@@ -320,9 +322,10 @@ namespace S1XViewer
         /// <summary>
         ///     Loads the specified HDF5 file
         /// </summary>
+        /// <param name="productStandard"></param>
         /// <param name="fileName"></param>
         /// <param name="selectedDateTime"></param>
-        private async Task LoadHDF5File(string fileName, DateTime? selectedDateTime)
+        private async Task LoadHDF5File(string productStandard, string fileName, DateTime? selectedDateTime)
         {
             Title = $"IHO S1xx standard Viewer ({fileName.LastPart(@"\")})";
             _dataPackages.Clear();
@@ -337,21 +340,26 @@ namespace S1XViewer
                 myMapView?.Map?.OperationalLayers?.Add(encLayer);
             }
 
-            progressBar.Value = 50;
             try
             {
                 _syncContext?.Post(new SendOrPostCallback(txt =>
                 {
-                    if (txt != null)
-                    {
-                        labelStatus.Content = $"Loading {txt} ..";                       
-                    }
+                    progressBar.Value = 50;
+                    labelStatus.Content = $"Loading {txt} ..";
+
                 }), fileName);
 
                 var datetimeStart = DateTime.Now;
 
                 // load HDF file
-                HDF5CSharp.DataTypes.Hdf5Element tree = HDF5CSharp.Hdf5.ReadTreeFileStructure(fileName);
+                //HDF5CSharp.DataTypes.Hdf5Element tree = HDF5CSharp.Hdf5.ReadTreeFileStructure(fileName);
+
+                // now find out which codingformat is to be used to determine S111 dataparser
+                IProductSupportFactory productSupportFactory = _container.Resolve<IProductSupportFactory>();
+                IProductSupportBase productSupport = productSupportFactory.Create(productStandard);
+                int dataCodingFormat = productSupport.GetDataCodingFormat(fileName);
+
+
 
 
 
@@ -391,8 +399,9 @@ namespace S1XViewer
         /// <summary>
         ///     Loads the specified GML file
         /// </summary>
+        /// <param name="productStandard">standard to process data on</param>
         /// <param name="fileName">fileName</param>
-        private async Task LoadGMLFile(string fileName)
+        private async Task LoadGMLFile(string productStandard, string fileName)
         {
             Title = $"IHO S1xx standard Viewer ({fileName.LastPart(@"\")})";
             _dataPackages.Clear();
@@ -422,6 +431,7 @@ namespace S1XViewer
                 }), fileName);
 
                 IDataPackageParser dataParser = _container.Resolve<IDataPackageParser>();
+                dataParser.UseStandard = productStandard;
                 var dataPackageParser = await dataParser.GetDataParserAsync(xmlDoc).ConfigureAwait(false);
                 dataPackageParser.Progress += new ProgressFunction((p) =>
                 {
