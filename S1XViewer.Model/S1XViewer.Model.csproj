@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.5.0" />
     <PackageReference Include="Esri.ArcGISRuntime" Version="200.0.0" />
+    <PackageReference Include="HDF5-CSharp" Version="1.16.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,9 +23,29 @@ namespace S1XViewer.Model
         /// <exception cref="NotImplementedException"></exception>
         public override async Task<IS1xxDataPackage> ParseAsync(string hdf5FileName)
         {
+            Progress?.Invoke(50);
 
-            // load HDF file
-            //HDF5CSharp.DataTypes.Hdf5Element tree = HDF5CSharp.Hdf5.ReadTreeFileStructure(fileName);
+            var hdf5Results = await Task.Factory.StartNew((name) =>
+            {
+                // load HDF file, spawned in a seperate task to keep UI responsive!
+                HDF5CSharp.DataTypes.Hdf5Element tree = HDF5CSharp.Hdf5.ReadTreeFileStructure(name.ToString());
+                return tree;
+
+            }, hdf5FileName).ConfigureAwait(false);
+
+            // now retrieve positions 
+
+
+
+            // retrieve directions and current speeds
+
+
+
+            // build up featutes and wrap 'em in datapackage
+
+
+
+            Progress?.Invoke(100);
 
             return new S1xxDataPackage
             {

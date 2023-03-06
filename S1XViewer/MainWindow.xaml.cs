@@ -369,12 +369,7 @@ namespace S1XViewer
                     }), p);
                 });
 
-                var dataPackage = await dataPackageParser.ParseAsync(fileName);
-                if (dataPackage != null)
-                {
-
-                }
-
+                var dataPackage = await dataPackageParser.ParseAsync(fileName).ConfigureAwait(false);
                 var elapsedTime = (DateTime.Now - datetimeStart).ToString();
 
                 _syncContext?.Post(new SendOrPostCallback(txt =>
