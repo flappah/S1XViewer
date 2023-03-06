@@ -344,7 +344,6 @@ namespace S1XViewer
             {
                 _syncContext?.Post(new SendOrPostCallback(txt =>
                 {
-                    progressBar.Value = 50;
                     labelStatus.Content = $"Loading {txt} ..";
 
                 }), fileName);
@@ -358,6 +357,12 @@ namespace S1XViewer
                 IProductSupportFactory productSupportFactory = _container.Resolve<IProductSupportFactory>();
                 IProductSupportBase productSupport = productSupportFactory.Create(productStandard);
                 int dataCodingFormat = productSupport.GetDataCodingFormat(fileName);
+
+                IDataPackageParser dataParser = _container.Resolve<IDataPackageParser>();
+                dataParser.UseStandard = productStandard;
+                
+
+
 
 
 
@@ -432,7 +437,7 @@ namespace S1XViewer
 
                 IDataPackageParser dataParser = _container.Resolve<IDataPackageParser>();
                 dataParser.UseStandard = productStandard;
-                var dataPackageParser = await dataParser.GetDataParserAsync(xmlDoc).ConfigureAwait(false);
+                var dataPackageParser = dataParser.GetDataParser(xmlDoc);
                 dataPackageParser.Progress += new ProgressFunction((p) =>
                 {
                     _syncContext?.Post(new SendOrPostCallback(o =>

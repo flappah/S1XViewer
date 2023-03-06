@@ -11,9 +11,12 @@ namespace S1XViewer.Model.Interfaces
         /// </summary>
         string UseStandard { get; set; }
 
-        Task<IDataParser> GetDataParserAsync(XmlDocument xmlDocument);
         IDataParser GetDataParser(XmlDocument xmlDocument);
+        IDataParser GetDataParser(byte dataCodingFormat);
+
         Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument);
+        Task<IS1xxDataPackage> ParseAsync(string fileName);
         IS1xxDataPackage Parse(XmlDocument xmlDocument);
+        IS1xxDataPackage Parse(string fileName);
     }
 }
