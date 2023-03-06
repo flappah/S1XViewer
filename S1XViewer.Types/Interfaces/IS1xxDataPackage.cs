@@ -10,6 +10,6 @@ namespace S1XViewer.Types.Interfaces
         IInformationFeature[] InformationFeatures { get; set; }
         IGeoFeature[] GeoFeatures { get; set; }
         Geometry BoundingBox { get; set; }
-        XmlDocument RawData { get; set; }
+        XmlDocument RawXmlData { get; set; }
     }
 }

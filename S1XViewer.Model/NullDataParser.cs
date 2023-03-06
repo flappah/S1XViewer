@@ -22,16 +22,11 @@ namespace S1XViewer.Model
             return new S1xxDataPackage
             {
                 Type = S1xxTypes.Null,
-                RawData = xmlDocument,
+                RawXmlData = xmlDocument,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature [0],
                 InformationFeatures = new IInformationFeature[0]
             };
-        }
-
-        public override IS1xxDataPackage Parse(long hdf5FileId)
-        {
-            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -44,16 +39,21 @@ namespace S1XViewer.Model
             return new S1xxDataPackage
             {
                 Type = S1xxTypes.Null,
-                RawData = xmlDocument,
+                RawXmlData = xmlDocument,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
             };
         }
 
-        public override Task<IS1xxDataPackage> ParseAsync(long hdf5FileId)
+        public override Task<IS1xxDataPackage> ParseAsync(string hdf5FileName)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public override IS1xxDataPackage Parse(string hdf5FileName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

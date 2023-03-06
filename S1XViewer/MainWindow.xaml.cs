@@ -350,23 +350,30 @@ namespace S1XViewer
 
                 var datetimeStart = DateTime.Now;
 
-                // load HDF file
-                //HDF5CSharp.DataTypes.Hdf5Element tree = HDF5CSharp.Hdf5.ReadTreeFileStructure(fileName);
-
                 // now find out which codingformat is to be used to determine S111 dataparser
                 IProductSupportFactory productSupportFactory = _container.Resolve<IProductSupportFactory>();
                 IProductSupportBase productSupport = productSupportFactory.Create(productStandard);
-                int dataCodingFormat = productSupport.GetDataCodingFormat(fileName);
+                short dataCodingFormat = productSupport.GetDataCodingFormat(fileName);
 
                 IDataPackageParser dataParser = _container.Resolve<IDataPackageParser>();
                 dataParser.UseStandard = productStandard;
-                
+                var dataPackageParser = dataParser.GetDataParser(dataCodingFormat);
+                dataPackageParser.Progress += new ProgressFunction((p) =>
+                {
+                    _syncContext?.Post(new SendOrPostCallback(o =>
+                    {
+                        if (o != null)
+                        {
+                            progressBar.Value = (double)o;
+                        }
+                    }), p);
+                });
 
+                var dataPackage = await dataPackageParser.ParseAsync(fileName);
+                if (dataPackage != null)
+                {
 
-
-
-
-
+                }
 
                 var elapsedTime = (DateTime.Now - datetimeStart).ToString();
 
@@ -378,6 +385,13 @@ namespace S1XViewer
                         progressBar.Value = 0;
                     }
                 }), elapsedTime);
+
+                // now process data for display in ESRI ArcGIS viewmodel
+
+
+
+
+
             }
             catch (Exception ex)
             {

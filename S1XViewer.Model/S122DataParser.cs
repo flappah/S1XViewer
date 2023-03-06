@@ -32,7 +32,7 @@ namespace S1XViewer.Model
             var dataPackage = new S1xxDataPackage
             {
                 Type = S1xxTypes.S122,
-                RawData = xmlDocument
+                RawXmlData = xmlDocument
             };
 
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
@@ -141,7 +141,7 @@ namespace S1XViewer.Model
             var dataPackage = new S1xxDataPackage
             {
                 Type = S1xxTypes.S122,
-                RawData = xmlDocument
+                RawXmlData = xmlDocument
             };
 
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
@@ -225,14 +225,38 @@ namespace S1XViewer.Model
             return dataPackage;
         }
 
-        public override Task<IS1xxDataPackage> ParseAsync(long hdf5FileId)
+        /// <summary>
+        ///     No implementation!
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <returns></returns>
+        public override async Task<IS1xxDataPackage> ParseAsync(string hdf5FileName)
         {
-            throw new System.NotImplementedException();
+            return new S1xxDataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawXmlData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
         }
 
-        public override IS1xxDataPackage Parse(long hdf5FileId)
+        /// <summary>
+        ///      No implementation!
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <returns></returns>
+        public override IS1xxDataPackage Parse(string hdf5FileName)
         {
-            throw new System.NotImplementedException();
+            return new S1xxDataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawXmlData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
         }
     }
 }

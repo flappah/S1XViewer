@@ -7,6 +7,6 @@
         /// </summary>
         /// <param name="tree"></param>
         /// <returns></returns>
-        int GetDataCodingFormat(string fileName);
+        short GetDataCodingFormat(string fileName);
     }
 }

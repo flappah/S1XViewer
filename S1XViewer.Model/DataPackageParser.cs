@@ -74,7 +74,7 @@ namespace S1XViewer.Model
         /// <param name="dataCodingFormat"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public IDataParser GetDataParser(byte dataCodingFormat)
+        public IDataParser GetDataParser(short dataCodingFormat)
         {
             if (DataParsers == null || DataParsers.Count() == 0)
             {

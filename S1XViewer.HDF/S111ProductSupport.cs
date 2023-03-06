@@ -14,11 +14,11 @@ namespace S1XViewer.HDF
     public class S111ProductSupport : ProductSupportBase, IS111ProductSupport
     {
         /// <summary>
-        /// 
+        ///     Retrieves the dataCodingformat
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public override int GetDataCodingFormat(string fileName)
+        public override short GetDataCodingFormat(string fileName)
         {
             var fileId = H5F.open(fileName, H5F.ACC_RDONLY, H5P.DEFAULT);
             var groupId = H5G.open(fileId, Encoding.ASCII.GetBytes("/SurfaceCurrent"), H5P.DEFAULT);

@@ -16,11 +16,11 @@ namespace S1XViewer.Model
         public abstract Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument);
 
         /// <summary>
-        ///     Parses specified XMLDocument. Async version
+        ///     Parses specified HDF5 file. Async version
         /// </summary>
-        /// <param name="hdf5FileId">HDF5 file-id</param>
+        /// <param name="hdf5FileName">HDF5 file name</param>
         /// <returns>IS1xxDataPackage</returns>
-        public abstract Task<IS1xxDataPackage> ParseAsync(long hdf5FileId);
+        public abstract Task<IS1xxDataPackage> ParseAsync(string hdf5FileName);
 
         /// <summary>
         /// Parses specified XMLDocument. 
@@ -31,11 +31,11 @@ namespace S1XViewer.Model
         public abstract IS1xxDataPackage Parse(XmlDocument xmlDocument);
 
         /// <summary>
-        ///     Parses specified XMLDocument. Async version
+        ///     Parses specified HDF5 file
         /// </summary>
         /// <param name="hdf5FileId">HDF5 file-id</param>
         /// <returns>IS1xxDataPackage</returns>
-        public abstract IS1xxDataPackage Parse(long hdf5FileId);
+        public abstract IS1xxDataPackage Parse(string hdf5FileName);
 
         /// <summary>
         /// Resolves specified links by looking in the specified lists for the requested ID's

@@ -14,6 +14,6 @@ namespace S1XViewer.HDF
         /// </summary>
         /// <param name="tree"></param>
         /// <returns></returns>
-        public abstract int GetDataCodingFormat(string fileName);
+        public abstract short GetDataCodingFormat(string fileName);
     }
 }

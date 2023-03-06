@@ -15,7 +15,7 @@ namespace S1XViewer.HDF
         /// </summary>
         /// <param name="tree"></param>
         /// <returns></returns>
-        public override int GetDataCodingFormat(string fileName)
+        public override short GetDataCodingFormat(string fileName)
         {
             return -1;
         }
