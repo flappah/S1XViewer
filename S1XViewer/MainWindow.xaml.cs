@@ -4,7 +4,9 @@ using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Hydrography;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Symbology;
+using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
+using Microsoft.Isam.Esent.Interop;
 using Microsoft.Win32;
 using S1XViewer.Base;
 using S1XViewer.HDF.Interfaces;
@@ -301,6 +303,7 @@ namespace S1XViewer
             List<Layer>? nonEncLayers =
                 myMapView?.Map?.OperationalLayers.ToList().FindAll(tp => !tp.GetType().ToString().Contains("EncLayer"));
             myMapView?.Map?.OperationalLayers.Clear();
+            myMapView?.GraphicsOverlays?.Clear();
 
             var myEncExchangeSet = new EncExchangeSet(fileName);
             // Wait for the exchange set to load
@@ -361,6 +364,7 @@ namespace S1XViewer
 
             Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
             myMapView?.Map?.OperationalLayers?.Clear();
+            myMapView?.GraphicsOverlays?.Clear();
 
             if (encLayer != null)
             {
@@ -398,11 +402,22 @@ namespace S1XViewer
                 var dataPackage = await dataPackageParser.ParseAsync(fileName, selectedDateTime).ConfigureAwait(false);
 
                 // now process data for display in ESRI ArcGIS viewmodel
+                if (dataPackage.Type == S1xxTypes.Null)
+                {
+                    MessageBox.Show($"File '{fileName}' currently can't be rendered. No DataParser is able to render the information present in the file!");
+                }
+                else
+                {
+                    _syncContext?.Post(new SendOrPostCallback(o =>
+                    {
+                        if (o != null)
+                        {
+                            CreateFeatureCollection((IS1xxDataPackage)o);
+                        }
+                    }), dataPackage);
 
-
-
-
-
+                    _dataPackages.Add(dataPackage);
+                }
             }
             catch (Exception ex)
             {
@@ -451,6 +466,7 @@ namespace S1XViewer
 
             Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
             myMapView?.Map?.OperationalLayers?.Clear();
+            myMapView?.GraphicsOverlays?.Clear();
 
             if (encLayer != null)
             {
@@ -679,6 +695,24 @@ namespace S1XViewer
         #region Methods that have connections to ArcGIS
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="startPoint"></param>
+        /// <param name="distance"></param>
+        /// <param name="bearing"></param>
+        /// <returns></returns>
+        private (double Lat, double Lon) Destination((double Lat, double Lon) startPoint, double distance, double bearing)
+        {
+            var radius = 6378001;
+            double lat1 = startPoint.Lat * (Math.PI / 180);
+            double lon1 = startPoint.Lon * (Math.PI / 180);
+            double brng = bearing * (Math.PI / 180);
+            double lat2 = Math.Asin(Math.Sin(lat1) * Math.Cos(distance / radius) + Math.Cos(lat1) * Math.Sin(distance / radius) * Math.Cos(brng));
+            double lon2 = lon1 + Math.Atan2(Math.Sin(brng) * Math.Sin(distance / radius) * Math.Cos(lat1), Math.Cos(distance / radius) - Math.Sin(lat1) * Math.Sin(lat2));
+            return (lat2 * (180 / Math.PI), lon2 * (180 / Math.PI));
+        }
+
+        /// <summary>
         ///     Creation a feature collection for rendering on the map
         /// </summary>
         /// <param name="dataPackage">S1xx dataPackage</param>
@@ -715,17 +749,25 @@ namespace S1XViewer
 
             // Create a label definition from the JSON string. 
             LabelDefinition idLabelDefinition = LabelDefinition.FromJson(theJSON_String);
-
-            List<Field> polyFields = new List<Field>();
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
-            polyFields.Add(idField);
-            polyFields.Add(nameField);
+
+            List<Field> polyFields = new List<Field>
+            {
+                idField,
+                nameField
+            };
 
             List<Field> pointFields = new List<Field>
             {
                 idField,
                 nameField
+            };
+
+            List<Field> pointVectorFields = new List<Field>
+            {
+                idField,
+                nameField,
             };
 
             List<Field> lineFields = new List<Field>
@@ -752,20 +794,97 @@ namespace S1XViewer
                 DisplayName = "Points"
             };
 
+            FeatureCollectionTable vectorTable = new FeatureCollectionTable(pointVectorFields, GeometryType.Point, SpatialReferences.Wgs84)
+            {
+                Renderer = CreateRenderer(GeometryType.Point, true),
+                DisplayName = "Vectors"
+            };
+
+            var graphicsOverlay = new GraphicsOverlay() { Id = "CurrentFeatures" };
             foreach (IFeature feature in dataPackage.GeoFeatures)
             {
                 if (feature is IGeoFeature geoFeature)
                 {
-                    if (geoFeature.Geometry is Esri.ArcGISRuntime.Geometry.MapPoint)
+                    if (geoFeature.Geometry is MapPoint mapPoint)
                     {
-                        Feature pointFeature = pointTable.CreateFeature();
-                        pointFeature.SetAttributeValue(idField, feature.Id);
-                        pointFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
-                        pointFeature.Geometry = geoFeature.Geometry;
+                        if (geoFeature is IVectorFeature vectorGeoFeature)
+                        {
+                            var secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
+                            var lineGeometry = new Polyline(new List<MapPoint> { mapPoint, new MapPoint(secondPoint.Lon, secondPoint.Lat) });
 
-                        await pointTable.AddFeatureAsync(pointFeature);
+                            int speedBand = 1;
+                            System.Drawing.Color color = System.Drawing.Color.FromArgb(118, 82, 226);
+                            if (vectorGeoFeature.Speed.SpeedMaximum > 0.5 && vectorGeoFeature.Speed.SpeedMaximum <= 1.0)
+                            {
+                                speedBand = 2;
+                                color = System.Drawing.Color.FromArgb(72, 152, 211);
+                            }
+                            else if (vectorGeoFeature.Speed.SpeedMaximum > 1.0 && vectorGeoFeature.Speed.SpeedMaximum <= 2.0)
+                            {
+                                speedBand = 3;
+                                color = System.Drawing.Color.FromArgb(97, 203, 229);
+                            }
+                            else if (vectorGeoFeature.Speed.SpeedMaximum > 2.0 && vectorGeoFeature.Speed.SpeedMaximum <= 3.0)
+                            {
+                                speedBand = 4;
+                                color = System.Drawing.Color.FromArgb(109, 188, 69);
+                            }
+                            else if (vectorGeoFeature.Speed.SpeedMaximum > 3.0 && vectorGeoFeature.Speed.SpeedMaximum <= 5.0)
+                            {
+                                speedBand = 5;
+                                color = System.Drawing.Color.FromArgb(180, 220, 0);
+                            }
+                            else if (vectorGeoFeature.Speed.SpeedMaximum > 5.0 && vectorGeoFeature.Speed.SpeedMaximum <= 7.0)
+                            {
+                                speedBand = 6;
+                                color = System.Drawing.Color.FromArgb(205, 193, 0);
+                            }
+                            else if (vectorGeoFeature.Speed.SpeedMaximum > 7.0 && vectorGeoFeature.Speed.SpeedMaximum <= 10.0)
+                            {
+                                speedBand = 7;
+                                color = System.Drawing.Color.FromArgb(248, 167, 24);
+                            }
+                            else if (vectorGeoFeature.Speed.SpeedMaximum > 10.0 && vectorGeoFeature.Speed.SpeedMaximum <= 13.0)
+                            {
+                                speedBand = 8;
+                                color = System.Drawing.Color.FromArgb(247, 162, 157);
+                            }
+                            else if (vectorGeoFeature.Speed.SpeedMaximum > 13.0)
+                            {
+                                speedBand = 9;
+                                color = System.Drawing.Color.FromArgb(255, 30, 30);
+                            }
+
+
+                            var symbol = new SimpleLineSymbol();
+                            symbol.MarkerStyle = SimpleLineSymbolMarkerStyle.Arrow;
+                            symbol.Color = color;
+                            symbol.Width = 2;
+
+                            var graphic = new Graphic();
+                            graphic.Geometry = lineGeometry;
+                            graphic.Symbol = symbol;
+
+                            graphicsOverlay.Graphics.Add(graphic);
+
+                            Feature vectorFeature = vectorTable.CreateFeature();
+                            vectorFeature.SetAttributeValue(idField, feature.Id);
+                            vectorFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
+                            vectorFeature.Geometry = geoFeature.Geometry;
+
+                            await vectorTable.AddFeatureAsync(vectorFeature);
+                        }
+                        else
+                        {
+                            Feature pointFeature = pointTable.CreateFeature();
+                            pointFeature.SetAttributeValue(idField, feature.Id);
+                            pointFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
+                            pointFeature.Geometry = geoFeature.Geometry;
+
+                            await pointTable.AddFeatureAsync(pointFeature);
+                        }
                     }
-                    else if (geoFeature.Geometry is Esri.ArcGISRuntime.Geometry.Polyline)
+                    else if (geoFeature.Geometry is Polyline)
                     {
                         Feature lineFeature = linesTable.CreateFeature();
                         lineFeature.SetAttributeValue(idField, feature.Id);
@@ -792,6 +911,10 @@ namespace S1XViewer
             if (pointTable.Count() > 0)
             {
                 featuresCollection.Tables.Add(pointTable);
+            }
+            if (vectorTable.Count() > 0)
+            {
+                featuresCollection.Tables.Add(vectorTable);
             }
             if (polysTable.Count() > 0)
             {
@@ -822,6 +945,7 @@ namespace S1XViewer
 
             // Add the layer to the Map's Operational Layers collection
             myMapView.Map.OperationalLayers.Add(collectionLayer);
+            myMapView.GraphicsOverlays.Add(graphicsOverlay);
             myMapView.GeoViewTapped += OnMapViewTapped;
         }
 
@@ -964,7 +1088,7 @@ namespace S1XViewer
         /// </summary>
         /// <param name="rendererType"></param>
         /// <returns></returns>
-        private Renderer CreateRenderer(GeometryType rendererType)
+        private Renderer CreateRenderer(GeometryType rendererType, bool isVector = false)
         {
             // Return a simple renderer to match the geometry type provided
             Symbol sym = null;
@@ -974,20 +1098,28 @@ namespace S1XViewer
                 case GeometryType.Point:
                 case GeometryType.Multipoint:
                     // Create a marker symbol
-                    sym = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.X, System.Drawing.Color.Red, 10);
+                    if (isVector == true)
+                    {
+                        sym = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Black, 4);
+                    }
+                    else
+                    {
+                        sym = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.X, System.Drawing.Color.Red, 10);
+                    }
 
                     break;
+
                 case GeometryType.Polyline:
                     // Create a line symbol
                     sym = new SimpleLineSymbol(SimpleLineSymbolStyle.Dash, System.Drawing.Color.DarkGray, 3);
-
                     break;
+
                 case GeometryType.Polygon:
                     // Create a fill symbol
                     var lineSym = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.FromArgb(255, 50, 50, 50), 1);
                     sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, System.Drawing.Color.FromArgb(25, System.Drawing.Color.LightGray), lineSym);
-
                     break;
+
                 default:
                     break;
             }

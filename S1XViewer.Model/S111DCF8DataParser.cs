@@ -4,8 +4,10 @@ using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Types;
+using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
+using System;
 using System.Globalization;
 using System.Xml;
 
@@ -53,28 +55,18 @@ namespace S1XViewer.Model
                 if (hdf5Element != null)
                 {
                     var dateTimeOfFirstRecordAttribute = hdf5Element.Attributes.Find("dateTimeOfFirstRecord");
+                    string dateTimeOfFirstRecordString = dateTimeOfFirstRecordAttribute?.Value<string>(DateTime.MaxValue.ToString("yyyyMMddTHHmmssZ")) ?? DateTime.MaxValue.ToString("yyyyMMddTHHmmssZ");
+                    DateTime dateTimeOfFirstRecord =
+                        DateTime.ParseExact(dateTimeOfFirstRecordString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
+
                     var dateTimeOfLastRecordAttribute = hdf5Element.Attributes.Find("dateTimeOfLastRecord");
+                    string dateTimeOfLastRecordString = dateTimeOfLastRecordAttribute?.Value<string>(DateTime.MinValue.ToString("yyyyMMddTHHmmssZ")) ?? DateTime.MinValue.ToString("yyyyMMddTHHmmssZ");
+                    DateTime dateTimeOfLastRecord =
+                        DateTime.ParseExact(dateTimeOfLastRecordString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
 
-                    if (dateTimeOfFirstRecordAttribute != null && dateTimeOfLastRecordAttribute != null)
+                    if (selectedDateTime > dateTimeOfFirstRecord && selectedDateTime < dateTimeOfLastRecord)
                     {
-                        if (dateTimeOfFirstRecordAttribute.Values != null && dateTimeOfLastRecordAttribute.Values != null)
-                        {
-                            if (((string[])dateTimeOfFirstRecordAttribute.Values).Length > 0 &&
-                                ((string[])dateTimeOfLastRecordAttribute.Values).Length > 0)
-                            {
-                                DateTime dateTimeOfFirstRecord =
-                                    DateTime.ParseExact(((string[])dateTimeOfFirstRecordAttribute.Values)[0], "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
-
-                                DateTime dateTimeOfLastRecord =
-                                    DateTime.ParseExact(((string[])dateTimeOfLastRecordAttribute.Values)[0], "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
-
-                                if (selectedDateTime > dateTimeOfFirstRecord &&
-                                    selectedDateTime < dateTimeOfLastRecord)
-                                {
-                                    return hdf5Element;
-                                }
-                            }
-                        }
+                        return hdf5Element;
                     }
                 }
             }
@@ -169,9 +161,11 @@ namespace S1XViewer.Model
                         {
                             var startDateTimeAttribute = groupHdf5Group.Attributes.Find("startDateTime");
                             string startDateTimeString = startDateTimeAttribute?.Value<string>("") ?? "";
-
                             DateTime startDateTime =
                                 DateTime.ParseExact(startDateTimeString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
+
+                            var featureNameAttribute = groupHdf5Group.Attributes.Find("stationName");
+                            var featureName = featureNameAttribute?.Value<string>("") ?? "";
 
                             var timeIntervalAttribute = groupHdf5Group.Attributes.Find("timeRecordInterval");
                             var timeInterval = timeIntervalAttribute?.Value<long>(0) ?? 0;
@@ -193,6 +187,8 @@ namespace S1XViewer.Model
                                             _geometryBuilderFactory.Create("Point", new double[] { positionValues[stationNumber].longitude }, new double[] { positionValues[stationNumber].latitude });
                                         var currentNonGravitationalInstance = new CurrentNonGravitational()
                                         {
+                                            Id = groupHdf5Group.Name,
+                                            FeatureName = new FeatureName[] { new FeatureName { DisplayName = featureName } },
                                             Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
                                             Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
                                             Geometry = geometry
@@ -208,14 +204,14 @@ namespace S1XViewer.Model
 
                             stationNumber++;
                         }
+                    }
 
-                        // build up featutes ard wrap 'em in datapackage
-                        if (geoFeatures.Count > 0)
-                        {
-                            dataPackage.GeoFeatures = geoFeatures.ToArray();
-                            dataPackage.MetaFeatures = new IMetaFeature[0];
-                            dataPackage.InformationFeatures = new IInformationFeature[0];
-                        }
+                    // build up featutes ard wrap 'em in datapackage
+                    if (geoFeatures.Count > 0)
+                    {
+                        dataPackage.GeoFeatures = geoFeatures.ToArray();
+                        dataPackage.MetaFeatures = new IMetaFeature[0];
+                        dataPackage.InformationFeatures = new IInformationFeature[0];
                     }
                 }
             }
