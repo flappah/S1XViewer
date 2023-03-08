@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace S1XViewer
 {
@@ -19,17 +9,60 @@ namespace S1XViewer
     /// </summary>
     public partial class SelectDateTimeWindow : Window
     {
-        public DateTime? SelectedDateTime { get; set; }
+        private DateTime _selectedDateTime;
+        public DateTime SelectedDateTime { get { return _selectedDateTime; } }
 
         public SelectDateTimeWindow()
         {
             InitializeComponent();
         }
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void buttonOk_Click(object sender, RoutedEventArgs e)
         {
-            SelectedDateTime = datePicker.SelectedDate;
+            DateTime selectedDateTimeFromUI = (DateTime) datePicker.SelectedDate;
+            var selectedTime = ((ComboBoxItem)timePicker.SelectedItem).Content.ToString();
+            if (DateTime.TryParse(selectedDateTimeFromUI.ToString("yyyy-MM-dd") + " " + selectedTime, 
+                out DateTime selectedDateTime) == true)
+            {
+                _selectedDateTime = selectedDateTime;  
+            }
+
             this.Close();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void datePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DateTime selectedDateTimeFromUI = (DateTime)datePicker.SelectedDate;
+            if (DateTime.TryParse(selectedDateTimeFromUI.ToString("yyyy-MM-dd") + " " + SelectedDateTime.ToString("HH:mm"),
+                out DateTime selectedDateTime) == true)
+            {
+                _selectedDateTime = selectedDateTime;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void timePicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedTime = ((ComboBoxItem)timePicker.SelectedItem).Content.ToString();
+            if (DateTime.TryParse(SelectedDateTime.ToString("yyyy-MM-dd") + " " + selectedTime,
+               out DateTime selectedDateTime) == true)
+            {
+                _selectedDateTime = selectedDateTime;
+            }
         }
     }
 }

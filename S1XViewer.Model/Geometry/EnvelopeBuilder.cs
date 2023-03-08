@@ -19,6 +19,18 @@ namespace S1XViewer.Model.Geometry
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         ///     Retrieves the geometry from the specified Xml Node
         /// </summary>
         /// <param name="node">node containing a basic geometry</param>

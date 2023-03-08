@@ -91,6 +91,24 @@ namespace S1XViewer.Base
             return false;
         }
 
+        /// <summary>
+        ///     Returns true if the string contains a numerical value
+        /// </summary>
+        /// <param name="item">string to execute method on</param>
+        /// <returns></returns>
+        public static bool IsNumeric(this string item)
+        {
+            return (int.TryParse(item, out _) || double.TryParse(item, out _));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item"></param>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static bool In<T>(this T item, params T[] items)
         {
             if (items == null)

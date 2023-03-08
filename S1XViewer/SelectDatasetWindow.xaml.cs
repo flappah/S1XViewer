@@ -33,7 +33,7 @@ namespace S1XViewer
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonClose_Click(object sender, RoutedEventArgs e)
+        private void buttonOk_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }

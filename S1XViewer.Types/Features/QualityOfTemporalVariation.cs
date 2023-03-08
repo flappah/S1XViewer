@@ -1,4 +1,5 @@
-﻿using S1XViewer.Types.ComplexTypes;
+﻿using S1XViewer.Base;
+using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
 using System;
@@ -42,11 +43,19 @@ namespace S1XViewer.Types.Features
         /// <returns>IFeature</returns>
         public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
         {
-            if (node == null || !node.HasChildNodes) return this;
+            if (node == null)
+                return this;
 
-            if (node.FirstChild.Attributes != null && node.FirstChild.Attributes.Count > 0)
+            if (mgr == null)
+                return this;
+
+            if (node.HasChildNodes)
             {
-                Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                if (node.FirstChild?.Attributes?.Count > 0 &&
+                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                {
+                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                }
             }
 
             var featureObjectIdentifierNode = node.FirstChild.SelectSingleNode("s100:featureObjectIdentifier", mgr);

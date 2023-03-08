@@ -12,7 +12,7 @@ namespace S1XViewer.HDF
         public IProductSupportBase[] Supports { get; set; }
 
         /// <summary>
-        /// 
+        ///     Retrieves the ProductSupportFactory specific for the specified product standard
         /// </summary>
         /// <param name="productStandard"></param>
         /// <returns></returns>

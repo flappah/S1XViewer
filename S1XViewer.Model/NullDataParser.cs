@@ -46,14 +46,40 @@ namespace S1XViewer.Model
             };
         }
 
-        public override Task<IS1xxDataPackage> ParseAsync(string hdf5FileName)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <param name="selectedDateTime"></param>
+        /// <returns></returns>
+        public async override Task<IS1xxDataPackage> ParseAsync(string hdf5FileName, DateTime? selectedDateTime)
         {
-            throw new NotImplementedException();
+            return new S1xxDataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawXmlData = new XmlDocument(),
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
         }
 
-        public override IS1xxDataPackage Parse(string hdf5FileName)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <param name="selectedDateTime"></param>
+        /// <returns></returns>
+        public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
         {
-            throw new NotImplementedException();
+            return new S1xxDataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawXmlData = new XmlDocument(),
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
         }
     }
 }

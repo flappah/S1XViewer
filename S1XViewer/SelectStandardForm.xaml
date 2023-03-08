@@ -1,0 +1,22 @@
+﻿<Window x:Class="S1XViewer.SelectStandardForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:S1XViewer"
+        mc:Ignorable="d"
+        Title="Select ISO S1xx Standard" Height="200" Width="260" ResizeMode="NoResize">
+    <Grid>
+        <ComboBox HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="220" SelectionChanged="ComboBox_SelectionChanged">
+            <ComboBoxItem Content="S104"/>
+            <ComboBoxItem Content="S111"/>
+            <ComboBoxItem Content="S122"/>
+            <ComboBoxItem Content="S123"/>
+            <ComboBoxItem Content="S127"/>
+            <ComboBoxItem Content="S128"/>
+        </ComboBox>
+        <Button x:Name="buttonOk" Content="Ok" Margin="149,0,30,10" Click="buttonOk_Click" Height="19" VerticalAlignment="Bottom" />
+        <Label Content="Select IHO standard to use." HorizontalAlignment="Left" Margin="10,39,0,0" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>

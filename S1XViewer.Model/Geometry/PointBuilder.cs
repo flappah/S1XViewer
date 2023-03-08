@@ -19,6 +19,54 @@ namespace S1XViewer.Model.Geometry
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y)
+        {
+            if (x is null || x.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            if (y is null || y.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            {
+                invertLatLon = false;
+            }
+
+            if (_spatialReferenceSystem == 0)
+            {
+                string defaultCRS = _optionsStorage.Retrieve("comboBoxCRS");
+                if (int.TryParse(defaultCRS, out int defaultCRSValue))
+                {
+                    _spatialReferenceSystem = defaultCRSValue; // if no srsNode is found assume default reference systema
+                }
+                else
+                {
+                    _spatialReferenceSystem = 4326; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                }
+            }
+
+            if (invertLatLon)
+            {
+                return new MapPoint(y[0], x[0], SpatialReference.Create(_spatialReferenceSystem));
+            }
+            else
+            {
+                return new MapPoint(x[0], y[0], SpatialReference.Create(_spatialReferenceSystem));
+            }
+        }
+
+        /// <summary>
         ///     Retrieves the geometry from the specified Xml Node
         /// </summary>
         /// <param name="node">node containing a basic geometry</param>

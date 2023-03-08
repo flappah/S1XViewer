@@ -230,8 +230,9 @@ namespace S1XViewer.Model
         ///     No implementation!
         /// </summary>
         /// <param name="hdf5FileName"></param>
+        /// <param name="selectedDateTime"></param>
         /// <returns></returns>
-        public override async Task<IS1xxDataPackage> ParseAsync(string hdf5FileName)
+        public override async Task<IS1xxDataPackage> ParseAsync(string hdf5FileName, DateTime? selectedDateTime)
         {
             return new S1xxDataPackage
             {
@@ -247,8 +248,9 @@ namespace S1XViewer.Model
         ///      No implementation!
         /// </summary>
         /// <param name="hdf5FileName"></param>
+        /// <param name="selectedDateTime"></param>
         /// <returns></returns>
-        public override IS1xxDataPackage Parse(string hdf5FileName)
+        public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
         {
             return new S1xxDataPackage
             {

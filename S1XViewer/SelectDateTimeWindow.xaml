@@ -5,15 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:S1XViewer"
         mc:Ignorable="d"
-        Title="Select DateTime Within Timeframe" Height="209" Width="306" Icon="/Paomedia-Small-N-Flat-Map.ico">
+        Title="Select DateTime Within Timeframe" Height="209" Width="306" Icon="/Paomedia-Small-N-Flat-Map.ico" ResizeMode="NoResize">
     <Grid HorizontalAlignment="Center" Width="300" Height="176" VerticalAlignment="Top">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="203*"/>
             <ColumnDefinition Width="97*"/>
         </Grid.ColumnDefinitions>
         <Button x:Name="buttonOk" Content="Ok" Margin="6,142,0,0" Click="buttonOk_Click" Height="19" VerticalAlignment="Top" HorizontalAlignment="Left" Width="81" Grid.Column="1"/>
-        <DatePicker x:Name="datePicker" Margin="10,70,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.002,0.48" HorizontalAlignment="Left" Width="280" Grid.ColumnSpan="2"/>
-        <ComboBox x:Name="timePicker" HorizontalAlignment="Left" Margin="82,102,0,0" VerticalAlignment="Top" Width="208" Grid.ColumnSpan="2">
+        <DatePicker x:Name="datePicker" Margin="10,70,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.002,0.48" HorizontalAlignment="Left" Width="280" Grid.ColumnSpan="2" SelectedDateChanged="datePicker_SelectedDateChanged"/>
+        <ComboBox x:Name="timePicker" HorizontalAlignment="Left" Margin="82,102,0,0" VerticalAlignment="Top" Width="208" Grid.ColumnSpan="2" SelectionChanged="timePicker_SelectionChanged">
             <ComboBoxItem Content="00:00"/>
             <ComboBoxItem Content="01:00"/>
             <ComboBoxItem Content="02:00"/>

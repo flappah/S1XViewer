@@ -9,7 +9,9 @@ namespace S1XViewer.HDF
         {
             builder.RegisterAssemblyTypes(ThisAssembly)
                    .AsImplementedInterfaces()
-                   .Where(tp => tp.Name.ToUpper().EndsWith("PRODUCTSUPPORT"))
+                   .Where(tp => tp.Name.ToUpper().EndsWith("PRODUCTSUPPORT") ||
+                                tp.Name.ToUpper().EndsWith("READER"))
+                   .AsImplementedInterfaces()           
                    .InstancePerLifetimeScope();
 
             List<Type> supports =

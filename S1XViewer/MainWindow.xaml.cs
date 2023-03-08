@@ -96,7 +96,7 @@ namespace S1XViewer
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "XML/GML files (*.xml;*.gml)|*.xml;*.gml|ENC files (*.000)|*.031|All files (*.*)|*.*"
+                Filter = "XML/GML files (*.xml;*.gml)|*.xml;*.gml|HDF5 files (*.h5;*.hdf5)|*.h5;*.hdf5|ENC files (*.000)|*.031|All files (*.*)|*.*"
             };
 
             if (openFileDialog.ShowDialog() == true)
@@ -108,7 +108,7 @@ namespace S1XViewer
                 }
 
                 var fileName = openFileDialog.FileName;
-
+                
                 if (fileName.ToUpper().Contains("CATALOG") && fileName.ToUpper().Contains(".XML"))
                 {
                     LoadExchangeSet(fileName);
@@ -116,6 +116,33 @@ namespace S1XViewer
                 else if (fileName.ToUpper().Contains(".XML") || fileName.ToUpper().Contains(".GML"))
                 {
                     LoadGMLFile("", fileName);
+                }
+                else if (fileName.ToUpper().Contains(".H5") || fileName.ToUpper().Contains(".HDF5")) 
+                {
+                    // filename contains the IHO product standard. First 3 chars indicate the standard to use!
+                    string productStandard;
+                    if (fileName.Contains(@"\"))
+                    {
+                        productStandard = fileName.LastPart(@"\").Substring(0, 3);
+                    }
+                    else
+                    {
+                        productStandard = fileName.Substring(0, 3);
+                    }
+
+                    if (productStandard.IsNumeric() == false)
+                    {
+                        // if no standard could be determined, ask the user
+                        var selectStandardForm = new SelectStandardForm();
+                        selectStandardForm.ShowDialog();
+                        productStandard = selectStandardForm.SelectedStandard;
+                    }
+                    else
+                    {
+                        productStandard = $"S{productStandard}";
+                    }
+
+                    LoadHDF5File(productStandard, fileName, null);
                 }
                 else if (fileName.Contains(".031"))
                 {
@@ -369,7 +396,7 @@ namespace S1XViewer
                     }), p);
                 });
 
-                var dataPackage = await dataPackageParser.ParseAsync(fileName).ConfigureAwait(false);
+                var dataPackage = await dataPackageParser.ParseAsync(fileName, selectedDateTime).ConfigureAwait(false);
                 var elapsedTime = (DateTime.Now - datetimeStart).ToString();
 
                 _syncContext?.Post(new SendOrPostCallback(txt =>

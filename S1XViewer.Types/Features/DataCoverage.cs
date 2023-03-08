@@ -1,4 +1,5 @@
-﻿using S1XViewer.Types.ComplexTypes;
+﻿using S1XViewer.Base;
+using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
 using System;
@@ -40,51 +41,58 @@ namespace S1XViewer.Types.Features
         /// <returns></returns>
         public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
         {
-            if (node != null && node.HasChildNodes)
+            if (node == null)
+                return this;
+
+            if (mgr == null)
+                return this;
+
+            if (node.HasChildNodes)
             {
-                if (node.FirstChild.Attributes.Count > 0)
+                if (node.FirstChild?.Attributes?.Count > 0 &&
+                    node.FirstChild?.Attributes.Contains("gml:id") == true)
                 {
                     Id = node.FirstChild.Attributes["gml:id"].InnerText;
                 }
+            }
 
-                var featureObjectIdentifierNode = node.FirstChild.SelectSingleNode("s100:featureObjectIdentifier", mgr);
-                if (featureObjectIdentifierNode != null && featureObjectIdentifierNode.HasChildNodes)
-                {
-                    FeatureObjectIdentifier = new FeatureObjectIdentifier();
-                    FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr);
-                }
+            var featureObjectIdentifierNode = node.FirstChild.SelectSingleNode("s100:featureObjectIdentifier", mgr);
+            if (featureObjectIdentifierNode != null && featureObjectIdentifierNode.HasChildNodes)
+            {
+                FeatureObjectIdentifier = new FeatureObjectIdentifier();
+                FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr);
+            }
 
-                var foidNode = node.FirstChild.SelectSingleNode("s100:featureObjectIdentifier", mgr);
-                if (foidNode != null && foidNode.HasChildNodes)
-                {
-                    FeatureObjectIdentifier = new FeatureObjectIdentifier();
-                    FeatureObjectIdentifier.FromXml(foidNode, mgr);
-                }
+            var foidNode = node.FirstChild.SelectSingleNode("s100:featureObjectIdentifier", mgr);
+            if (foidNode != null && foidNode.HasChildNodes)
+            {
+                FeatureObjectIdentifier = new FeatureObjectIdentifier();
+                FeatureObjectIdentifier.FromXml(foidNode, mgr);
+            }
 
-                var maximumDisplayScaleNode = node.FirstChild.SelectSingleNode("maximumDisplayScale", mgr);
-                if (maximumDisplayScaleNode != null)
-                {
-                    MaximumDisplayScale = maximumDisplayScaleNode.InnerText;
-                }
+            var maximumDisplayScaleNode = node.FirstChild.SelectSingleNode("maximumDisplayScale", mgr);
+            if (maximumDisplayScaleNode != null)
+            {
+                MaximumDisplayScale = maximumDisplayScaleNode.InnerText;
+            }
 
-                var minimumDisplayScaleNode = node.FirstChild.SelectSingleNode("minimumDisplayScale",  mgr);
-                if (minimumDisplayScaleNode != null)
-                {
-                    MinimumDisplayScale = minimumDisplayScaleNode.InnerText;
-                }
+            var minimumDisplayScaleNode = node.FirstChild.SelectSingleNode("minimumDisplayScale", mgr);
+            if (minimumDisplayScaleNode != null)
+            {
+                MinimumDisplayScale = minimumDisplayScaleNode.InnerText;
+            }
 
-                var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
-                if (linkNodes != null && linkNodes.Count > 0)
+            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            if (linkNodes != null && linkNodes.Count > 0)
+            {
+                var links = new List<Link>();
+                foreach (XmlNode linkNode in linkNodes)
                 {
-                    var links = new List<Link>();
-                    foreach (XmlNode linkNode in linkNodes)
-                    {
-                        var newLink = new Link();
-                        newLink.FromXml(linkNode, mgr);
-                        links.Add(newLink);
-                    }
-                    Links = links.ToArray();
+                    var newLink = new Link();
+                    newLink.FromXml(linkNode, mgr);
+                    links.Add(newLink);
                 }
+                Links = links.ToArray();
             }
 
             return this;

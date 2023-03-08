@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:S1XViewer"
         mc:Ignorable="d"
-        Title="Select Dataset" Height="450" Width="800" Icon="/Paomedia-Small-N-Flat-Map.ico">
+        Title="Select Dataset" Height="450" Width="800" Icon="/Paomedia-Small-N-Flat-Map.ico" ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="97*"/>
             <ColumnDefinition Width="703*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="buttonClose" Content="Close" Margin="612,0,10,15" Click="buttonClose_Click" Height="19" VerticalAlignment="Bottom" Grid.Column="1"/>
+        <Button x:Name="buttonOk" Content="Ok" Margin="612,0,10,15" Click="buttonOk_Click" Height="19" VerticalAlignment="Bottom" Grid.Column="1"/>
         <DataGrid x:Name="dataGrid" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.ColumnSpan="2" Margin="5,10,10,51" SelectionChanged="dataGrid_SelectionChanged" MouseDoubleClick="dataGrid_MouseDoubleClick"/>
 
     </Grid>

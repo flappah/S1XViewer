@@ -1,13 +1,18 @@
 ﻿using S1XViewer.Types.Interfaces;
+using System.Globalization;
 using System.Xml;
 
 namespace S1XViewer.Types.ComplexTypes
 {
     public class Orientation : ComplexTypeBase, IOrientation
     {
-        public string OrientationUncertainty { get; set; }
-        public string OrientationValue { get; set; }
+        public double OrientationUncertainty { get; set; }
+        public double OrientationValue { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public override IComplexType DeepClone()
         {
             return new Orientation
@@ -28,13 +33,25 @@ namespace S1XViewer.Types.ComplexTypes
             var orientationUncertaintyNode = node.SelectSingleNode("orientationUncertainty", mgr);
             if (orientationUncertaintyNode != null && orientationUncertaintyNode.HasChildNodes)
             {
-                OrientationUncertainty = orientationUncertaintyNode.FirstChild.InnerText;
+                if (double.TryParse(orientationUncertaintyNode.FirstChild?.InnerText, 
+                                    NumberStyles.Float, 
+                                    new CultureInfo("en-US"),
+                                    out double orientationUncertainty) == true) 
+                {
+                    OrientationUncertainty = orientationUncertainty;
+                }
             }
 
             var orientationValueNode = node.SelectSingleNode("orientationValue", mgr);
             if (orientationValueNode != null && orientationValueNode.HasChildNodes)
             {
-                OrientationValue = orientationValueNode.FirstChild.InnerText;
+                if (double.TryParse(orientationValueNode.FirstChild?.InnerText,
+                                    NumberStyles.Float,
+                                    new CultureInfo("en-US"),
+                                    out double orientationValue) == true)
+                {
+                    OrientationValue = orientationValue;
+                }
             }
 
             return this;

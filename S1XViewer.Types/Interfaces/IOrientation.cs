@@ -2,7 +2,7 @@
 {
     public interface IOrientation : IComplexType
     {
-        string OrientationUncertainty { get; set; }
-        string OrientationValue { get; set; }
+        double OrientationUncertainty { get; set; }
+        double OrientationValue { get; set; }
     }
 }
