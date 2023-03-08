@@ -7,13 +7,12 @@ using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
-using System;
 using System.Globalization;
 using System.Xml;
 
 namespace S1XViewer.Model
 {
-    public class S111DCF8DataParser : DataParserBase, IS111DCF8DataParser
+    public class S111DCF8DataParser : HdfDataParserBase, IS111DCF8DataParser
     {
         public delegate void ProgressFunction(double percentage);
         public override event IDataParser.ProgressFunction? Progress;
@@ -30,48 +29,6 @@ namespace S1XViewer.Model
         {
             _datasetReader = datasetReader;
             _geometryBuilderFactory = geometryBuilderFactory;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="surfaceFeatures"></param>
-        /// <param name="selectedDateTime"></param>
-        /// <returns></returns>
-        private Hdf5Element? FindRelevantSurfaceFeatureByDateTime(List<Hdf5Element> surfaceFeatures, DateTime? selectedDateTime)
-        {
-            if (surfaceFeatures is null)
-            {
-                throw new ArgumentNullException(nameof(surfaceFeatures));
-            }
-
-            if (selectedDateTime is null)
-            {
-                throw new ArgumentNullException(nameof(selectedDateTime));
-            }
-
-            foreach (Hdf5Element? hdf5Element in surfaceFeatures)
-            {
-                if (hdf5Element != null)
-                {
-                    var dateTimeOfFirstRecordAttribute = hdf5Element.Attributes.Find("dateTimeOfFirstRecord");
-                    string dateTimeOfFirstRecordString = dateTimeOfFirstRecordAttribute?.Value<string>(DateTime.MaxValue.ToString("yyyyMMddTHHmmssZ")) ?? DateTime.MaxValue.ToString("yyyyMMddTHHmmssZ");
-                    DateTime dateTimeOfFirstRecord =
-                        DateTime.ParseExact(dateTimeOfFirstRecordString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
-
-                    var dateTimeOfLastRecordAttribute = hdf5Element.Attributes.Find("dateTimeOfLastRecord");
-                    string dateTimeOfLastRecordString = dateTimeOfLastRecordAttribute?.Value<string>(DateTime.MinValue.ToString("yyyyMMddTHHmmssZ")) ?? DateTime.MinValue.ToString("yyyyMMddTHHmmssZ");
-                    DateTime dateTimeOfLastRecord =
-                        DateTime.ParseExact(dateTimeOfLastRecordString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
-
-                    if (selectedDateTime > dateTimeOfFirstRecord && selectedDateTime < dateTimeOfLastRecord)
-                    {
-                        return hdf5Element;
-                    }
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -108,12 +65,22 @@ namespace S1XViewer.Model
 
             Progress?.Invoke(50);
 
-            var hdf5S111Root = await Task.Factory.StartNew((name) =>
+            Hdf5Element hdf5S111Root;
+            if (_cachedHdfTrees.ContainsKey(hdf5FileName))
             {
-                // load HDF file, spawned in a seperate task to keep UI responsive!
-                return HDF5CSharp.Hdf5.ReadTreeFileStructure(name.ToString());
+                hdf5S111Root = _cachedHdfTrees[hdf5FileName];  
+            }
+            else
+            {
+                hdf5S111Root = await Task.Factory.StartNew((name) =>
+                {
+                    // load HDF file, spawned in a seperate task to keep UI responsive!
+                    return HDF5CSharp.Hdf5.ReadTreeFileStructure(name.ToString());
 
-            }, hdf5FileName).ConfigureAwait(false);
+                }, hdf5FileName).ConfigureAwait(false);
+
+                _cachedHdfTrees.Add(hdf5FileName, hdf5S111Root);
+            }
 
             // retrieve boundingbox
             var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
@@ -130,7 +97,7 @@ namespace S1XViewer.Model
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude}, (int) horizontalCRS);
 
             // retrieve relevant time-frame from SurfaceCurrents collection
-            var selectedSurfaceFeatureElement = FindRelevantSurfaceFeatureByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+            var selectedSurfaceFeatureElement = FindFeatureByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
             if (selectedSurfaceFeatureElement != null)
             {
                 // now retrieve positions 

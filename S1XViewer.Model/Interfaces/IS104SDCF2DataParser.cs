@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace S1XViewer.Model.Interfaces
 {
-    public interface IS111DCF2DataParser : IHdfDataParserBase
+    public interface IS104SDCF2DataParser : IHdfDataParserBase
     {
     }
 }

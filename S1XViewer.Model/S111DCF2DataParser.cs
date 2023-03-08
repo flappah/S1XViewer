@@ -11,7 +11,7 @@ using System.Xml;
 
 namespace S1XViewer.Model
 {
-    public class S111DCF2DataParser : DataParserBase, IS111DCF2DataParser
+    public class S111DCF2DataParser : HdfDataParserBase, IS111DCF2DataParser
     {
         public delegate void ProgressFunction(double percentage);
         public override event IDataParser.ProgressFunction? Progress;
