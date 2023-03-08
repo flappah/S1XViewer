@@ -367,6 +367,7 @@ namespace S1XViewer
                 myMapView?.Map?.OperationalLayers?.Add(encLayer);
             }
 
+            var datetimeStart = DateTime.Now;
             try
             {
                 _syncContext?.Post(new SendOrPostCallback(txt =>
@@ -374,8 +375,6 @@ namespace S1XViewer
                     labelStatus.Content = $"Loading {txt} ..";
 
                 }), fileName);
-
-                var datetimeStart = DateTime.Now;
 
                 // now find out which codingformat is to be used to determine S111 dataparser
                 IProductSupportFactory productSupportFactory = _container.Resolve<IProductSupportFactory>();
@@ -397,16 +396,6 @@ namespace S1XViewer
                 });
 
                 var dataPackage = await dataPackageParser.ParseAsync(fileName, selectedDateTime).ConfigureAwait(false);
-                var elapsedTime = (DateTime.Now - datetimeStart).ToString();
-
-                _syncContext?.Post(new SendOrPostCallback(txt =>
-                {
-                    if (txt != null)
-                    {
-                        labelStatus.Content = $"Load time: {txt} seconds ..";
-                        progressBar.Value = 0;
-                    }
-                }), elapsedTime);
 
                 // now process data for display in ESRI ArcGIS viewmodel
 
@@ -421,6 +410,17 @@ namespace S1XViewer
             }
             finally
             {
+                var elapsedTime = (DateTime.Now - datetimeStart).ToString();
+
+                _syncContext?.Post(new SendOrPostCallback(txt =>
+                {
+                    if (txt != null)
+                    {
+                        labelStatus.Content = $"Load time: {txt} seconds ..";
+                        progressBar.Value = 0;
+                    }
+                }), elapsedTime);
+
                 BackgroundWorker bgw = new();
                 bgw.DoWork += delegate
                 {
@@ -457,6 +457,7 @@ namespace S1XViewer
                 myMapView?.Map?.OperationalLayers?.Add(encLayer);
             }
 
+            var datetimeStart = DateTime.Now;
             try
             {
                 var xmlDoc = new XmlDocument();
@@ -485,18 +486,7 @@ namespace S1XViewer
                     }), p);
                 });
 
-                var datetimeStart = DateTime.Now;
                 var dataPackage = await dataPackageParser.ParseAsync(xmlDoc).ConfigureAwait(false);
-                var elapsedTime = (DateTime.Now - datetimeStart).ToString();
-
-                _syncContext?.Post(new SendOrPostCallback(txt =>
-                {
-                    if (txt != null)
-                    {
-                        labelStatus.Content = $"Load time: {txt} seconds ..";
-                    }
-                }), elapsedTime);
-
                 if (dataPackage.Type == S1xxTypes.Null)
                 {
                     MessageBox.Show($"File '{fileName}' currently can't be rendered. No DataParser is able to render the information present in the file!");
@@ -528,6 +518,16 @@ namespace S1XViewer
             }
             finally
             {
+                var elapsedTime = (DateTime.Now - datetimeStart).ToString();
+
+                _syncContext?.Post(new SendOrPostCallback(txt =>
+                {
+                    if (txt != null)
+                    {
+                        labelStatus.Content = $"Load time: {txt} seconds ..";
+                    }
+                }), elapsedTime);
+
                 BackgroundWorker bgw = new();
                 bgw.DoWork += delegate
                 {

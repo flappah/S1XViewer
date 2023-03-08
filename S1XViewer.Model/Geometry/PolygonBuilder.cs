@@ -23,9 +23,10 @@ namespace S1XViewer.Model.Geometry
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
+        /// <param name="srs"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y)
+        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, int srs = 4326)
         {
             throw new NotImplementedException();
         }

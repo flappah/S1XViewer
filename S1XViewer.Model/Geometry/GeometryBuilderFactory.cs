@@ -39,20 +39,21 @@ namespace S1XViewer.Model.Geometry
         }
 
         /// <summary>
-        /// 
+        ///     Creates an ESRI geometry based on the provided positions
         /// </summary>
         /// <param name="geometryTypeString"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
+        /// <param name="srs">horizontal crs</param>
         /// <returns></returns>
-        public Esri.ArcGISRuntime.Geometry.Geometry Create(string geometryTypeString, double[] x, double[] y)
+        public Esri.ArcGISRuntime.Geometry.Geometry Create(string geometryTypeString, double[] x, double[] y, int srs = 4326)
         {
             var locatedBuilder =
                 Builders.ToList().Find(tp => tp.GetType().ToString().Contains($"{geometryTypeString}Builder"));
 
             if (locatedBuilder != null)
             {
-                return locatedBuilder.FromPositions(x, y);
+                return locatedBuilder.FromPositions(x, y, srs);
             }
 
             return null;

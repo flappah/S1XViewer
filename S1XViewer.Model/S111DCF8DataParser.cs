@@ -108,112 +108,120 @@ namespace S1XViewer.Model
                 };
             }
 
+            var dataPackage = new S1xxDataPackage
+            {
+                Type = S1xxTypes.S111,
+                RawXmlData = null
+            };
+
             Progress?.Invoke(50);
 
-            var hdf5S111Tree = await Task.Factory.StartNew((name) =>
+            var hdf5S111Root = await Task.Factory.StartNew((name) =>
             {
                 // load HDF file, spawned in a seperate task to keep UI responsive!
                 return HDF5CSharp.Hdf5.ReadTreeFileStructure(name.ToString());
 
             }, hdf5FileName).ConfigureAwait(false);
 
+            // retrieve boundingbox
+            var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
+            var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<double>(0.0) ?? 0.0;
+            var northBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("northBoundLatitude");
+            var northBoundLatitude = northBoundLatitudeAttribute?.Value<double>(0.0) ?? 0.0;
+            var southBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("southBoundLatitude");
+            var southBoundLatitude = southBoundLatitudeAttribute?.Value<double>(0.0) ?? 0.0;
+            var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
+            var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0.0) ?? 0.0;
+
+            var horizontalCRSAttribute = hdf5S111Root.Attributes.Find("horizontalCRS");
+            var horizontalCRS = horizontalCRSAttribute?.Value<long>(4326) ?? 4326;
+            dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude}, (int) horizontalCRS);
+
             // retrieve relevant time-frame from SurfaceCurrents collection
-            var selectedSurfaceFeature = FindRelevantSurfaceFeatureByDateTime(hdf5S111Tree.Children[1].Children, selectedDateTime);
-            if (selectedSurfaceFeature != null)
+            var selectedSurfaceFeatureElement = FindRelevantSurfaceFeatureByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+            if (selectedSurfaceFeatureElement != null)
             {
                 // now retrieve positions 
-                var positioningElement = selectedSurfaceFeature.Children.Find(nd => nd.Name.LastPart("/") == "Positioning");
+                var positioningElement = selectedSurfaceFeatureElement.Children.Find(nd => nd.Name.LastPart("/") == "Positioning");
                 if (positioningElement != null)
                 {
                     var positionValues =
                         _datasetReader.Read<GeometryValueInstance>(hdf5FileName, positioningElement.Children[0].Name).ToArray();
 
-                    if (positionValues != null)
+                    if (positionValues == null || positionValues.Length == 0)
                     {
-                        // retrieve directions and current speeds
-                        var numberOfStationsAttribute = selectedSurfaceFeature.Attributes.Find("numberOfStations");
-                        var numberOfStations =
-                            numberOfStationsAttribute != null &&
-                            numberOfStationsAttribute.Values != null &&
-                            ((long[])numberOfStationsAttribute.Values).Length > 0 ? ((long[])numberOfStationsAttribute.Values)[0] : 0;
+                        throw new Exception($"Surfacefeature with name {positioningElement.Children[0].Name} contains no positions!");
+                    }
 
-                        if (numberOfStations != positionValues.Count())
-                        {
-                            throw new Exception("Insufficient number of position values!");
-                        }
+                    // retrieve directions and current speeds
+                    var numberOfStationsAttribute = selectedSurfaceFeatureElement.Attributes.Find("numberOfStations");
+                    var numberOfStations = numberOfStationsAttribute?.Value<long>(0) ?? 0;
+                    if (numberOfStations != positionValues.Count())
+                    {
+                        throw new Exception("Insufficient number of position values!");
+                    }
 
-                        int stationNumber = 0;
-                        var geoFeatures = new List<IGeoFeature>();
-                        foreach (Hdf5Element? groupHdf5Group in selectedSurfaceFeature.Children)
+                    int stationNumber = 0;
+                    var geoFeatures = new List<IGeoFeature>();
+                    foreach (Hdf5Element? groupHdf5Group in selectedSurfaceFeatureElement.Children)
+                    {
+                        if (groupHdf5Group.Name.Contains("Group_"))
                         {
-                            if (groupHdf5Group.Name.Contains("Group_"))
+                            var startDateTimeAttribute = groupHdf5Group.Attributes.Find("startDateTime");
+                            string startDateTimeString = startDateTimeAttribute?.Value<string>("") ?? "";
+
+                            DateTime startDateTime =
+                                DateTime.ParseExact(startDateTimeString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
+
+                            var timeIntervalAttribute = groupHdf5Group.Attributes.Find("timeRecordInterval");
+                            var timeInterval = timeIntervalAttribute?.Value<long>(0) ?? 0;
+
+                            if (timeInterval > 0)
                             {
-                                var startDateTimeAttribute = groupHdf5Group.Attributes.Find("startDateTime");
-                                DateTime startDateTime;
-                                if (startDateTimeAttribute != null &&
-                                    startDateTimeAttribute.Values != null &&
-                                    ((string[])startDateTimeAttribute.Values).Length > 0)
+                                var surfaceCurrentInfos =
+                                    _datasetReader.Read<SurfaceCurrentInstance>(hdf5FileName, groupHdf5Group.Children[0].Name).ToArray();
+
+                                if (surfaceCurrentInfos != null)
                                 {
-                                    startDateTime =
-                                        DateTime.ParseExact(((string[])startDateTimeAttribute.Values)[0], "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
-
-                                    var timeIntervalAttribute = groupHdf5Group.Attributes.Find("timeRecordInterval");
-                                    var timeInterval =
-                                        timeIntervalAttribute != null &&
-                                        timeIntervalAttribute.Values != null &&
-                                        ((long[])timeIntervalAttribute.Values).Length > 0 ? ((long[])timeIntervalAttribute.Values)[0] : 0;
-
-                                    if (timeInterval > 0)
+                                    var index = (int)((TimeSpan)(selectedDateTime - startDateTime)).TotalSeconds / timeInterval;
+                                    if (index < surfaceCurrentInfos.Length)
                                     {
-                                        var surfaceCurrentInfos =
-                                            _datasetReader.Read<SurfaceCurrentInstance>(hdf5FileName, groupHdf5Group.Children[0].Name).ToArray();
+                                        var direction = surfaceCurrentInfos[index].direction;
+                                        var speed = surfaceCurrentInfos[index].speed;
 
-                                        if (surfaceCurrentInfos != null)
+                                        var geometry =
+                                            _geometryBuilderFactory.Create("Point", new double[] { positionValues[stationNumber].longitude }, new double[] { positionValues[stationNumber].latitude });
+                                        var currentNonGravitationalInstance = new CurrentNonGravitational()
                                         {
-                                            var index = (int)((TimeSpan)(selectedDateTime - startDateTime)).TotalSeconds / timeInterval;
-                                            if (index < surfaceCurrentInfos.Length)
-                                            {
-                                                var direction = surfaceCurrentInfos[index].direction;
-                                                var speed = surfaceCurrentInfos[index].speed;
-
-                                                var geometry = 
-                                                    _geometryBuilderFactory.Create("Point", new double[] { positionValues[stationNumber].longitude }, new double[] { positionValues[stationNumber].latitude });
-                                                var currentNonGravitationalInstance = new CurrentNonGravitational()
-                                                {
-                                                    Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
-                                                    Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
-                                                    Geometry = geometry
-                                                };
-                                                geoFeatures.Add(currentNonGravitationalInstance);
-                                            }
-                                            else
-                                            {
-                                                throw new Exception($"Calulated index larger than storage of SurfaceCurrents! selectedDateTime:{selectedDateTime},startDateTime:{startDateTime},timeInterval:{timeInterval},index:{index}");
-                                            }
-                                        }
+                                            Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
+                                            Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
+                                            Geometry = geometry
+                                        };
+                                        geoFeatures.Add(currentNonGravitationalInstance);
+                                    }
+                                    else
+                                    {
+                                        throw new Exception($"Calulated index larger than storage of SurfaceCurrents! selectedDateTime:{selectedDateTime},startDateTime:{startDateTime},timeInterval:{timeInterval},index:{index}");
                                     }
                                 }
-
-                                stationNumber++;
                             }
+
+                            stationNumber++;
                         }
 
-                        // build up featutes and wrap 'em in datapackage
-
+                        // build up featutes ard wrap 'em in datapackage
+                        if (geoFeatures.Count > 0)
+                        {
+                            dataPackage.GeoFeatures = geoFeatures.ToArray();
+                            dataPackage.MetaFeatures = new IMetaFeature[0];
+                            dataPackage.InformationFeatures = new IInformationFeature[0];
+                        }
                     }
                 }
             }
 
             Progress?.Invoke(100);
-
-            return new S1xxDataPackage
-            {
-                Type = S1xxTypes.Null,
-                RawXmlData = null,
-                GeoFeatures = new IGeoFeature[0],
-                MetaFeatures = new IMetaFeature[0],
-                InformationFeatures = new IInformationFeature[0]
-            };
+            return dataPackage;
         }
 
         /// <summary>

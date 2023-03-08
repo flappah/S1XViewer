@@ -23,9 +23,10 @@ namespace S1XViewer.Model.Geometry
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
+        /// <param name="srs">horizontal reference system</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y)
+        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, int srs = 4326)
         {
             if (x is null || x.Length == 0)
             {
@@ -52,7 +53,7 @@ namespace S1XViewer.Model.Geometry
                 }
                 else
                 {
-                    _spatialReferenceSystem = 4326; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                    _spatialReferenceSystem = srs; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
                 }
             }
 

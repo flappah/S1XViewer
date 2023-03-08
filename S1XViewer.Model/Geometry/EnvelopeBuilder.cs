@@ -2,6 +2,7 @@
 using S1XViewer.Base;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
+using System;
 using System.Globalization;
 using System.Xml;
 
@@ -23,11 +24,52 @@ namespace S1XViewer.Model.Geometry
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
+        /// <param name="srs"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y)
+        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, int srs = 4326)
         {
-            throw new NotImplementedException();
+            if (x is null || x.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            if (y is null || y.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            {
+                invertLatLon = false;
+            }
+
+            if (_spatialReferenceSystem == 0)
+            {
+                string defaultCRS = _optionsStorage.Retrieve("comboBoxCRS");
+                if (int.TryParse(defaultCRS, out int defaultCRSValue))
+                {
+                    _spatialReferenceSystem = defaultCRSValue; // if no srsNode is found assume default reference systema
+                }
+                else
+                {
+                    _spatialReferenceSystem = srs; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                }
+            }
+
+            Envelope createdEnvelope;
+            if (invertLatLon)
+            {
+                createdEnvelope =
+                    new Envelope(y[0], x[0], y[1], x[1], SpatialReference.Create(_spatialReferenceSystem));
+            }
+            else
+            {
+                createdEnvelope =
+                    new Envelope(x[0], y[0], x[1], y[1], SpatialReference.Create(_spatialReferenceSystem));
+            }
+            return createdEnvelope;
         }
 
         /// <summary>
@@ -105,7 +147,6 @@ namespace S1XViewer.Model.Geometry
                     }
 
                     Esri.ArcGISRuntime.Geometry.Envelope createdEnvelope;
-
                     if (invertLatLon)
                     {
                         createdEnvelope =

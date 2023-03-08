@@ -10,6 +10,6 @@ namespace S1XViewer.Model.Geometry
         protected IOptionsStorage _optionsStorage;
 
         public abstract Esri.ArcGISRuntime.Geometry.Geometry FromXml(XmlNode node, XmlNamespaceManager mgr);
-        public abstract Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y);
+        public abstract Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, int srs = 4326);
     }
 }

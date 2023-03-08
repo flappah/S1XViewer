@@ -9,12 +9,12 @@ namespace S1XViewer.Types
     public enum S1xxTypes
     {
         Null,
+        S104,
+        S111,
         S122,
         S123,
         S125,
         S127,
         S128
     }
-
-
 }

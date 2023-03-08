@@ -42,5 +42,22 @@ namespace S1XViewer.HDF
 
             return null;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="element"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static T Value<T>(this Hdf5AttributeElement element, T defaultValue = default(T))
+        {
+            if (element != null && element.Values != null)
+            {
+                return (T)((Array)element.Values).GetValue(0);
+            }
+
+            return defaultValue;
+        }
     }
 }
