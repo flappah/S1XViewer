@@ -148,7 +148,7 @@ namespace S1XViewer
                     if (productStandard.IsNumeric() == false)
                     {
                         // if no standard could be determined, ask the user
-                        var selectStandardForm = new SelectStandardForm();
+                        var selectStandardForm = new SelectStandardWindow();
                         selectStandardForm.ShowDialog();
                         productStandard = selectStandardForm.SelectedStandard;
                     }
@@ -226,7 +226,7 @@ namespace S1XViewer
                 if (productStandard.IsNumeric() == false)
                 {
                     // if no standard could be determined, ask the user
-                    var selectStandardForm = new SelectStandardForm();
+                    var selectStandardForm = new SelectStandardWindow();
                     selectStandardForm.ShowDialog();
                     productStandard = selectStandardForm.SelectedStandard;
                 }

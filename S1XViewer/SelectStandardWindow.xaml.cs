@@ -6,12 +6,12 @@ namespace S1XViewer
     /// <summary>
     /// Interaction logic for SelectStandard.xaml
     /// </summary>
-    public partial class SelectStandardForm : Window
+    public partial class SelectStandardWindow : Window
     {
         private string _selectedStandard = string.Empty;
         public string SelectedStandard { get { return _selectedStandard; } }
 
-        public SelectStandardForm()
+        public SelectStandardWindow()
         {
             InitializeComponent();
         }
