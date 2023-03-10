@@ -7,8 +7,14 @@
     <UseWPF>true</UseWPF>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <Title>IHO S1xx Standards Viewer</Title>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Copyright>Netherlands Hydrofgraphic Office</Copyright>
+    <PackageIcon>Paomedia-Small-N-Flat-Map.ico</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/flappah/S1XViewer</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>S1xx IHO viewer</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +23,13 @@
     <None Remove="images\folder-out-interface-symbol.png" />
     <None Remove="images\previous.png" />
     <None Remove="images\stack-of-square-papers.png" />
-    <None Remove="Paomedia-Small-N-Flat-Map.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -48,6 +60,10 @@
   <ItemGroup>
     <None Update="crs.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Paomedia-Small-N-Flat-Map.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

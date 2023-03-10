@@ -34,9 +34,9 @@
                     <RibbonButton x:Name="buttonOptions" LargeImageSource="/images/big-cogwheel.png" Label="Options" Click="OptionsMenu_Click"/>
                 </RibbonGroup>
                 <RibbonGroup x:Name="groupNavigation" Header="Navigate dataset">
-                    <RibbonButton x:Name="buttonBackward" LargeImageSource="/images/previous.png" Label="Previous" IsEnabled="False" />
-                    <RibbonTextBox x:Name="textBoxTimeValue" Margin="0,7,0,0" IsEnabled="False" />
-                    <RibbonButton x:Name="buttonForward" LargeImageSource="/images/fast-forward.png" Label="Forward" IsEnabled="False" />
+                    <RibbonButton x:Name="buttonBackward" LargeImageSource="/images/previous.png" Label="Previous" IsEnabled="False" Click="buttonBackward_Click" />
+                    <RibbonTextBox x:Name="textBoxTimeValue" Margin="0,7,0,0" IsEnabled="False" FontSize="11" />
+                    <RibbonButton x:Name="buttonForward" LargeImageSource="/images/fast-forward.png" Label="Forward" IsEnabled="False" Click="buttonForward_Click" />
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>

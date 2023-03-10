@@ -25,6 +25,7 @@ namespace S1XViewer
     public partial class OptionsWindow : Window
     {
         private SynchronizationContext _syncContext;
+        private bool _isInitialized = false;
 
         /// <summary>
         ///     For retrieving IoC objects.
@@ -59,6 +60,7 @@ namespace S1XViewer
                 LoadCRSfile();
                 LoadBasemapStyles();
                 RestoreOptions();
+                _isInitialized = true;
             }).ConfigureAwait(false);
         }
 
@@ -174,10 +176,13 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is System.Windows.Controls.ComboBox comboBoxSender)
+            if (_isInitialized == true)
             {
-                _optionsStorage.Store(comboBoxSender.Name, ((ComboBoxItem)e.AddedItems[0]).Tag.ToString());
-                label2.Visibility = Visibility.Visible;
+                if (sender is System.Windows.Controls.ComboBox comboBoxSender)
+                {
+                    _optionsStorage.Store(comboBoxSender.Name, ((ComboBoxItem)e.AddedItems[0]).Tag.ToString());
+                    label2.Visibility = Visibility.Visible;
+                }
             }
         }
 
@@ -188,10 +193,13 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void checkBox_Checked(object sender, RoutedEventArgs e)
         {
-            if (sender is System.Windows.Controls.CheckBox checkBoxSender)
+            if (_isInitialized == true)
             {
-                _optionsStorage.Store(checkBoxSender.Name, "true");
-                label2.Visibility = Visibility.Visible;
+                if (sender is System.Windows.Controls.CheckBox checkBoxSender)
+                {
+                    _optionsStorage.Store(checkBoxSender.Name, "true");
+                    label2.Visibility = Visibility.Visible;
+                }
             }
         }
 
@@ -202,10 +210,13 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void checkBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (sender is System.Windows.Controls.CheckBox checkBoxSender)
+            if (_isInitialized == true)
             {
-                _optionsStorage.Store(checkBoxSender.Name, "false");
-                label2.Visibility = Visibility.Visible;
+                if (sender is System.Windows.Controls.CheckBox checkBoxSender)
+                {
+                    _optionsStorage.Store(checkBoxSender.Name, "false");
+                    label2.Visibility = Visibility.Visible;
+                }
             }
         }
 
@@ -216,8 +227,12 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void comboBoxBasemap_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _optionsStorage.Store(comboBoxBasemap.Name, ((ComboBoxItem)e.AddedItems[0]).Tag.ToString());
-            label2.Visibility = Visibility.Visible;
+            if (_isInitialized == true)
+            {
+                _optionsStorage.Store(comboBoxBasemap.Name, ((ComboBoxItem)e.AddedItems[0]).Tag.ToString());
+                label2.Visibility = Visibility.Visible;
+            }
         }
+
     }
 }

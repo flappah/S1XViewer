@@ -40,6 +40,7 @@ namespace S1XViewer
         private readonly Autofac.IContainer _container;
         private List<IS1xxDataPackage> _dataPackages = new List<IS1xxDataPackage>();
         private SynchronizationContext? _syncContext;
+        private string _selectedFilename = string.Empty;
 
         public MainWindow()
         {
@@ -116,33 +117,40 @@ namespace S1XViewer
 
             if (openFileDialog.ShowDialog() == true)
             {
+                buttonForward.IsEnabled = false;
+                buttonForward.Tag = "";
+                buttonBackward.IsEnabled = false;
+                buttonBackward.Tag = "";
+                textBoxTimeValue.Text = string.Empty;
+                textBoxTimeValue.Tag = "";
+
                 var currentFolder = openFileDialog.FileName.Substring(0, openFileDialog.FileName.LastIndexOf(@"\"));
                 if (String.IsNullOrEmpty(currentFolder) == false)
                 {
                     Directory.SetCurrentDirectory(currentFolder);
                 }
 
-                var fileName = openFileDialog.FileName;
-
-                if (fileName.ToUpper().Contains("CATALOG") && fileName.ToUpper().Contains(".XML"))
+                _selectedFilename = openFileDialog.FileName;
+                
+                if (_selectedFilename.ToUpper().Contains("CATALOG") && _selectedFilename.ToUpper().Contains(".XML"))
                 {
-                    LoadExchangeSet(fileName);
+                    LoadExchangeSet(_selectedFilename);
                 }
-                else if (fileName.ToUpper().Contains(".XML") || fileName.ToUpper().Contains(".GML"))
+                else if (_selectedFilename.ToUpper().Contains(".XML") || _selectedFilename.ToUpper().Contains(".GML"))
                 {
-                    LoadGMLFile("", fileName);
+                    LoadGMLFile("", _selectedFilename);
                 }
-                else if (fileName.ToUpper().Contains(".H5") || fileName.ToUpper().Contains(".HDF5"))
+                else if (_selectedFilename.ToUpper().Contains(".H5") || _selectedFilename.ToUpper().Contains(".HDF5"))
                 {
                     // filename contains the IHO product standard. First 3 chars indicate the standard to use!
                     string productStandard;
-                    if (fileName.Contains(@"\"))
+                    if (_selectedFilename.Contains(@"\"))
                     {
-                        productStandard = fileName.LastPart(@"\").Substring(0, 3);
+                        productStandard = _selectedFilename.LastPart(@"\").Substring(0, 3);
                     }
                     else
                     {
-                        productStandard = fileName.Substring(0, 3);
+                        productStandard = _selectedFilename.Substring(0, 3);
                     }
 
                     if (productStandard.IsNumeric() == false)
@@ -157,11 +165,11 @@ namespace S1XViewer
                         productStandard = $"S{productStandard}";
                     }
 
-                    LoadHDF5File(productStandard, fileName, null);
+                    LoadHDF5File(productStandard, _selectedFilename, null);
                 }
-                else if (fileName.Contains(".031"))
+                else if (_selectedFilename.Contains(".031"))
                 {
-                    LoadENCFile(fileName);
+                    LoadENCFile(_selectedFilename);
                 }
             }
         }
@@ -200,42 +208,46 @@ namespace S1XViewer
         /// <param name="e"></param>
         public void AutoOpen_Click(object sender, RoutedEventArgs e)
         {
-            var fileName = ((MenuItem)sender).Tag.ToString();
-            if (fileName.Contains("CATALOG.XML") == false && 
-                fileName?.ToUpper().Contains(".XML") == true || fileName?.ToUpper().Contains(".GML") == true)
-            {
-                LoadGMLFile("", fileName);
-            }
-            else if (fileName.ToUpper().Contains("CATALOG.XML") == true)
-            {
-                LoadExchangeSet(fileName);
-            }
-            else if (fileName?.ToUpper().Contains(".HDF5") == true || fileName?.ToUpper().Contains(".H5") == true)
-            {
-                // filename contains the IHO product standard. First 3 chars indicate the standard to use!
-                string productStandard;
-                if (fileName.Contains(@"\"))
-                {
-                    productStandard = fileName.LastPart(@"\").Substring(0, 3);
-                }
-                else
-                {
-                    productStandard = fileName.Substring(0, 3);
-                }
+            _selectedFilename = ((MenuItem)sender).Tag.ToString() ?? string.Empty;
 
-                if (productStandard.IsNumeric() == false)
+            if (string.IsNullOrEmpty(_selectedFilename) == false)
+            {
+                if (_selectedFilename.Contains("CATALOG.XML") == false &&
+                    _selectedFilename?.ToUpper().Contains(".XML") == true || _selectedFilename?.ToUpper().Contains(".GML") == true)
                 {
-                    // if no standard could be determined, ask the user
-                    var selectStandardForm = new SelectStandardWindow();
-                    selectStandardForm.ShowDialog();
-                    productStandard = selectStandardForm.SelectedStandard;
+                    LoadGMLFile("", _selectedFilename);
                 }
-                else
+                else if (_selectedFilename.ToUpper().Contains("CATALOG.XML") == true)
                 {
-                    productStandard = $"S{productStandard}";
+                    LoadExchangeSet(_selectedFilename);
                 }
+                else if (_selectedFilename?.ToUpper().Contains(".HDF5") == true || _selectedFilename?.ToUpper().Contains(".H5") == true)
+                {
+                    // filename contains the IHO product standard. First 3 chars indicate the standard to use!
+                    string productStandard;
+                    if (_selectedFilename.Contains(@"\"))
+                    {
+                        productStandard = _selectedFilename.LastPart(@"\").Substring(0, 3);
+                    }
+                    else
+                    {
+                        productStandard = _selectedFilename.Substring(0, 3);
+                    }
 
-                LoadHDF5File(productStandard, fileName, null);
+                    if (productStandard.IsNumeric() == false)
+                    {
+                        // if no standard could be determined, ask the user
+                        var selectStandardForm = new SelectStandardWindow();
+                        selectStandardForm.ShowDialog();
+                        productStandard = selectStandardForm.SelectedStandard;
+                    }
+                    else
+                    {
+                        productStandard = $"S{productStandard}";
+                    }
+
+                    LoadHDF5File(productStandard, _selectedFilename, null);
+                }
             }
         }
 
@@ -250,6 +262,67 @@ namespace S1XViewer
             if (itemDataTable != null)
             {
                 dataGridFeatureProperties.ItemsSource = itemDataTable.AsDataView();
+            }
+        }
+
+        /// <summary>
+        ///     For navigation through HDF5 timeseries. Method relies on the stored values in the Tag properties of the
+        ///     backward, forward and textinput controls for proper functioning!
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonBackward_Click(object sender, RoutedEventArgs e)
+        {
+            var firstDateTimeSeries = (DateTime)buttonBackward.Tag;
+
+            var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
+            if (textboxTimeValueTagValues?.Length == 2)
+            {
+                string productStandard = textboxTimeValueTagValues[0];
+                if (DateTime.TryParse(textboxTimeValueTagValues[1], out DateTime selectedDateTime) == true)
+                {
+                    DateTime proposedDateTime = selectedDateTime.AddHours(-1);
+                    if (proposedDateTime <= firstDateTimeSeries)
+                    {
+                        buttonBackward.IsEnabled = false;
+                        return;
+                    }
+                    buttonForward.IsEnabled = true;
+
+                    textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
+                    textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
+                    LoadHDF5File(productStandard, _selectedFilename, proposedDateTime);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     For navigation through HDF5 timeseries. Method relies on the stored values in the Tag properties of the
+        ///     backward, forward and textinput controls for proper functioning!
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonForward_Click(object sender, RoutedEventArgs e)
+        {
+            var lastDateTimeSeries = (DateTime)buttonForward.Tag;
+            var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
+            if (textboxTimeValueTagValues?.Length == 2)
+            {
+                string productStandard = textboxTimeValueTagValues[0];
+                if (DateTime.TryParse(textboxTimeValueTagValues[1], out DateTime selectedDateTime) == true)
+                {
+                    DateTime proposedDateTime = selectedDateTime.AddHours(1);
+                    if (proposedDateTime >= lastDateTimeSeries)
+                    {
+                        buttonBackward.IsEnabled = false;
+                        return;
+                    }
+                    buttonBackward.IsEnabled = true;
+
+                    textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
+                    textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
+                    LoadHDF5File(productStandard, _selectedFilename, proposedDateTime);
+                }
             }
         }
 
@@ -270,16 +343,15 @@ namespace S1XViewer
             productStandard = productStandard?.Replace("-", "").ToUpper() ?? string.Empty;
             if (productStandard.In("S104", "S111") == true)
             {
-                string selectedFileName = string.Empty;
                 DateTime? selectedDateTime = DateTime.Now;
                 if (productFileNames.Count > 1)
                 {
                     var selectDatasetWindow = new SelectDatasetWindow();
                     selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                     selectDatasetWindow.ShowDialog();
-                    selectedFileName = selectDatasetWindow.SelectedFilename;
+                    _selectedFilename = selectDatasetWindow.SelectedFilename;
 
-                    var filename = selectedFileName.LastPart(@"\");
+                    var filename = _selectedFilename.LastPart(@"\");
                     if (string.IsNullOrEmpty(filename) == false)
                     {
                         var xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
@@ -309,17 +381,22 @@ namespace S1XViewer
                             selectDateTimeWindow.datePicker.SelectedDate = beginTime.ToUniversalTime();
                             selectDateTimeWindow.ShowDialog();
                             selectedDateTime = selectDateTimeWindow.SelectedDateTime;
+
+                            buttonBackward.Tag = beginTime.ToUniversalTime();
+                            buttonForward.Tag = endTime.ToUniversalTime();
+                            textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
+                            textBoxTimeValue.Tag = $"{productStandard}_{selectedDateTime}";
                         }
                     }
                 }
                 else if (productFileNames.Count == 1)
                 {
-                    selectedFileName = productFileNames[0];
+                    _selectedFilename = productFileNames[0];
                 }
 
-                if (String.IsNullOrEmpty(selectedFileName) == false && selectedDateTime != null)
+                if (String.IsNullOrEmpty(_selectedFilename) == false && selectedDateTime != null)
                 {
-                    await LoadHDF5File(productStandard, selectedFileName, selectedDateTime);
+                    await LoadHDF5File(productStandard, _selectedFilename, selectedDateTime);
                 }
             }
             else if (productFileNames.Count > 1)
@@ -328,10 +405,10 @@ namespace S1XViewer
                 selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                 selectDatasetWindow.ShowDialog();
 
-                var selectedFileName = selectDatasetWindow.SelectedFilename;
-                if (String.IsNullOrEmpty(selectedFileName) == false)
+                _selectedFilename = selectDatasetWindow.SelectedFilename;
+                if (String.IsNullOrEmpty(_selectedFilename) == false)
                 {
-                    await LoadGMLFile(productStandard, selectedFileName);
+                    await LoadGMLFile(productStandard, _selectedFilename);
                 }
             }
             else if (productFileNames.Count == 1)
@@ -418,7 +495,7 @@ namespace S1XViewer
                 myMapView?.Map?.OperationalLayers?.Add(encLayer);
             }
 
-            var datetimeStart = DateTime.Now;
+            var timerStart = DateTime.Now;
             try
             {
                 SaveRecentFile(fileName);
@@ -461,6 +538,12 @@ namespace S1XViewer
                     {
                         _syncContext?.Post(new SendOrPostCallback(o =>
                         {
+                            var beginTime = (DateTime)buttonBackward.Tag;
+                            buttonBackward.IsEnabled = selectedDateTime > beginTime;
+
+                            var endTime = (DateTime)buttonForward.Tag;
+                            buttonForward.IsEnabled = selectedDateTime < endTime;
+
                             if (o != null)
                             {
                                 CreateFeatureCollection((IS1xxDataPackage)o);
@@ -481,7 +564,7 @@ namespace S1XViewer
             }
             finally
             {
-                var elapsedTime = (DateTime.Now - datetimeStart).ToString();
+                var elapsedTime = (DateTime.Now - timerStart).ToString();
 
                 _syncContext?.Post(new SendOrPostCallback(txt =>
                 {
