@@ -31,10 +31,8 @@ namespace S1XViewer.Model
                 throw new ArgumentNullException(nameof(selectedDateTime));
             }
 
-            var minimalDateTime = DateTime.MaxValue;
-            var maximalDateTime = DateTime.MinValue;
+            TimeSpan? minimalTimeSpan = null;
             Hdf5Element? minimalHdf5Element = null;
-            Hdf5Element? maximalHdf5Element = null;
             foreach (Hdf5Element? hdf5Element in features)
             {
                 if (hdf5Element != null)
@@ -66,29 +64,38 @@ namespace S1XViewer.Model
                             return hdf5Element;
                         }
 
-                        if (minimalDateTime > dateTimeOfFirstRecord)
+                        TimeSpan timespanFirst = ((TimeSpan)(selectedDateTime - dateTimeOfFirstRecord)).Duration();
+                        TimeSpan timespanLast = ((TimeSpan)(selectedDateTime - dateTimeOfLastRecord)).Duration();
+
+                        if (minimalTimeSpan == null)
                         {
-                            minimalDateTime = (DateTime) dateTimeOfFirstRecord;
+                            if (timespanFirst < timespanLast)
+                            {
+                                minimalTimeSpan = timespanFirst;
+                            }
+                            else
+                            {
+                                minimalTimeSpan = timespanLast;
+                            }
                             minimalHdf5Element = hdf5Element;
                         }
-
-                        if (maximalDateTime < dateTimeOfLastRecord)
+                        else if (timespanFirst < minimalTimeSpan)
                         {
-                            maximalDateTime = (DateTime) dateTimeOfLastRecord;
-                            maximalHdf5Element = hdf5Element;
+                            minimalTimeSpan = timespanFirst;
+                            minimalHdf5Element = hdf5Element;
+                        }
+                        else if (timespanLast < minimalTimeSpan)
+                        {
+                            minimalTimeSpan = timespanLast;
+                            minimalHdf5Element = hdf5Element;
                         }
                     }
                 }
             }
 
-            if (selectedDateTime < minimalDateTime)
+            if (minimalTimeSpan != null)
             {
                 return minimalHdf5Element;
-            }
-
-            if (selectedDateTime > maximalDateTime)
-            {
-                return maximalHdf5Element;
             }
 
             return null;

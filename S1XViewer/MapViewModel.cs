@@ -1,7 +1,6 @@
 ﻿using Esri.ArcGISRuntime.Mapping;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace S1XViewer
 {
@@ -17,7 +16,7 @@ namespace S1XViewer
 
         private void SetupMap()
         {
-            Map = new Map(BasemapStyle.ArcGISOceans);
+            //Map = new Map(BasemapStyle.ArcGISOceansBase);
         }
 
         /// <summary>
@@ -32,7 +31,7 @@ namespace S1XViewer
                 OnPropertyChanged(); 
             }
         }
-        private Map _map;
+        private Map? _map;
 
         /// <summary>
         /// Raises the <see cref="MapViewModel.PropertyChanged" /> event
@@ -43,6 +42,6 @@ namespace S1XViewer
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

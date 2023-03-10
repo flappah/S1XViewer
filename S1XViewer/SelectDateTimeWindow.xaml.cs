@@ -9,12 +9,57 @@ namespace S1XViewer
     /// </summary>
     public partial class SelectDateTimeWindow : Window
     {
-        private DateTime _selectedDateTime;
-        public DateTime SelectedDateTime { get { return _selectedDateTime; } }
+        private static DateTime? _selectedDateTime = null;
+        private DateTime? _firstValidDate = null;
+        private DateTime? _lastValidDate = null;
+        private bool _initialized = false;
 
+        /// <summary>
+        ///     SelectedDateTime
+        /// </summary>
+        public DateTime SelectedDateTime { get { return (_selectedDateTime ?? DateTime.Now); } }
+
+        /// <summary>
+        ///     FirstValidDate
+        /// </summary>
+        public DateTime FirstValidDate
+        {
+            get { return (DateTime)(_firstValidDate ?? DateTime.MinValue); } 
+            set { 
+                _firstValidDate = value;
+                datePicker.DisplayDateStart = _firstValidDate;
+            }
+        }
+
+        /// <summary>
+        ///     LastValidDate
+        /// </summary>
+        public DateTime LastValidDate
+        {
+            get { return (DateTime)(_lastValidDate ?? DateTime.MaxValue); }
+            set
+            {
+                _lastValidDate = value;
+                datePicker.DisplayDateEnd = _lastValidDate;
+            }
+        }
+
+        /// <summary>
+        ///     Constructor
+        /// </summary>
         public SelectDateTimeWindow()
         {
             InitializeComponent();
+
+            if (_selectedDateTime != null)
+            {
+                datePicker.SelectedDate = _selectedDateTime;
+                timePicker.Text = ((DateTime)_selectedDateTime).ToString("HH:mm");
+            }
+            else
+            {
+                timePicker.SelectedIndex = 0;
+            }
         }
         
         /// <summary>
@@ -42,11 +87,27 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void datePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            DateTime selectedDateTimeFromUI = (DateTime)datePicker.SelectedDate;
-            if (DateTime.TryParse(selectedDateTimeFromUI.ToString("yyyy-MM-dd") + " " + SelectedDateTime.ToString("HH:mm"),
-                out DateTime selectedDateTime) == true)
+            if (_initialized == true)
             {
-                _selectedDateTime = selectedDateTime;
+                DateTime selectedDateTimeFromUI = (DateTime)datePicker.SelectedDate;
+                if (DateTime.TryParse(selectedDateTimeFromUI.ToString("yyyy-MM-dd") + " " + SelectedDateTime.ToString("HH:mm"),
+                    out DateTime selectedDateTime) == true)
+                {
+                    if (selectedDateTime >= FirstValidDate && selectedDateTime <= LastValidDate)
+                    {
+                        _selectedDateTime = selectedDateTime;
+                    }
+                    else
+                    {
+                        _initialized = false;
+                        datePicker.DisplayDateStart = _firstValidDate;
+                        datePicker.DisplayDateEnd = _lastValidDate;
+                        datePicker.SelectedDate = _firstValidDate;
+                        _initialized = true;
+
+                        MessageBox.Show($"Selected date is outside the valid timeframe! Select a date between {FirstValidDate.ToString("yyyy-MM-dd")} and {LastValidDate.ToString("yyyy-MM-dd")}.");
+                    }
+                }
             }
         }
 
@@ -63,6 +124,16 @@ namespace S1XViewer
             {
                 _selectedDateTime = selectedDateTime;
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            _initialized = true;
         }
     }
 }

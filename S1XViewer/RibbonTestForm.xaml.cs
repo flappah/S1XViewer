@@ -25,21 +25,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Ribbon;
 using System.Xml;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
 namespace S1XViewer
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for RibbonTestForm.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class RibbonTestForm : Window
     {
         private readonly Autofac.IContainer _container;
         private List<IS1xxDataPackage> _dataPackages = new List<IS1xxDataPackage>();
         private SynchronizationContext? _syncContext;
 
-        public MainWindow()
+        public RibbonTestForm()
         {
             InitializeComponent();
 
@@ -56,7 +57,7 @@ namespace S1XViewer
                 {
                     Application.Current.Dispatcher.Invoke((Action)delegate
                     {
-                        var newMenuItem = new MenuItem
+                        var newMenuItem = new RibbonMenuItem
                         {
                             Name = $"MenuItem{i++}",
                             Header = fileName
@@ -72,9 +73,9 @@ namespace S1XViewer
 
             myMapView.SetViewpoint(new Viewpoint(
                 latitude: 52,
-                longitude: 3,               
+                longitude: 3,
                 scale: 3000000));
-            
+
         }
 
         #region Menu Handlers
@@ -110,7 +111,7 @@ namespace S1XViewer
                 }
 
                 var fileName = openFileDialog.FileName;
-                
+
                 if (fileName.ToUpper().Contains("CATALOG") && fileName.ToUpper().Contains(".XML"))
                 {
                     LoadExchangeSet(fileName);
@@ -119,7 +120,7 @@ namespace S1XViewer
                 {
                     LoadGMLFile("", fileName);
                 }
-                else if (fileName.ToUpper().Contains(".H5") || fileName.ToUpper().Contains(".HDF5")) 
+                else if (fileName.ToUpper().Contains(".H5") || fileName.ToUpper().Contains(".HDF5"))
                 {
                     // filename contains the IHO product standard. First 3 chars indicate the standard to use!
                     string productStandard;
@@ -188,7 +189,7 @@ namespace S1XViewer
         public void AutoOpen_Click(object sender, RoutedEventArgs e)
         {
             var fileName = ((MenuItem)sender).Header.ToString();
-            if (fileName?.ToLower().Contains(".xml") == true|| fileName?.ToLower().Contains(".gml") == true)
+            if (fileName?.ToLower().Contains(".xml") == true || fileName?.ToLower().Contains(".gml") == true)
             {
                 LoadGMLFile("", fileName);
             }
@@ -349,7 +350,7 @@ namespace S1XViewer
             // Set the viewpoint
             myMapView?.SetViewpoint(new Viewpoint(fullExtent));
         }
-        
+
         /// <summary>
         ///     Loads the specified HDF5 file
         /// </summary>
