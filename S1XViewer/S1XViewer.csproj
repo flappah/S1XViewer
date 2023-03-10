@@ -12,6 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="images\big-cogwheel.png" />
+    <None Remove="images\fast-forward.png" />
+    <None Remove="images\folder-out-interface-symbol.png" />
+    <None Remove="images\previous.png" />
+    <None Remove="images\stack-of-square-papers.png" />
     <None Remove="Paomedia-Small-N-Flat-Map.ico" />
   </ItemGroup>
 
@@ -32,6 +37,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="images\big-cogwheel.png" />
+    <Resource Include="images\fast-forward.png" />
+    <Resource Include="images\folder-out-interface-symbol.png" />
+    <Resource Include="images\previous.png" />
+    <Resource Include="images\stack-of-square-papers.png" />
     <Resource Include="Paomedia-Small-N-Flat-Map.ico" />
   </ItemGroup>
 

@@ -6,10 +6,12 @@ using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
+using Microsoft.Isam.Esent.Interop;
 using Microsoft.Win32;
 using S1XViewer.Base;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
@@ -20,18 +22,18 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Ribbon;
 using System.Xml;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
 namespace S1XViewer
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for RibbonTestForm.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -56,7 +58,7 @@ namespace S1XViewer
                 {
                     Application.Current.Dispatcher.Invoke((Action)delegate
                     {
-                        var newMenuItem = new MenuItem
+                        var newMenuItem = new RibbonMenuItem
                         {
                             Name = $"MenuItem{i++}",
                             Header = fileName
@@ -68,13 +70,24 @@ namespace S1XViewer
                 }
             });
 
-            myMapView.Map = new Map(BasemapStyle.ArcGISTopographic);
+            var optionsStorage = _container.Resolve<IOptionsStorage>();
+            string basemap = optionsStorage.Retrieve("comboBoxBasemap");
+            BasemapStyle basemapStyle;
+            if (string.IsNullOrEmpty(basemap) == true)
+            {
+                basemapStyle = BasemapStyle.ArcGISTopographic;
+            }
+            else
+            {
+                basemapStyle = Enum.Parse<BasemapStyle>(basemap);
+            }
+            myMapView.Map = new Map(basemapStyle);
 
             myMapView.SetViewpoint(new Viewpoint(
                 latitude: 52,
-                longitude: 3,               
+                longitude: 3,
                 scale: 3000000));
-            
+
         }
 
         #region Menu Handlers
@@ -110,7 +123,7 @@ namespace S1XViewer
                 }
 
                 var fileName = openFileDialog.FileName;
-                
+
                 if (fileName.ToUpper().Contains("CATALOG") && fileName.ToUpper().Contains(".XML"))
                 {
                     LoadExchangeSet(fileName);
@@ -119,7 +132,7 @@ namespace S1XViewer
                 {
                     LoadGMLFile("", fileName);
                 }
-                else if (fileName.ToUpper().Contains(".H5") || fileName.ToUpper().Contains(".HDF5")) 
+                else if (fileName.ToUpper().Contains(".H5") || fileName.ToUpper().Contains(".HDF5"))
                 {
                     // filename contains the IHO product standard. First 3 chars indicate the standard to use!
                     string productStandard;
@@ -181,16 +194,48 @@ namespace S1XViewer
         }
 
         /// <summary>
-        /// 
+        ///     Handler for recent files
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public void AutoOpen_Click(object sender, RoutedEventArgs e)
         {
-            var fileName = ((MenuItem)sender).Header.ToString();
-            if (fileName?.ToLower().Contains(".xml") == true|| fileName?.ToLower().Contains(".gml") == true)
+            var fileName = ((MenuItem)sender).Tag.ToString();
+            if (fileName.Contains("CATALOG.XML") == false && 
+                fileName?.ToUpper().Contains(".XML") == true || fileName?.ToUpper().Contains(".GML") == true)
             {
                 LoadGMLFile("", fileName);
+            }
+            else if (fileName.ToUpper().Contains("CATALOG.XML") == true)
+            {
+                LoadExchangeSet(fileName);
+            }
+            else if (fileName?.ToUpper().Contains(".HDF5") == true || fileName?.ToUpper().Contains(".H5") == true)
+            {
+                // filename contains the IHO product standard. First 3 chars indicate the standard to use!
+                string productStandard;
+                if (fileName.Contains(@"\"))
+                {
+                    productStandard = fileName.LastPart(@"\").Substring(0, 3);
+                }
+                else
+                {
+                    productStandard = fileName.Substring(0, 3);
+                }
+
+                if (productStandard.IsNumeric() == false)
+                {
+                    // if no standard could be determined, ask the user
+                    var selectStandardForm = new SelectStandardForm();
+                    selectStandardForm.ShowDialog();
+                    productStandard = selectStandardForm.SelectedStandard;
+                }
+                else
+                {
+                    productStandard = $"S{productStandard}";
+                }
+
+                LoadHDF5File(productStandard, fileName, null);
             }
         }
 
@@ -349,7 +394,7 @@ namespace S1XViewer
             // Set the viewpoint
             myMapView?.SetViewpoint(new Viewpoint(fullExtent));
         }
-        
+
         /// <summary>
         ///     Loads the specified HDF5 file
         /// </summary>
@@ -358,7 +403,7 @@ namespace S1XViewer
         /// <param name="selectedDateTime"></param>
         private async Task LoadHDF5File(string productStandard, string fileName, DateTime? selectedDateTime)
         {
-            Title = $"IHO S1xx standard Viewer ({fileName.LastPart(@"\")} @ {((DateTime)selectedDateTime).ToString("yyyy-MM-dd HH:mm")} UTC)";
+            this.mainRibbon.Title = $"Viewing {fileName.LastPart(@"\")} @ {((DateTime)selectedDateTime).ToString("yyyy-MM-dd HH:mm")} UTC";
 
             _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
@@ -376,6 +421,8 @@ namespace S1XViewer
             var datetimeStart = DateTime.Now;
             try
             {
+                SaveRecentFile(fileName);
+
                 _syncContext?.Post(new SendOrPostCallback(txt =>
                 {
                     labelStatus.Content = $"Loading {txt} ..";
@@ -468,7 +515,7 @@ namespace S1XViewer
         /// <param name="fileName">fileName</param>
         private async Task LoadGMLFile(string productStandard, string fileName)
         {
-            Title = $"IHO S1xx standard Viewer ({fileName.LastPart(@"\")})";
+            this.mainRibbon.Title = $"Viewing {fileName.LastPart(@"\")}";
             _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
@@ -655,7 +702,8 @@ namespace S1XViewer
                 var newMenuItem = new MenuItem
                 {
                     Name = $"MenuItem{i++}",
-                    Header = newFileName
+                    Header = newFileName.LastPart(@"\"),
+                    Tag = newFileName
                 };
                 newMenuItem.Click += AutoOpen_Click;
                 RecentFilesMenuItem.Items.Add(newMenuItem);

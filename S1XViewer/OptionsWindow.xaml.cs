@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Esri.ArcGISRuntime.Mapping;
 using S1XViewer.Storage.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -56,8 +57,34 @@ namespace S1XViewer
             _ = Task.Run(() =>
             {
                 LoadCRSfile();
+                LoadBasemapStyles();
                 RestoreOptions();
             }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void LoadBasemapStyles()
+        {
+            Array basemapStyles = Enum.GetValues(typeof(BasemapStyle));
+            Array.Sort(basemapStyles);
+            foreach (BasemapStyle basemapStyle in basemapStyles)
+            {
+                _syncContext.Send(o =>
+                {
+                    var item = (BasemapStyle)o;
+
+                    var comboBoxItem = new ComboBoxItem
+                    {
+                        Content = item.ToString(),
+                        IsSelected = item.ToString().Equals("ArcGISTopographic"),
+                        Tag = item.ToString()
+                    };
+
+                    _ = comboBoxBasemap.Items.Add(comboBoxItem);
+                }, basemapStyle);
+            }
         }
 
         /// <summary>
@@ -88,6 +115,7 @@ namespace S1XViewer
                                 var comboBoxItem = new ComboBoxItem
                                 {
                                     Content = $"EPSG:{item[0]} - {item[1]}",
+                                    IsSelected = item[0].Contains("4326"),
                                     Tag = item[0]
                                 };
 
@@ -119,18 +147,12 @@ namespace S1XViewer
                     var optionsStorage = (IOptionsStorage)o;
                     checkBoxInvertLatLon.IsChecked = _optionsStorage.Retrieve("checkBoxInvertLatLon") == "true";
 
-                    string selectedItemTag = _optionsStorage.Retrieve("comboBoxCRS");
-                    foreach (object item in comboBoxCRS.Items)
-                    {
-                        if (item is ComboBoxItem comboBoxItem)
-                        {
-                            if (comboBoxItem.Tag.ToString().Equals(selectedItemTag))
-                            {
-                                comboBoxCRS.SelectedItem = comboBoxItem;
-                                break;
-                            }
-                        }
-                    }
+                    string selectedcomboBoxCRS = _optionsStorage.Retrieve("comboBoxCRS");
+                    comboBoxCRS.SelectedItem = selectedcomboBoxCRS;
+
+                    string selectedComboBaseMap = _optionsStorage.Retrieve("comboBoxBasemap");
+                    comboBoxBasemap.SelectedItem = selectedComboBaseMap;
+
                 }, _optionsStorage);
             }
         }
@@ -155,6 +177,7 @@ namespace S1XViewer
             if (sender is System.Windows.Controls.ComboBox comboBoxSender)
             {
                 _optionsStorage.Store(comboBoxSender.Name, ((ComboBoxItem)e.AddedItems[0]).Tag.ToString());
+                label2.Visibility = Visibility.Visible;
             }
         }
 
@@ -168,6 +191,7 @@ namespace S1XViewer
             if (sender is System.Windows.Controls.CheckBox checkBoxSender)
             {
                 _optionsStorage.Store(checkBoxSender.Name, "true");
+                label2.Visibility = Visibility.Visible;
             }
         }
 
@@ -181,7 +205,19 @@ namespace S1XViewer
             if (sender is System.Windows.Controls.CheckBox checkBoxSender)
             {
                 _optionsStorage.Store(checkBoxSender.Name, "false");
+                label2.Visibility = Visibility.Visible;
             }
+        }
+
+        /// <summary>
+        ///     Save basemap selection
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void comboBoxBasemap_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _optionsStorage.Store(comboBoxBasemap.Name, ((ComboBoxItem)e.AddedItems[0]).Tag.ToString());
+            label2.Visibility = Visibility.Visible;
         }
     }
 }
