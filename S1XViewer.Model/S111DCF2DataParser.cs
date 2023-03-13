@@ -57,7 +57,7 @@ namespace S1XViewer.Model
                 var gridSpacingLongitudinal = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal");
 
                 var surfaceCurrentInfos =
-                      _datasetReader.Read<SurfaceCurrentInstance>(hdf5FileName, minGroup.Children[0].Name).ToArray();
+                      _datasetReader.Read<SurfaceCurrentInstance>(hdf5FileName, minGroup.Children[0].Name);
             }
 
             Progress?.Invoke(100);
