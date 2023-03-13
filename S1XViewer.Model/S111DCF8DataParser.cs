@@ -1,4 +1,5 @@
-﻿using HDF5CSharp.DataTypes;
+﻿using HDF5CSharp;
+using HDF5CSharp.DataTypes;
 using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
@@ -9,6 +10,7 @@ using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
 using System.Globalization;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace S1XViewer.Model
 {
@@ -51,6 +53,7 @@ namespace S1XViewer.Model
                 {
                     Type = S1xxTypes.Null,
                     RawXmlData = null,
+                    RawHdfData = null,
                     GeoFeatures = new IGeoFeature[0],
                     MetaFeatures = new IMetaFeature[0],
                     InformationFeatures = new IInformationFeature[0]
@@ -65,22 +68,7 @@ namespace S1XViewer.Model
 
             Progress?.Invoke(50);
 
-            Hdf5Element hdf5S111Root;
-            if (_cachedHdfTrees.ContainsKey(hdf5FileName))
-            {
-                hdf5S111Root = _cachedHdfTrees[hdf5FileName];  
-            }
-            else
-            {
-                hdf5S111Root = await Task.Factory.StartNew((name) =>
-                {
-                    // load HDF file, spawned in a seperate task to keep UI responsive!
-                    return HDF5CSharp.Hdf5.ReadTreeFileStructure(name.ToString());
-
-                }, hdf5FileName).ConfigureAwait(false);
-
-                _cachedHdfTrees.Add(hdf5FileName, hdf5S111Root);
-            }
+            Hdf5Element hdf5S111Root = await RetrieveHdf5FileAsync(hdf5FileName);
 
             // retrieve boundingbox
             var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
@@ -176,6 +164,7 @@ namespace S1XViewer.Model
                     // build up featutes ard wrap 'em in datapackage
                     if (geoFeatures.Count > 0)
                     {
+                        dataPackage.RawHdfData = hdf5S111Root;
                         dataPackage.GeoFeatures = geoFeatures.ToArray();
                         dataPackage.MetaFeatures = new IMetaFeature[0];
                         dataPackage.InformationFeatures = new IInformationFeature[0];
@@ -204,6 +193,7 @@ namespace S1XViewer.Model
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
+                RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
@@ -222,6 +212,7 @@ namespace S1XViewer.Model
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
+                RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
@@ -240,6 +231,7 @@ namespace S1XViewer.Model
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
+                RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]

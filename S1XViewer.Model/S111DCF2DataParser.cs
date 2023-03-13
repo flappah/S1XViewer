@@ -1,10 +1,13 @@
-﻿using S1XViewer.HDF;
+﻿using HDF5CSharp.DataTypes;
+using S1XViewer.HDF;
+using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -15,6 +18,20 @@ namespace S1XViewer.Model
     {
         public delegate void ProgressFunction(double percentage);
         public override event IDataParser.ProgressFunction? Progress;
+
+        private readonly IDatasetReader _datasetReader;
+        private readonly IGeometryBuilderFactory _geometryBuilderFactory;
+
+        /// <summary>
+        ///     Empty constructor used for injection purposes
+        /// </summary>
+        /// <param name="datasetReader"></param>
+        /// <param name="geometryBuilderFactory"></param>
+        public S111DCF2DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory)
+        {
+            _datasetReader = datasetReader;
+            _geometryBuilderFactory = geometryBuilderFactory;
+        }
 
         /// <summary>
         ///     Parses specified HDF5 file
@@ -27,41 +44,21 @@ namespace S1XViewer.Model
         {
             Progress?.Invoke(50);
 
-            var hdf5Tree = await Task.Factory.StartNew((name) =>
+            Hdf5Element hdf5S111Root = await RetrieveHdf5FileAsync(hdf5FileName);
+
+            Hdf5Element? minGroup = FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+            if (minGroup != null)
             {
-                // load HDF file, spawned in a seperate task to keep UI responsive!
-                HDF5CSharp.DataTypes.Hdf5Element tree = HDF5CSharp.Hdf5.ReadTreeFileStructure(name.ToString());
-                return tree;
+                //we've found the relevant group. Use this group to create features on by calculating its position
+                var minGroupParentNode = (Hdf5Element) minGroup.Parent;
+                var gridOriginLatitude = minGroupParentNode.Attributes.Find("gridOriginLatitude");
+                var gridOriginLongitude = minGroupParentNode.Attributes.Find("gridOriginLongitude");
+                var gridSpacingLatitudinal = minGroupParentNode.Attributes.Find("gridSpacingLatitudinal");
+                var gridSpacingLongitudinal = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal");
 
-            }, hdf5FileName).ConfigureAwait(false);
-
-            // retrieve relevant time-frame from SurfaceCurrents collection
-            foreach (HDF5CSharp.DataTypes.Hdf5Element? hdf5Element in hdf5Tree.Children[1].Children)
-            {
-                if (hdf5Element != null)
-                {
-                    var dateTimeOfFirstRecord = hdf5Element.Attributes.Find("dateTimeOfFirstRecord");
-                    var dateTimeOfLastRecord = hdf5Element.Attributes.Find("dateTimeOfLastRecord");
-
-                    if (dateTimeOfFirstRecord != null && dateTimeOfLastRecord != null)
-                    {
-
-                    }
-                }
+                var surfaceCurrentInfos =
+                      _datasetReader.Read<SurfaceCurrentInstance>(hdf5FileName, minGroup.Children[0].Name).ToArray();
             }
-
-
-            // now retrieve positions 
-
-
-
-            // retrieve directions and current speeds
-
-
-
-            // build up featutes and wrap 'em in datapackage
-
-
 
             Progress?.Invoke(100);
 
@@ -92,6 +89,7 @@ namespace S1XViewer.Model
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
+                RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
@@ -110,6 +108,7 @@ namespace S1XViewer.Model
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
+                RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
@@ -128,6 +127,7 @@ namespace S1XViewer.Model
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
+                RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]

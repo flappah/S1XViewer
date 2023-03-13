@@ -28,6 +28,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Xml;
+using Windows.UI.WebUI;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
 namespace S1XViewer
@@ -480,7 +481,11 @@ namespace S1XViewer
         /// <param name="selectedDateTime"></param>
         private async Task LoadHDF5File(string productStandard, string fileName, DateTime? selectedDateTime)
         {
-            this.mainRibbon.Title = $"Viewing {fileName.LastPart(@"\")} @ {((DateTime)selectedDateTime).ToString("yyyy-MM-dd HH:mm")} UTC";
+            this.mainRibbon.Title = $"Viewing {fileName.LastPart(@"\")}";
+            if (selectedDateTime != null)
+            {
+                this.mainRibbon.Title += $"@ {((DateTime)selectedDateTime).ToString("yyyy-MM-dd HH:mm")} UTC";
+            }
 
             _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
@@ -522,17 +527,53 @@ namespace S1XViewer
                         {
                             progressBar.Value = (double)o;
                         }
-                    }), p);
+                    }), p); 
                 });
 
-                var dataPackage = await dataPackageParser.ParseAsync(fileName, selectedDateTime).ConfigureAwait(false);
+                if (selectedDateTime == null)
+                {
+                    // if there's no selected timeframe, retrieve timeframe from HDF5 file and ask user to select a valid date
+                    (DateTime start, DateTime end) timeframePresentInFile = await ((IHdfDataParserBase)dataPackageParser).RetrieveTimeFrameFromHdfDatasetAsync(fileName);
 
+                    var selectDateTimeWindow = new SelectDateTimeWindow();
+                    selectDateTimeWindow.textblockInfo.Text = $"Values available from {timeframePresentInFile.start.ToUniversalTime().ToString()} UTC to {timeframePresentInFile.end.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
+                    selectDateTimeWindow.FirstValidDate = timeframePresentInFile.start.ToUniversalTime();
+                    selectDateTimeWindow.LastValidDate = timeframePresentInFile.end.ToUniversalTime();
+
+                    if (timeframePresentInFile.start.ToString("yyyy-MM-dd") == timeframePresentInFile.end.ToString("yyyy-MM-dd"))
+                    {
+                        // if there's only one date, repopulate the timepicker based on the first and last time present in thhe timeframe. Automatically select the first item
+                        selectDateTimeWindow.timePicker.Items.Clear();
+                        for (int i = timeframePresentInFile.start.Hour; i <= timeframePresentInFile.end.Hour; i++)
+                        {
+                            selectDateTimeWindow.timePicker.Items.Add(new ComboBoxItem() { Content = i.ToString("00") + ":00" });
+                        }
+
+                        if (selectDateTimeWindow.timePicker.Items != null && selectDateTimeWindow.timePicker.Items.Count > 0)
+                        {
+                            ((ComboBoxItem)selectDateTimeWindow.timePicker.Items[0]).IsSelected = true;
+                        }
+
+                        selectDateTimeWindow.datePicker.IsDropDownOpen = false;
+                    }
+
+                    selectDateTimeWindow.datePicker.SelectedDate = timeframePresentInFile.start.ToUniversalTime();
+                    selectDateTimeWindow.ShowDialog();
+                    selectedDateTime = selectDateTimeWindow.SelectedDateTime;
+
+                    buttonBackward.Tag = timeframePresentInFile.start.ToUniversalTime();
+                    buttonForward.Tag = timeframePresentInFile.end.ToUniversalTime();
+                    textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
+                    textBoxTimeValue.Tag = $"{productStandard}_{selectedDateTime}";
+                }
+
+                var dataPackage = await dataPackageParser.ParseAsync(fileName, selectedDateTime).ConfigureAwait(false);
                 if (dataPackage != null && dataPackage.GeoFeatures != null && dataPackage.GeoFeatures.Count() > 0)
                 {
                     // now process data for display in ESRI ArcGIS viewmodel
                     if (dataPackage.Type == S1xxTypes.Null)
                     {
-                        MessageBox.Show($"File '{fileName}' currently can't be rendered. No DataParser is able to render the information present in the file!");
+                        MessageBox.Show($"File '{fileName}' currently can't be rendered. No DataParser is able to render the information present in the file!", "Invalid datapackageparser", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
@@ -553,14 +594,18 @@ namespace S1XViewer
                         _dataPackages.Add(dataPackage);
                     }
                 }
+                else if (dataPackage != null && dataPackage.RawHdfData == null && dataPackage.RawXmlData == null)
+                {
+                    MessageBox.Show($"No datapackageparser exists for '{fileName}' and datacodingformat '{dataCodingFormat}'. Can't display data!", "No datapackageparser", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
                 else
                 {
-                    MessageBox.Show($"File '{fileName}' currently can't be rendered. No data found for selection!");
+                    MessageBox.Show($"File '{fileName}' currently can't be rendered. No data found for selection!", "No data", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
@@ -950,62 +995,62 @@ namespace S1XViewer
                         if (geoFeature is IVectorFeature vectorGeoFeature)
                         {
                             var secondPoint = Destination((mapPoint.Y, mapPoint.X), 75, vectorGeoFeature.Orientation.OrientationValue);
-                            double width = 0.75;
+                            double width = 1.5;
                             int speedBand = 1;
                             System.Drawing.Color color = System.Drawing.Color.FromArgb(118, 82, 226);
                             if (vectorGeoFeature.Speed.SpeedMaximum > 0.5 && vectorGeoFeature.Speed.SpeedMaximum <= 1.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 125, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 1.25;
+                                width = 2.5;
                                 speedBand = 2;
                                 color = System.Drawing.Color.FromArgb(72, 152, 211);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 1.0 && vectorGeoFeature.Speed.SpeedMaximum <= 2.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 150, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 1.5;
+                                width = 3;
                                 speedBand = 3;
                                 color = System.Drawing.Color.FromArgb(97, 203, 229);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 2.0 && vectorGeoFeature.Speed.SpeedMaximum <= 3.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 200, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2.0;
+                                width = 4;
                                 speedBand = 4;
                                 color = System.Drawing.Color.FromArgb(109, 188, 69);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 3.0 && vectorGeoFeature.Speed.SpeedMaximum <= 5.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2.0;
+                                width = 4;
                                 speedBand = 5;
                                 color = System.Drawing.Color.FromArgb(180, 220, 0);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 5.0 && vectorGeoFeature.Speed.SpeedMaximum <= 7.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2.0;
+                                width = 4;
                                 speedBand = 6;
                                 color = System.Drawing.Color.FromArgb(205, 193, 0);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 7.0 && vectorGeoFeature.Speed.SpeedMaximum <= 10.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2.0;
+                                width = 4;
                                 speedBand = 7;
                                 color = System.Drawing.Color.FromArgb(248, 167, 24);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 10.0 && vectorGeoFeature.Speed.SpeedMaximum <= 13.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2.0;
+                                width = 4;
                                 speedBand = 8;
                                 color = System.Drawing.Color.FromArgb(247, 162, 157);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 13.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2.0;
+                                width = 4;
                                 speedBand = 9;
                                 color = System.Drawing.Color.FromArgb(255, 30, 30);
                             }

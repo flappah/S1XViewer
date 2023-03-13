@@ -21,18 +21,20 @@ namespace S1XViewer.HDF
         public IEnumerable<T> Read<T>(string fileName, string name)
         {
             var fileId = Hdf5.OpenFile(fileName);
-
-            try
+            if (fileId != -1)
             {
-                var values = Hdf5.ReadCompounds<T>(fileId, name, "", false);
-                return values;
+                try
+                {
+                    var values = Hdf5.ReadCompounds<T>(fileId, name, "", true);
+                    return values;
+                }
+                catch { }
+                finally
+                {
+                    Hdf5.CloseFile(fileId);
+                }
             }
-            catch { }
-            finally
-            {
-                Hdf5.CloseFile(fileId);
-            }
-
+            
             return default(IEnumerable<T>);
         }
     }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using S1XViewer.HDF;
+using HDF5CSharp.DataTypes;
 
 namespace S1XViewer.Model
 {
@@ -27,16 +28,25 @@ namespace S1XViewer.Model
         {
             Progress?.Invoke(50);
 
-            var hdf5Tree = await Task.Factory.StartNew((name) =>
+            Hdf5Element hdf5S111Root;
+            if (_cachedHdfTrees.ContainsKey(hdf5FileName))
             {
-                // load HDF file, spawned in a seperate task to keep UI responsive!
-                HDF5CSharp.DataTypes.Hdf5Element tree = HDF5CSharp.Hdf5.ReadTreeFileStructure(name.ToString());
-                return tree;
+                hdf5S111Root = _cachedHdfTrees[hdf5FileName];
+            }
+            else
+            {
+                hdf5S111Root = await Task.Factory.StartNew((name) =>
+                {
+                    // load HDF file, spawned in a seperate task to keep UI responsive!
+                    return HDF5CSharp.Hdf5.ReadTreeFileStructure(name.ToString());
 
-            }, hdf5FileName).ConfigureAwait(false);
+                }, hdf5FileName).ConfigureAwait(false);
+
+                _cachedHdfTrees.Add(hdf5FileName, hdf5S111Root);
+            }
 
             // retrieve relevant time-frame from SurfaceCurrents collection
-            foreach (HDF5CSharp.DataTypes.Hdf5Element? hdf5Element in hdf5Tree.Children[1].Children)
+            foreach (HDF5CSharp.DataTypes.Hdf5Element? hdf5Element in hdf5S111Root.Children[1].Children)
             {
                 if (hdf5Element != null)
                 {
@@ -92,6 +102,7 @@ namespace S1XViewer.Model
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
+                RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
@@ -110,6 +121,7 @@ namespace S1XViewer.Model
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
+                RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
@@ -128,6 +140,7 @@ namespace S1XViewer.Model
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
+                RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]

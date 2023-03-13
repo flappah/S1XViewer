@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Esri.ArcGISRuntime.Tasks.NetworkAnalysis;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -118,11 +119,14 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void timePicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedTime = ((ComboBoxItem)timePicker.SelectedItem).Content.ToString();
-            if (DateTime.TryParse(SelectedDateTime.ToString("yyyy-MM-dd") + " " + selectedTime,
-               out DateTime selectedDateTime) == true)
+            if (timePicker.SelectedItem != null)
             {
-                _selectedDateTime = selectedDateTime;
+                var selectedTime = ((ComboBoxItem)timePicker.SelectedItem).Content.ToString();
+                if (DateTime.TryParse(SelectedDateTime.ToString("yyyy-MM-dd") + " " + selectedTime,
+                   out DateTime selectedDateTime) == true)
+                {
+                    _selectedDateTime = selectedDateTime;
+                }
             }
         }
 

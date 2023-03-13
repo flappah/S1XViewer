@@ -17,26 +17,26 @@
             </Ribbon.HelpPaneContent>
             <Ribbon.QuickAccessToolBar>
                 <RibbonQuickAccessToolBar>
-                    <RibbonButton x:Name="quickAccessFileOpen" SmallImageSource="/images/folder-out-interface-symbol.png" Click="AppOpen_Click"/>
+                    <RibbonButton x:Name="quickAccessFileOpen" SmallImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Click="AppOpen_Click"/>
                 </RibbonQuickAccessToolBar>
             </Ribbon.QuickAccessToolBar>
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Paomedia-Small-N-Flat-Map.ico">
-                    <RibbonApplicationMenuItem Header="_Open" x:Name="AppOpen" ImageSource="/images/folder-out-interface-symbol.png" Click="AppOpen_Click"/>
+                    <RibbonApplicationMenuItem Header="_Open" x:Name="AppOpen" ImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Click="AppOpen_Click"/>
                     <RibbonApplicationMenuItem Header="_Recent Files" x:Name="RecentFilesMenuItem" />
                     <RibbonApplicationMenuItem Header="E_xit" x:Name="AppExit" Click="AppExit_Click" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
             <RibbonTab x:Name="HomeTab" Header="Home">
                 <RibbonGroup x:Name="groupPrimary" Header="Control">
-                    <RibbonButton x:Name="buttonFileOpen" LargeImageSource="/images/folder-out-interface-symbol.png" Label="Open File" Click="AppOpen_Click"/>
-                    <RibbonButton x:Name="buttonResetLayers" LargeImageSource="/images/stack-of-square-papers.png" Label="Reset Layers" Click="ResetLayers_Click"/>
-                    <RibbonButton x:Name="buttonOptions" LargeImageSource="/images/big-cogwheel.png" Label="Options" Click="OptionsMenu_Click"/>
+                    <RibbonButton x:Name="buttonFileOpen" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Label="Open File" Click="AppOpen_Click"/>
+                    <RibbonButton x:Name="buttonResetLayers" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" Label="Reset Layers" Click="ResetLayers_Click"/>
+                    <RibbonButton x:Name="buttonOptions" LargeImageSource="/images/Fa-Team-Fontawesome-FontAwesome-Gear.ico" Label="Options" Click="OptionsMenu_Click"/>
                 </RibbonGroup>
                 <RibbonGroup x:Name="groupNavigation" Header="Navigate dataset">
-                    <RibbonButton x:Name="buttonBackward" LargeImageSource="/images/previous.png" Label="Previous" IsEnabled="False" Click="buttonBackward_Click" />
+                    <RibbonButton x:Name="buttonBackward" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Left.ico" Label="Previous" IsEnabled="False" Click="buttonBackward_Click" />
                     <RibbonTextBox x:Name="textBoxTimeValue" Margin="0,7,0,0" IsEnabled="False" FontSize="11" />
-                    <RibbonButton x:Name="buttonForward" LargeImageSource="/images/fast-forward.png" Label="Next" IsEnabled="False" Click="buttonForward_Click" />
+                    <RibbonButton x:Name="buttonForward" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" Label="Next" IsEnabled="False" Click="buttonForward_Click" />
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>

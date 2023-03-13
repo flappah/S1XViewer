@@ -18,11 +18,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="images\big-cogwheel.png" />
-    <None Remove="images\fast-forward.png" />
-    <None Remove="images\folder-out-interface-symbol.png" />
-    <None Remove="images\previous.png" />
-    <None Remove="images\stack-of-square-papers.png" />
+    <None Remove="images\Fa-Team-Fontawesome-FontAwesome-Gear.ico" />
+    <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Left.ico" />
+    <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" />
+    <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" />
+    <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" />
+    <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Sun.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,11 +50,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="images\big-cogwheel.png" />
-    <Resource Include="images\fast-forward.png" />
-    <Resource Include="images\folder-out-interface-symbol.png" />
-    <Resource Include="images\previous.png" />
-    <Resource Include="images\stack-of-square-papers.png" />
+    <Resource Include="images\Fa-Team-Fontawesome-FontAwesome-Gear.ico" />
+    <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Left.ico" />
+    <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" />
+    <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" />
+    <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" />
+    <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Sun.ico" />
     <Resource Include="Paomedia-Small-N-Flat-Map.ico" />
   </ItemGroup>
 
