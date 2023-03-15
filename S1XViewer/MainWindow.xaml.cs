@@ -995,55 +995,55 @@ namespace S1XViewer
                         if (geoFeature is IVectorFeature vectorGeoFeature)
                         {
                             var secondPoint = Destination((mapPoint.Y, mapPoint.X), 75, vectorGeoFeature.Orientation.OrientationValue);
-                            double width = 1.5;
+                            double width = 0.75;
                             int speedBand = 1;
                             System.Drawing.Color color = System.Drawing.Color.FromArgb(118, 82, 226);
                             if (vectorGeoFeature.Speed.SpeedMaximum > 0.5 && vectorGeoFeature.Speed.SpeedMaximum <= 1.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 125, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2.5;
+                                width = 1.25;
                                 speedBand = 2;
                                 color = System.Drawing.Color.FromArgb(72, 152, 211);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 1.0 && vectorGeoFeature.Speed.SpeedMaximum <= 2.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 150, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 3;
+                                width = 1.25;
                                 speedBand = 3;
                                 color = System.Drawing.Color.FromArgb(97, 203, 229);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 2.0 && vectorGeoFeature.Speed.SpeedMaximum <= 3.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 200, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 4;
+                                width = 2;
                                 speedBand = 4;
                                 color = System.Drawing.Color.FromArgb(109, 188, 69);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 3.0 && vectorGeoFeature.Speed.SpeedMaximum <= 5.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 4;
+                                width = 2;
                                 speedBand = 5;
                                 color = System.Drawing.Color.FromArgb(180, 220, 0);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 5.0 && vectorGeoFeature.Speed.SpeedMaximum <= 7.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 4;
+                                width = 2;
                                 speedBand = 6;
                                 color = System.Drawing.Color.FromArgb(205, 193, 0);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 7.0 && vectorGeoFeature.Speed.SpeedMaximum <= 10.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 4;
+                                width = 3;
                                 speedBand = 7;
                                 color = System.Drawing.Color.FromArgb(248, 167, 24);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 10.0 && vectorGeoFeature.Speed.SpeedMaximum <= 13.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 4;
+                                width = 3;
                                 speedBand = 8;
                                 color = System.Drawing.Color.FromArgb(247, 162, 157);
                             }
