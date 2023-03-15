@@ -86,77 +86,97 @@ namespace S1XViewer.Model
 
             var horizontalCRSAttribute = hdf5S111Root.Attributes.Find("horizontalCRS");
             var horizontalCRS = horizontalCRSAttribute?.Value<long>(4326) ?? 4326;
+
+            var epochAttribute = hdf5S111Root.Attributes.Find("epoch");
+            var epoch = epochAttribute?.Value<string>() ?? string.Empty;
+
+            if (String.IsNullOrEmpty(epoch) == false)
+            {
+                horizontalCRS = GetHorizontalCRSWithEpoch(horizontalCRS, epoch);
+            }
+
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
             Hdf5Element? minGroup = FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
             if (minGroup != null)
             {
+                var geoFeatures = new List<IGeoFeature>();
+
                 await Task.Run(() =>
                 {
                     //we've found the relevant group. Use this group to create features on by calculating its position
                     var minGroupParentNode = (Hdf5Element)minGroup.Parent;
                     var gridOriginLatitudeElement = minGroupParentNode.Attributes.Find("gridOriginLatitude");
-                    var gridOriginLatitude = gridOriginLatitudeElement?.Value<double>();
+                    var gridOriginLatitude = gridOriginLatitudeElement?.Value<double>() ?? -1.0;
                     var gridOriginLongitudeElement = minGroupParentNode.Attributes.Find("gridOriginLongitude");
-                    var gridOriginLongitude = gridOriginLongitudeElement?.Value<double>();
+                    var gridOriginLongitude = gridOriginLongitudeElement?.Value<double>() ?? -1.0;
                     var gridSpacingLatitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLatitudinal");
-                    var gridSpacingLatitudinal = gridSpacingLatitudinalElement?.Value<double>();
+                    var gridSpacingLatitudinal = gridSpacingLatitudinalElement?.Value<double>() ?? -1.0;
                     var gridSpacingLongitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal");
-                    var gridSpacingLongitudinal = gridSpacingLongitudinalElement?.Value<double>();
+                    var gridSpacingLongitudinal = gridSpacingLongitudinalElement?.Value<double>() ?? -1.0;
+
+                    if (gridOriginLatitude == -1.0 || gridOriginLongitude == -1.0 || gridSpacingLatitudinal == -1.0 || gridSpacingLongitudinal == -1.0)
+                    {
+                        return;
+                    }
 
                     var numPointsLatitudinalElement = minGroupParentNode.Attributes.Find("numPointsLatitudinal");
                     int numPointsLatitude = numPointsLatitudinalElement?.Value<int>() ?? -1;
-
                     var numPointsLongitudinalNode = minGroupParentNode.Attributes.Find("numPointsLongitudinal");
                     int numPointsLongitude = numPointsLongitudinalNode?.Value<int>() ?? -1;
 
-                    if (numPointsLatitude != -1 && numPointsLongitude != -1)
+                    if (numPointsLatitude == -1 || numPointsLongitude == -1)
                     {
-                        float[,] speedAndDirectionValues =
-                              _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude * 2);
-
-                        var geoFeatures = new List<IGeoFeature>();
-                        for (int latIdx = 0; latIdx < numPointsLatitude; latIdx++)
-                        {
-                            for (int lonIdx = 0; lonIdx < numPointsLongitude; lonIdx += 2)
-                            {
-                                float speed = speedAndDirectionValues[latIdx, lonIdx];
-                                float direction = speedAndDirectionValues[latIdx, lonIdx + 1];
-
-                                if (speed != -9999.0 && direction != -9999.0)
-                                {
-                                    double longitude = gridOriginLongitude + ((lonIdx / 2) * gridSpacingLongitudinal) ?? -1.0;
-                                    double latitude = gridOriginLatitude + (latIdx * gridSpacingLatitudinal) ?? -1.0;
-
-                                    if (longitude != -1.0 && latitude != -1.0)
-                                    {
-                                        var geometry =
-                                            _geometryBuilderFactory.Create("Point", new double[] { longitude }, new double[] { latitude });
-                                        var currentNonGravitationalInstance = new CurrentNonGravitational()
-                                        {
-                                            Id = minGroup.Name,
-                                            FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{longitude.ToString(new CultureInfo("en-US"))}_{latitude.ToString(new CultureInfo("en-US"))}" } },
-                                            Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
-                                            Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
-                                            Geometry = geometry
-                                        };
-                                        geoFeatures.Add(currentNonGravitationalInstance);
-                                    }
-                                }
-                            }
-
-                            Progress?.Invoke(50 + (int)((50.0 / (double) numPointsLatitude) * (double) latIdx));
-                        }
-
-                        // build up featutes ard wrap 'em in datapackage
-                        if (geoFeatures.Count > 0)
-                        {
-                            dataPackage.RawHdfData = hdf5S111Root;
-                            dataPackage.GeoFeatures = geoFeatures.ToArray();
-                            dataPackage.MetaFeatures = new IMetaFeature[0];
-                            dataPackage.InformationFeatures = new IInformationFeature[0];
-                        }
+                        return;
                     }
+
+                    float[,] speedAndDirectionValues =
+                          _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude * 2);
+
+                    if (speedAndDirectionValues == null || speedAndDirectionValues.Length == 0)
+                    {
+                        return;
+                    }
+
+                    for (int latIdx = 0; latIdx < numPointsLatitude; latIdx++)
+                    {
+                        for (int lonIdx = 0; lonIdx < numPointsLongitude; lonIdx += 2)
+                        {
+                            float speed = speedAndDirectionValues[latIdx, lonIdx];
+                            float direction = speedAndDirectionValues[latIdx, lonIdx + 1];
+
+                            if (speed != -9999.0 && direction != -9999.0)
+                            {
+                                double longitude = gridOriginLongitude + ((lonIdx / 2) * gridSpacingLongitudinal);
+                                double latitude = gridOriginLatitude + (latIdx * gridSpacingLatitudinal);
+
+                                var geometry =
+                                    _geometryBuilderFactory.Create("Point", new double[] { longitude }, new double[] { latitude }, (int)horizontalCRS);
+
+                                var currentNonGravitationalInstance = new CurrentNonGravitational()
+                                {
+                                    Id = minGroup.Name + $"_{latIdx}_{lonIdx}",
+                                    FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{longitude.ToString(new CultureInfo("en-US"))}_{latitude.ToString(new CultureInfo("en-US"))}" } },
+                                    Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
+                                    Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
+                                    Geometry = geometry
+                                };
+                                geoFeatures.Add(currentNonGravitationalInstance);
+                            }
+                        }
+
+                        Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)latIdx));
+                    }
+
+                    // build up featutes ard wrap 'em in datapackage
+                    if (geoFeatures.Count > 0)
+                    {
+                        dataPackage.RawHdfData = hdf5S111Root;
+                        dataPackage.GeoFeatures = geoFeatures.ToArray();
+                        dataPackage.MetaFeatures = new IMetaFeature[0];
+                        dataPackage.InformationFeatures = new IInformationFeature[0];
+                    }
+
                 }).ConfigureAwait(false);
             }
 

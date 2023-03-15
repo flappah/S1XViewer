@@ -947,25 +947,32 @@ namespace S1XViewer
                 nameField
             };
 
-            FeatureCollectionTable polysTable = new FeatureCollectionTable(polyFields, GeometryType.Polygon, SpatialReferences.Wgs84)
+            if (dataPackage.GeoFeatures == null || dataPackage.GeoFeatures.Count() == 0)
+            {
+                return;
+            }
+
+            var horizontalCRS = dataPackage.GeoFeatures[0].Geometry.SpatialReference;
+
+            FeatureCollectionTable polysTable = new FeatureCollectionTable(polyFields, GeometryType.Polygon, horizontalCRS)
             {
                 Renderer = CreateRenderer(GeometryType.Polygon),
                 DisplayName = "Polygons"
             };
 
-            FeatureCollectionTable linesTable = new FeatureCollectionTable(lineFields, GeometryType.Polyline, SpatialReferences.Wgs84)
+            FeatureCollectionTable linesTable = new FeatureCollectionTable(lineFields, GeometryType.Polyline, horizontalCRS)
             {
                 Renderer = CreateRenderer(GeometryType.Polyline),
                 DisplayName = "Lines"
             };
 
-            FeatureCollectionTable pointTable = new FeatureCollectionTable(pointFields, GeometryType.Point, SpatialReferences.Wgs84)
+            FeatureCollectionTable pointTable = new FeatureCollectionTable(pointFields, GeometryType.Point, horizontalCRS)
             {
                 Renderer = CreateRenderer(GeometryType.Point),
                 DisplayName = "Points"
             };
 
-            FeatureCollectionTable vectorTable = new FeatureCollectionTable(pointVectorFields, GeometryType.Point, SpatialReferences.Wgs84)
+            FeatureCollectionTable vectorTable = new FeatureCollectionTable(pointVectorFields, GeometryType.Point, horizontalCRS)
             {
                 Renderer = CreateRenderer(GeometryType.Point, true),
                 DisplayName = "Vectors"
@@ -1222,6 +1229,7 @@ namespace S1XViewer
                 if (results != null && results.Count > 0)
                 {
                     dataGridFeatureProperties.ItemsSource = results.First().Value.AsDataView();
+                    dataGridFeatureProperties.Items.Refresh();
 
                     if (treeViewFeatures.Items.Count > 0)
                     {

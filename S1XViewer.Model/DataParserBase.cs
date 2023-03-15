@@ -1,4 +1,6 @@
-﻿using S1XViewer.Model.Interfaces;
+﻿using Esri.ArcGISRuntime.Geometry;
+using Microsoft.Isam.Esent.Interop;
+using S1XViewer.Model.Interfaces;
 using S1XViewer.Types.Interfaces;
 using System.Xml;
 
@@ -7,6 +9,38 @@ namespace S1XViewer.Model
     public abstract class DataParserBase : IDataParser
     {
         public abstract event IDataParser.ProgressFunction? Progress;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baseId"></param>
+        /// <param name="epoch"></param>
+        /// <returns></returns>
+        public long GetHorizontalCRSWithEpoch(long baseId, string epoch)
+        {
+            if (String.IsNullOrEmpty(epoch) == false)
+            {
+                var assemblyPath = System.Reflection.Assembly.GetAssembly(GetType()).Location;
+                string folder = System.IO.Path.GetDirectoryName(assemblyPath);
+                string[] allCrs = File.ReadAllLines(@$"{folder}\crs.csv");
+                List<string> epochLines = allCrs.ToList().FindAll(t => t.Contains($"({epoch.ToUpper()})"));
+                if (epochLines != null && epochLines.Count > 0) 
+                {
+                    string epochLine = epochLines.Last();
+                    var splittedEpochLine = epochLine.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                    if (splittedEpochLine.Length == 2)
+                    {
+                        if (int.TryParse(splittedEpochLine[0], out int epochId))
+                        {
+                            return epochId;
+                        }
+                    }
+                }
+            }
+
+            return 4326;
+        }
+
 
         /// <summary>
         ///     Parses specified XMLDocument. Async version
