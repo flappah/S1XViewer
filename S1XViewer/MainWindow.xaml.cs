@@ -86,8 +86,8 @@ namespace S1XViewer
             myMapView.Map = new Map(basemapStyle);
 
             myMapView.SetViewpoint(new Viewpoint(
-                latitude: 52,
-                longitude: 3,
+                latitude: 50,
+                longitude: 0,
                 scale: 3000000));
 
         }
