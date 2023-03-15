@@ -3,7 +3,7 @@ A viewer for Windows .NET 6.0 for viewing S1xx files, currently only supporting 
 
 First implementation. This is a viewer that is able to read IHO S122, S123, S127 and S128 GML files. For presentation it uses the ESRI ArcGIS Runtime and currently is using the developer license only.
 
-The application been tested with S122, S123 and S128 GML files.
+The application been tested with a number of S111 datacodingformat = 2, S111 datacodingformat = 8, S122, S123 and S128 GML files.
 
 The software expects an active Internet connection for the ESRI ArcGIS runtime to be able to retrieve the basemap.
 
