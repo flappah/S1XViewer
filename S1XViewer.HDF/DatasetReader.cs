@@ -60,7 +60,7 @@ namespace S1XViewer.HDF
                 try
                 {
                     var dataset = file.Dataset(name);
-                    var data2d = dataset.Read<float>().ToArray2D<float>(dim1, dim2 * 2);
+                    var data2d = dataset.Read<float>().ToArray2D<float>(dim1, dim2);
                     return data2d;
                 }
                 catch { }

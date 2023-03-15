@@ -113,7 +113,7 @@ namespace S1XViewer.Model
                     if (numPointsLatitude != -1 && numPointsLongitude != -1)
                     {
                         float[,] speedAndDirectionValues =
-                              _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude);
+                              _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude * 2);
 
                         var geoFeatures = new List<IGeoFeature>();
                         for (int latIdx = 0; latIdx < numPointsLatitude; latIdx++)
