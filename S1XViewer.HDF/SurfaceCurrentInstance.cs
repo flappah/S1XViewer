@@ -5,17 +5,17 @@ namespace S1XViewer.HDF
     public struct SurfaceCurrentInstance
     {
         [Hdf5EntryName("surfaceCurrentSpeed")]
-        public double speed;
+        public float speed;
 
         [Hdf5EntryName("surfaceCurrentDirection")]
-        public double direction;
+        public float direction;
 
         /// <summary>
         ///     
         /// </summary>
         /// <param name="height"></param>
         /// <param name="trend"></param>
-        public SurfaceCurrentInstance(double speed, double direction)
+        public SurfaceCurrentInstance(float speed, float direction)
         {
             this.speed = speed;
             this.direction = direction;

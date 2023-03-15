@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HDF.PInvoke;
 using HDF5CSharp;
+using PureHDF;
 using S1XViewer.HDF.Interfaces;
 
 namespace S1XViewer.HDF
@@ -36,6 +39,38 @@ namespace S1XViewer.HDF
             }
             
             return default(IEnumerable<T>);
+        }
+
+        /// <summary>
+        ///     to read 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="name"></param>
+        /// <param name="dim1"></param>
+        /// <param name="dim2"></param>
+        /// <returns></returns>
+        public float[,] ReadArrayOfFloats(string fileName, string name, int dim1, int dim2)
+        {
+            var mmf = MemoryMappedFile.CreateFromFile(fileName);
+            var accessor = mmf.CreateViewAccessor();
+            var file = H5File.Open(accessor);
+
+            if (file != null)
+            {
+                try
+                {
+                    var dataset = file.Dataset(name);
+                    var data2d = dataset.Read<float>().ToArray2D<float>(dim1, dim2 * 2);
+                    return data2d;
+                }
+                catch { }
+                finally
+                {
+                    mmf.Dispose();
+                }
+            }
+
+            return new float[0, 0]; 
         }
     }
 }

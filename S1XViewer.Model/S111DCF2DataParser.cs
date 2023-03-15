@@ -50,14 +50,23 @@ namespace S1XViewer.Model
             if (minGroup != null)
             {
                 //we've found the relevant group. Use this group to create features on by calculating its position
-                var minGroupParentNode = (Hdf5Element) minGroup.Parent;
+                var minGroupParentNode = (Hdf5Element)minGroup.Parent;
                 var gridOriginLatitude = minGroupParentNode.Attributes.Find("gridOriginLatitude");
                 var gridOriginLongitude = minGroupParentNode.Attributes.Find("gridOriginLongitude");
                 var gridSpacingLatitudinal = minGroupParentNode.Attributes.Find("gridSpacingLatitudinal");
                 var gridSpacingLongitudinal = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal");
 
-                var surfaceCurrentInfos =
-                      _datasetReader.Read<SurfaceCurrentInstance>(hdf5FileName, minGroup.Children[0].Name);
+                var numPointsLatitudinalElement = minGroupParentNode.Attributes.Find("numPointsLatitudinal");
+                int numPointsLatitude = numPointsLatitudinalElement?.Value<int>() ?? -1;
+
+                var numPointsLongitudinalNode = minGroupParentNode.Attributes.Find("numPointsLongitudinal");
+                int numPointsLongitude = numPointsLongitudinalNode?.Value<int>() ?? -1;
+
+                if (numPointsLatitude != -1 && numPointsLongitude != -1)
+                {
+                    var surfaceCurrentInfos =
+                          _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude);
+                }
             }
 
             Progress?.Invoke(100);
