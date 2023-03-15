@@ -84,14 +84,6 @@ namespace S1XViewer.Model
             var horizontalCRSAttribute = hdf5S111Root.Attributes.Find("horizontalCRS");
             var horizontalCRS = horizontalCRSAttribute?.Value<long>(4326) ?? 4326;
 
-            var epochAttribute = hdf5S111Root.Attributes.Find("epoch");
-            var epoch = epochAttribute?.Value<string>() ?? string.Empty;
-
-            if (String.IsNullOrEmpty(epoch) == false)
-            {
-                horizontalCRS = GetHorizontalCRSWithEpoch(horizontalCRS, epoch);
-            }
-
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
             // retrieve relevant time-frame from SurfaceCurrents collection

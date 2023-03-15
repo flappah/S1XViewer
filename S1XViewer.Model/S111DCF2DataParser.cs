@@ -87,14 +87,6 @@ namespace S1XViewer.Model
             var horizontalCRSAttribute = hdf5S111Root.Attributes.Find("horizontalCRS");
             var horizontalCRS = horizontalCRSAttribute?.Value<long>(4326) ?? 4326;
 
-            var epochAttribute = hdf5S111Root.Attributes.Find("epoch");
-            var epoch = epochAttribute?.Value<string>() ?? string.Empty;
-
-            if (String.IsNullOrEmpty(epoch) == false)
-            {
-                horizontalCRS = GetHorizontalCRSWithEpoch(horizontalCRS, epoch);
-            }
-
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
             Hdf5Element? minGroup = FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
@@ -147,8 +139,8 @@ namespace S1XViewer.Model
 
                             if (speed != -9999.0 && direction != -9999.0)
                             {
-                                double longitude = gridOriginLongitude + ((lonIdx / 2) * gridSpacingLongitudinal);
-                                double latitude = gridOriginLatitude + (latIdx * gridSpacingLatitudinal);
+                                double longitude = gridOriginLongitude + (((double)lonIdx / 2.0) * gridSpacingLongitudinal);
+                                double latitude = gridOriginLatitude + ((double)latIdx * gridSpacingLatitudinal);
 
                                 var geometry =
                                     _geometryBuilderFactory.Create("Point", new double[] { longitude }, new double[] { latitude }, (int)horizontalCRS);
