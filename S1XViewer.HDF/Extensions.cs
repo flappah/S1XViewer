@@ -19,7 +19,7 @@ namespace S1XViewer.HDF
         /// <returns></returns>
         public static bool Contains(this List<Hdf5AttributeElement> elements, string label)
         {
-            foreach(var element in elements)
+            foreach (var element in elements)
             {
                 if (element.Name == label) return true;
             }
@@ -54,10 +54,28 @@ namespace S1XViewer.HDF
         {
             if (element != null && element.Values != null)
             {
-                return (T)((Array)element.Values).GetValue(0);
+                var value = ((Array)element.Values).GetValue(0) ?? "";
+
+                if (typeof(T).ToString().ToUpper().Contains("DOUBLE"))
+                {
+                    if (double.TryParse(value.ToString(), out double doubleValue))
+                    {
+                        return (T)(object)doubleValue;
+                    }
+                }
+                else if (typeof(T).ToString().ToUpper().Contains("FLOAT"))
+                {
+                    if (float.TryParse(value.ToString(), out float floatValue))
+                    {
+                        return (T)(object)floatValue;
+                    }
+                }
+
+                return (T)value;
             }
 
             return defaultValue;
         }
     }
 }
+

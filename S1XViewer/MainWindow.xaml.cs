@@ -615,24 +615,10 @@ namespace S1XViewer
                 {
                     if (txt != null)
                     {
-                        labelStatus.Content = $"Load time: {txt} seconds ..";
+                        labelStatus.Content = $"Load time: {txt} seconds. Now rendering file (this can take a while) ..";
                         progressBar.Value = 0;
                     }
                 }), elapsedTime);
-
-                BackgroundWorker bgw = new();
-                bgw.DoWork += delegate
-                {
-                    Task.Delay(5000).Wait();
-                };
-                bgw.RunWorkerCompleted += delegate
-                {
-                    _syncContext?.Post(new SendOrPostCallback((o) =>
-                    {
-                        labelStatus.Content = "";
-                    }), "");
-                };
-                bgw.RunWorkerAsync();
             }
         }
 
@@ -994,63 +980,63 @@ namespace S1XViewer
                     {
                         if (geoFeature is IVectorFeature vectorGeoFeature)
                         {
-                            var secondPoint = Destination((mapPoint.Y, mapPoint.X), 75, vectorGeoFeature.Orientation.OrientationValue);
-                            double width = 0.75;
+                            var secondPoint = Destination((mapPoint.Y, mapPoint.X), 150, vectorGeoFeature.Orientation.OrientationValue);
+                            double width = 1.5;
                             int speedBand = 1;
                             System.Drawing.Color color = System.Drawing.Color.FromArgb(118, 82, 226);
                             if (vectorGeoFeature.Speed.SpeedMaximum > 0.5 && vectorGeoFeature.Speed.SpeedMaximum <= 1.0)
                             {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 125, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 1.25;
+                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
+                                width = 2.5;
                                 speedBand = 2;
                                 color = System.Drawing.Color.FromArgb(72, 152, 211);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 1.0 && vectorGeoFeature.Speed.SpeedMaximum <= 2.0)
                             {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 150, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 1.25;
+                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 300, vectorGeoFeature.Orientation.OrientationValue);
+                                width = 2.5;
                                 speedBand = 3;
                                 color = System.Drawing.Color.FromArgb(97, 203, 229);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 2.0 && vectorGeoFeature.Speed.SpeedMaximum <= 3.0)
                             {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 200, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2;
+                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 400, vectorGeoFeature.Orientation.OrientationValue);
+                                width = 3;
                                 speedBand = 4;
                                 color = System.Drawing.Color.FromArgb(109, 188, 69);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 3.0 && vectorGeoFeature.Speed.SpeedMaximum <= 5.0)
                             {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2;
+                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
+                                width = 3;
                                 speedBand = 5;
                                 color = System.Drawing.Color.FromArgb(180, 220, 0);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 5.0 && vectorGeoFeature.Speed.SpeedMaximum <= 7.0)
                             {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2;
+                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
+                                width = 4;
                                 speedBand = 6;
                                 color = System.Drawing.Color.FromArgb(205, 193, 0);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 7.0 && vectorGeoFeature.Speed.SpeedMaximum <= 10.0)
                             {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 3;
+                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
+                                width = 4;
                                 speedBand = 7;
                                 color = System.Drawing.Color.FromArgb(248, 167, 24);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 10.0 && vectorGeoFeature.Speed.SpeedMaximum <= 13.0)
                             {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 3;
+                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
+                                width = 4;
                                 speedBand = 8;
                                 color = System.Drawing.Color.FromArgb(247, 162, 157);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 13.0)
                             {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 4;
+                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
+                                width = 5;
                                 speedBand = 9;
                                 color = System.Drawing.Color.FromArgb(255, 30, 30);
                             }
@@ -1148,6 +1134,11 @@ namespace S1XViewer
             myMapView.Map.OperationalLayers.Add(collectionLayer);
             myMapView.GraphicsOverlays.Add(graphicsOverlay);
             myMapView.GeoViewTapped += OnMapViewTapped;
+
+            _syncContext?.Post(new SendOrPostCallback((o) =>
+            {
+                labelStatus.Content = "";
+            }), "");
         }
 
         /// <summary>

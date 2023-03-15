@@ -76,13 +76,13 @@ namespace S1XViewer.Model
 
             // retrieve boundingbox
             var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
-            var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<float>(0f) ?? 0.0;
+            var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<double>(0f) ?? 0.0;
             var northBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("northBoundLatitude");
-            var northBoundLatitude = northBoundLatitudeAttribute?.Value<float>(0f) ?? 0f;
+            var northBoundLatitude = northBoundLatitudeAttribute?.Value<double>(0f) ?? 0f;
             var southBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("southBoundLatitude");
-            var southBoundLatitude = southBoundLatitudeAttribute?.Value<float>(0f) ?? 0f;
+            var southBoundLatitude = southBoundLatitudeAttribute?.Value<double>(0f) ?? 0f;
             var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
-            var westBoundLongitude = westBoundLongitudeAttribute?.Value<float>(0f) ?? 0f;
+            var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0f) ?? 0f;
 
             var horizontalCRSAttribute = hdf5S111Root.Attributes.Find("horizontalCRS");
             var horizontalCRS = horizontalCRSAttribute?.Value<long>(4326) ?? 4326;
@@ -96,13 +96,13 @@ namespace S1XViewer.Model
                     //we've found the relevant group. Use this group to create features on by calculating its position
                     var minGroupParentNode = (Hdf5Element)minGroup.Parent;
                     var gridOriginLatitudeElement = minGroupParentNode.Attributes.Find("gridOriginLatitude");
-                    var gridOriginLatitude = gridOriginLatitudeElement?.Value<float>();
+                    var gridOriginLatitude = gridOriginLatitudeElement?.Value<double>();
                     var gridOriginLongitudeElement = minGroupParentNode.Attributes.Find("gridOriginLongitude");
-                    var gridOriginLongitude = gridOriginLongitudeElement?.Value<float>();
+                    var gridOriginLongitude = gridOriginLongitudeElement?.Value<double>();
                     var gridSpacingLatitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLatitudinal");
-                    var gridSpacingLatitudinal = gridSpacingLatitudinalElement?.Value<float>();
+                    var gridSpacingLatitudinal = gridSpacingLatitudinalElement?.Value<double>();
                     var gridSpacingLongitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal");
-                    var gridSpacingLongitudinal = gridSpacingLongitudinalElement?.Value<float>();
+                    var gridSpacingLongitudinal = gridSpacingLongitudinalElement?.Value<double>();
 
                     var numPointsLatitudinalElement = minGroupParentNode.Attributes.Find("numPointsLatitudinal");
                     int numPointsLatitude = numPointsLatitudinalElement?.Value<int>() ?? -1;
@@ -145,7 +145,7 @@ namespace S1XViewer.Model
                                 }
                             }
 
-                            Progress?.Invoke(50 + ((50 / numPointsLatitude) * latIdx));
+                            Progress?.Invoke(50 + (int)((50.0 / (double) numPointsLatitude) * (double) latIdx));
                         }
 
                         // build up featutes ard wrap 'em in datapackage
