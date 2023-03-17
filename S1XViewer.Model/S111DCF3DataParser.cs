@@ -90,7 +90,13 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
-            var selectedSurfaceFeatureElement = hdf5S111Root.Children[1].Children[0];
+            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
+            if (featureElement == null)
+            {
+                return dataPackage;
+            }
+
+            var selectedSurfaceFeatureElement = featureElement.Children[0];
             if (selectedSurfaceFeatureElement != null)
             {
                 // now retrieve positions 
@@ -208,7 +214,13 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
-            var selectedSurfaceFeatureElement = hdf5S111Root.Children[1].Children[0];
+            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
+            if (featureElement == null)
+            {
+                return dataPackage;
+            }
+
+            var selectedSurfaceFeatureElement = featureElement.Children[0];
             if (selectedSurfaceFeatureElement != null)
             {
                 // now retrieve positions 

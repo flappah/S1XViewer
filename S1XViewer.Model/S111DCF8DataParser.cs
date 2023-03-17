@@ -83,7 +83,13 @@ namespace S1XViewer.Model
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int) horizontalCRS);
 
             // retrieve relevant time-frame from SurfaceCurrents collection
-            var selectedSurfaceFeatureElement = FindFeatureByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
+            if (featureElement == null)
+            {
+                return dataPackage;
+            }
+
+            var selectedSurfaceFeatureElement = FindFeatureByDateTime(featureElement.Children, selectedDateTime);
             if (selectedSurfaceFeatureElement != null)
             {
                 // now retrieve positions 
@@ -229,8 +235,14 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
+            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
+            if (featureElement == null)
+            {
+                return dataPackage;
+            }
+
             // retrieve relevant time-frame from SurfaceCurrents collection
-            var selectedSurfaceFeatureElement = FindFeatureByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+            var selectedSurfaceFeatureElement = FindFeatureByDateTime(featureElement.Children, selectedDateTime);
             if (selectedSurfaceFeatureElement != null)
             {
                 // now retrieve positions 

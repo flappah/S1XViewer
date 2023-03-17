@@ -83,7 +83,13 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int) horizontalCRS);
 
-            Hdf5Element? minGroup = FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
+            if (featureElement == null)
+            {
+                return dataPackage;
+            }
+
+            Hdf5Element? minGroup = FindGroupByDateTime(featureElement.Children, selectedDateTime);
             if (minGroup != null)
             {
                 var geoFeatures = new List<IGeoFeature>();
@@ -222,7 +228,13 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
-            Hdf5Element? minGroup = FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
+            if (featureElement == null)
+            {
+                return dataPackage;
+            }
+
+            Hdf5Element? minGroup = FindGroupByDateTime(featureElement.Children, selectedDateTime);
             if (minGroup != null)
             {
                 var geoFeatures = new List<IGeoFeature>();
