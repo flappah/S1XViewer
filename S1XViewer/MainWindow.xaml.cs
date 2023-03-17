@@ -1,5 +1,4 @@
-﻿using ABI.Windows.UI;
-using Autofac;
+﻿using Autofac;
 using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Hydrography;
@@ -26,7 +25,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
-using System.Windows.Media.Animation;
 using System.Xml;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
@@ -154,8 +152,11 @@ namespace S1XViewer
 
                     if (productStandard.IsNumeric() == false)
                     {
+
+
                         // if no standard could be determined, ask the user
                         var selectStandardForm = new SelectStandardWindow();
+                        selectStandardForm.Owner = this;
                         selectStandardForm.ShowDialog();
                         productStandard = selectStandardForm.SelectedStandard;
                     }
@@ -237,6 +238,7 @@ namespace S1XViewer
                     {
                         // if no standard could be determined, ask the user
                         var selectStandardForm = new SelectStandardWindow();
+                        selectStandardForm.Owner = this;
                         selectStandardForm.ShowDialog();
                         productStandard = selectStandardForm.SelectedStandard;
                     }
@@ -348,6 +350,7 @@ namespace S1XViewer
                 if (productFileNames.Count > 1)
                 {
                     var selectDatasetWindow = new SelectDatasetWindow();
+                    selectDatasetWindow.Owner = this;
                     selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                     selectDatasetWindow.ShowDialog();
                     _selectedFilename = selectDatasetWindow.SelectedFilename;
@@ -376,6 +379,7 @@ namespace S1XViewer
                             }
 
                             var selectDateTimeWindow = new SelectDateTimeWindow();
+                            selectDateTimeWindow.Owner = this;
                             selectDateTimeWindow.textblockInfo.Text = $"Values available from {beginTime.ToUniversalTime().ToString()} UTC to {endTime.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
                             selectDateTimeWindow.FirstValidDate = beginTime.ToUniversalTime();
                             selectDateTimeWindow.LastValidDate = endTime.ToUniversalTime();
@@ -403,6 +407,7 @@ namespace S1XViewer
             else if (productFileNames.Count > 1)
             {
                 var selectDatasetWindow = new SelectDatasetWindow();
+                selectDatasetWindow.Owner = this; 
                 selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                 selectDatasetWindow.ShowDialog();
 
@@ -530,6 +535,7 @@ namespace S1XViewer
                     (DateTime start, DateTime end) timeframePresentInFile = await ((IHdfDataParserBase)dataPackageParser).RetrieveTimeFrameFromHdfDatasetAsync(fileName);
 
                     var selectDateTimeWindow = new SelectDateTimeWindow();
+                    selectDateTimeWindow.Owner = this;
                     selectDateTimeWindow.textblockInfo.Text = $"Values available from {timeframePresentInFile.start.ToUniversalTime().ToString()} UTC to {timeframePresentInFile.end.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
                     selectDateTimeWindow.FirstValidDate = timeframePresentInFile.start.ToUniversalTime();
                     selectDateTimeWindow.LastValidDate = timeframePresentInFile.end.ToUniversalTime();
@@ -905,37 +911,6 @@ namespace S1XViewer
         /// <param name="dataPackage">S1xx dataPackage</param>
         private async void CreateFeatureCollection(IS1xxDataPackage dataPackage)
         {
-            string featureJsonString =
-             @"{
-                    ""labelExpressionInfo"":{""expression"":""return $feature.FeatureName""},
-                    ""labelPlacement"":""esriServerPolygonPlacementAlwaysHorizontal"",
-                    ""symbol"":
-                        { 
-                            ""angle"":0,
-                            ""backgroundColor"":[0,0,0,0],
-                            ""borderLineColor"":[0,0,0,0],
-                            ""borderLineSize"":0,
-                            ""color"":[0,0,255,255],
-                            ""font"":
-                                {
-                                    ""decoration"":""none"",
-                                    ""size"":8,
-                                    ""style"":""normal"",
-                                    ""weight"":""normal""
-                                },
-                            ""haloColor"":[255,255,255,255],
-                            ""haloSize"":0.1,
-                            ""horizontalAlignment"":""center"",
-                            ""kerning"":false,
-                            ""type"":""esriTS"",
-                            ""verticalAlignment"":""middle"",
-                            ""xoffset"":0,
-                            ""yoffset"":0
-                        }
-               }";
-
-            // Create a label definition from the JSON string. 
-            LabelDefinition idLabelDefinition = LabelDefinition.FromJson(featureJsonString);
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
 
@@ -974,8 +949,8 @@ namespace S1XViewer
             SpatialReference? horizontalCRS = SpatialReferences.Wgs84;
             if (i < dataPackage.GeoFeatures.Length)
             {
-                horizontalCRS = dataPackage.GeoFeatures[i].Geometry.SpatialReference; 
-            }   
+                horizontalCRS = dataPackage.GeoFeatures[i].Geometry.SpatialReference;
+            }
 
             FeatureCollectionTable polysTable = new FeatureCollectionTable(polyFields, GeometryType.Polygon, horizontalCRS)
             {
@@ -1001,7 +976,7 @@ namespace S1XViewer
                 DisplayName = "Vectors"
             };
 
-            var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };            
+            var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
 
             var colorBand1 = System.Drawing.Color.FromArgb(118, 82, 226);
             var colorBand2 = System.Drawing.Color.FromArgb(72, 152, 211);
@@ -1023,9 +998,9 @@ namespace S1XViewer
                         if (geoFeature is IVectorFeature vectorGeoFeature)
                         {
                             (double Lat, double Lon) secondPoint = (mapPoint.Y, mapPoint.X);
-                            double width= 0.75;
+                            double width = 0.75;
                             System.Drawing.Color color = System.Drawing.Color.Black;
-                            if (vectorGeoFeature.Speed.SpeedMaximum <= 0.5) 
+                            if (vectorGeoFeature.Speed.SpeedMaximum <= 0.5)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 150, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 1.5;
@@ -1166,31 +1141,71 @@ namespace S1XViewer
                 featuresCollection.Tables.Add(linesTable);
             }
 
-            var collectionLayer = new FeatureCollectionLayer(featuresCollection);
-
-            if (_resetViewpoint == true)
+            if (myMapView != null && myMapView.Map != null)
             {
+                string featureJsonString =
+                 @"{
+                    ""labelExpressionInfo"":{""expression"":""return $feature.FeatureName""},
+                    ""labelPlacement"":""esriServerPolygonPlacementAlwaysHorizontal"",
+                    ""symbol"":
+                        { 
+                            ""angle"":0,
+                            ""backgroundColor"":[0,0,0,0],
+                            ""borderLineColor"":[0,0,0,0],
+                            ""borderLineSize"":0,
+                            ""color"":[0,0,255,255],
+                            ""font"":
+                                {
+                                    ""decoration"":""none"",
+                                    ""size"":8,
+                                    ""style"":""normal"",
+                                    ""weight"":""normal""
+                                },
+                            ""haloColor"":[255,255,255,255],
+                            ""haloSize"":0.1,
+                            ""horizontalAlignment"":""center"",
+                            ""kerning"":false,
+                            ""type"":""esriTS"",
+                            ""verticalAlignment"":""middle"",
+                            ""xoffset"":0,
+                            ""yoffset"":0
+                        }
+               }";
+
+                // Create a label definition from the JSON string. 
+                var idLabelDefinition = LabelDefinition.FromJson(featureJsonString);
+
+                var collectionLayer = new FeatureCollectionLayer(featuresCollection);
                 // When the layer loads, zoom the map view to the extent of the feature collection
                 collectionLayer.Loaded += (s, e) => Dispatcher.Invoke(() =>
                 {
                     try
                     {
-                        foreach (FeatureLayer layer in collectionLayer.Layers)
+                        if (_resetViewpoint == true)
                         {
-                            layer.LabelDefinitions.Add(idLabelDefinition);
-                            layer.LabelsEnabled = true;
+                            foreach (FeatureLayer layer in collectionLayer.Layers)
+                            {
+                                if (idLabelDefinition != null)
+                                {
+                                    layer.LabelDefinitions.Add(idLabelDefinition);
+                                    layer.LabelsEnabled = true;
+                                }
 
-                            myMapView.SetViewpointAsync(new Viewpoint(layer.FullExtent));
+                                if (layer.FullExtent != null)
+                                {
+                                    myMapView.SetViewpointAsync(new Viewpoint(layer.FullExtent));
+                                }
+                            }
                         }
                     }
                     catch (Exception) { }
                 });
-            }
 
-            // Add the layer to the Map's Operational Layers collection
-            myMapView.Map.OperationalLayers.Add(collectionLayer);
-            myMapView.GraphicsOverlays.Add(graphicsOverlay);
-            myMapView.GeoViewTapped += OnMapViewTapped;
+                // Add the layer to the Map's Operational Layers collection
+                myMapView.Map.OperationalLayers.Add(collectionLayer);
+                myMapView.GraphicsOverlays?.Add(graphicsOverlay);
+                myMapView.GeoViewTapped += OnMapViewTapped;
+            }
         }
 
         /// <summary>
