@@ -1,17 +1,14 @@
-﻿using HDF5CSharp;
-using HDF5CSharp.DataTypes;
+﻿using HDF5CSharp.DataTypes;
 using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
-using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
 using System.Globalization;
 using System.Xml;
-using System.Xml.Linq;
 
 namespace S1XViewer.Model
 {
