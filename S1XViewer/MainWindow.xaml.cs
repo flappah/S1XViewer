@@ -20,6 +20,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -41,6 +42,9 @@ namespace S1XViewer
         private string _selectedFilename = string.Empty;
         private bool _resetViewpoint = true;
 
+        /// <summary>
+        ///     Basic initialization
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -131,11 +135,11 @@ namespace S1XViewer
 
                 if (_selectedFilename.ToUpper().Contains("CATALOG") && _selectedFilename.ToUpper().Contains(".XML"))
                 {
-                    LoadExchangeSet(_selectedFilename);
+                    _ = LoadExchangeSet(_selectedFilename);
                 }
                 else if (_selectedFilename.ToUpper().Contains(".XML") || _selectedFilename.ToUpper().Contains(".GML"))
                 {
-                    LoadGMLFile("", _selectedFilename);
+                    _ = LoadGMLFile("", _selectedFilename);
                 }
                 else if (_selectedFilename.ToUpper().Contains(".H5") || _selectedFilename.ToUpper().Contains(".HDF5"))
                 {
@@ -165,11 +169,11 @@ namespace S1XViewer
                         productStandard = $"S{productStandard}";
                     }
 
-                    LoadHDF5File(productStandard, _selectedFilename, null);
+                    _ = LoadHDF5File(productStandard, _selectedFilename, null);
                 }
                 else if (_selectedFilename.Contains(".031"))
                 {
-                    LoadENCFile(_selectedFilename);
+                    _ = LoadENCFile(_selectedFilename);
                 }
             }
         }
@@ -212,14 +216,14 @@ namespace S1XViewer
 
             if (string.IsNullOrEmpty(_selectedFilename) == false)
             {
-                if (_selectedFilename.Contains("CATALOG.XML") == false &&
+                if (_selectedFilename?.Contains("CATALOG.XML") == false &&
                     _selectedFilename?.ToUpper().Contains(".XML") == true || _selectedFilename?.ToUpper().Contains(".GML") == true)
                 {
-                    LoadGMLFile("", _selectedFilename);
+                    _= LoadGMLFile("", _selectedFilename);
                 }
-                else if (_selectedFilename.ToUpper().Contains("CATALOG.XML") == true)
+                else if (_selectedFilename?.ToUpper().Contains("CATALOG.XML") == true)
                 {
-                    LoadExchangeSet(_selectedFilename);
+                    _ = LoadExchangeSet(_selectedFilename);
                 }
                 else if (_selectedFilename?.ToUpper().Contains(".HDF5") == true || _selectedFilename?.ToUpper().Contains(".H5") == true)
                 {
@@ -247,7 +251,7 @@ namespace S1XViewer
                         productStandard = $"S{productStandard}";
                     }
 
-                    LoadHDF5File(productStandard, _selectedFilename, null);
+                    _ = LoadHDF5File(productStandard, _selectedFilename, null);
                 }
             }
         }
@@ -293,7 +297,7 @@ namespace S1XViewer
 
                     textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
                     textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
-                    LoadHDF5File(productStandard, _selectedFilename, proposedDateTime);
+                    _ = LoadHDF5File(productStandard, _selectedFilename, proposedDateTime);
                 }
             }
         }
@@ -324,7 +328,7 @@ namespace S1XViewer
 
                     textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
                     textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
-                    LoadHDF5File(productStandard, _selectedFilename, proposedDateTime);
+                    _ = LoadHDF5File(productStandard, _selectedFilename, proposedDateTime);
                 }
             }
         }
@@ -1177,12 +1181,14 @@ namespace S1XViewer
 
                 var collectionLayer = new FeatureCollectionLayer(featuresCollection);
                 // When the layer loads, zoom the map view to the extent of the feature collection
-                collectionLayer.Loaded += (s, e) => Dispatcher.Invoke(() =>
+
+                if (_resetViewpoint == true)
                 {
-                    try
+                    collectionLayer.Loaded += (s, e) => Dispatcher.Invoke(() =>
                     {
-                        if (_resetViewpoint == true)
+                        try
                         {
+                            List<Envelope> dataSetExtents = new List<Envelope>();
                             foreach (FeatureLayer layer in collectionLayer.Layers)
                             {
                                 if (idLabelDefinition != null)
@@ -1193,13 +1199,20 @@ namespace S1XViewer
 
                                 if (layer.FullExtent != null)
                                 {
-                                    myMapView.SetViewpointAsync(new Viewpoint(layer.FullExtent));
+                                    dataSetExtents.Add(layer.FullExtent);
                                 }
                             }
+
+                            Envelope fullExtent = GeometryEngine.CombineExtents(dataSetExtents);
+                            myMapView.SetViewpointAsync(new Viewpoint(fullExtent));
                         }
-                    }
-                    catch (Exception) { }
-                });
+                        catch (Exception) { }
+                    });
+                }
+                else
+                {
+                    collectionLayer.Loaded -= null;
+                }
 
                 // Add the layer to the Map's Operational Layers collection
                 myMapView.Map.OperationalLayers.Add(collectionLayer);
