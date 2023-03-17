@@ -19,7 +19,7 @@ The next screenshow is a sample S128 file.
 
 ![S128_sample](https://user-images.githubusercontent.com/14106566/225308463-1ac81923-42c7-4408-88f6-e2b4c81c7001.png)
 
-Next are two S111 screenshot. The first is a datacoding format = 2 file, the second is a datacoding format = 3 file and the third is a datacoding format = 8 file.
+Next are three S111 screenshots. The first is a datacoding format = 2 file, the second is a datacoding format = 3 file and the third is a datacoding format = 8 file.
 
 ![s111_dcf2_sample](https://user-images.githubusercontent.com/14106566/225308576-9d00956c-4ee0-4301-8f8c-864aa3202210.png)
 
