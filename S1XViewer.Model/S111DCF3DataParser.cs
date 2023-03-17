@@ -12,6 +12,9 @@ using HDF5CSharp.DataTypes;
 using S1XViewer.Model.Geometry;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Storage.Interfaces;
+using S1XViewer.Base;
+using S1XViewer.Types.ComplexTypes;
+using S1XViewer.Types.Features;
 
 namespace S1XViewer.Model
 {
@@ -87,19 +90,69 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
+            var selectedSurfaceFeatureElement = hdf5S111Root.Children[1].Children[0];
+            if (selectedSurfaceFeatureElement != null)
+            {
+                // now retrieve positions 
+                var positioningElement = selectedSurfaceFeatureElement.Children.Find(nd => nd.Name.LastPart("/") == "Positioning");
+                if (positioningElement != null)
+                {
+                    var positionValues =
+                        _datasetReader.Read<GeometryValueInstance>(hdf5FileName, positioningElement.Children[0].Name).ToArray();
 
+                    if (positionValues == null || positionValues.Length == 0)
+                    {
+                        throw new Exception($"Surfacefeature with name {positioningElement.Children[0].Name} contains no positions!");
+                    }
 
-            // now retrieve positions 
+                    // now retrieve group based on selectedTime 
+                    var groupHdf5Group = FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+                    if (groupHdf5Group != null)
+                    {
+                        // retrieve directions and current speeds
+                        var surfaceCurrentInfos =
+                            _datasetReader.Read<SurfaceCurrentInstance>(hdf5FileName, groupHdf5Group.Children[0].Name).ToArray();
 
+                        if (surfaceCurrentInfos.Length != positionValues.Length)
+                        {
+                            throw new Exception("Positioning information does not match the number of surfacecurrent infos!");
+                        }
 
+                        var geoFeatures = new List<IGeoFeature>();
+                        await Task.Run(() =>
+                        {
+                            // build up featutes and wrap 'em in datapackage
+                            for (int i = 0; i < surfaceCurrentInfos.Length; i++)
+                            {
+                                var direction = surfaceCurrentInfos[i].direction;
+                                var speed = surfaceCurrentInfos[i].speed;
 
-            // retrieve directions and current speeds
+                                var geometry =
+                                    _geometryBuilderFactory.Create("Point", new double[] { positionValues[i].longitude }, new double[] { positionValues[i].latitude }, (int)horizontalCRS);
 
+                                var currentNonGravitationalInstance = new CurrentNonGravitational()
+                                {
+                                    Id = groupHdf5Group.Name,
+                                    FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{positionValues[i].longitude.ToString().Replace(",", ".")}_{positionValues[i].latitude.ToString().Replace(",", ".")}" } },
+                                    Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
+                                    Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
+                                    Geometry = geometry
+                                };
+                                geoFeatures.Add(currentNonGravitationalInstance);
+                            }
+                        }).ConfigureAwait(false);
 
-
-            // build up featutes and wrap 'em in datapackage
-
-
+                        // build up featutes ard wrap 'em in datapackage
+                        if (geoFeatures.Count > 0)
+                        {
+                            dataPackage.RawHdfData = hdf5S111Root;
+                            dataPackage.GeoFeatures = geoFeatures.ToArray();
+                            dataPackage.MetaFeatures = new IMetaFeature[0];
+                            dataPackage.InformationFeatures = new IInformationFeature[0];
+                        }
+                    }
+                }
+            }
 
             Progress?.Invoke(100);
             return dataPackage;

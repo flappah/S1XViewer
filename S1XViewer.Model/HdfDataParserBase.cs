@@ -64,7 +64,7 @@ namespace S1XViewer.Model
                 {
                     var epochAttribute = hdf5S111Root.Attributes.Find("epoch");
                     var epoch = epochAttribute?.Value<string>() ?? string.Empty;
-                    horizontalCRS = GetHorizontalCRSWithEpoch(horizontalDatumValue, epoch);
+                    horizontalCRS = CorrectCRSWithEpoch(horizontalDatumValue, epoch);
                 }
                 else
                 {
@@ -81,7 +81,7 @@ namespace S1XViewer.Model
         /// <param name="baseCRSId"></param>
         /// <param name="epoch"></param>
         /// <returns></returns>
-        public long GetHorizontalCRSWithEpoch(long baseCRSId, string epoch)
+        public long CorrectCRSWithEpoch(long baseCRSId, string epoch)
         {
             if (String.IsNullOrEmpty(epoch) == false)
             {
