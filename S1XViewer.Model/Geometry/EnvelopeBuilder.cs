@@ -24,10 +24,9 @@ namespace S1XViewer.Model.Geometry
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        /// <param name="srs"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, int srs = 4326)
+        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, int srs = -1)
         {
             if (x is null || x.Length == 0)
             {
@@ -45,16 +44,23 @@ namespace S1XViewer.Model.Geometry
                 invertLatLon = false;
             }
 
-            if (_spatialReferenceSystem == 0)
+            if (srs != -1)
+            {
+                _spatialReferenceSystem = srs;
+            }
+            else
             {
                 string defaultCRS = _optionsStorage.Retrieve("comboBoxCRS");
-                if (int.TryParse(defaultCRS, out int defaultCRSValue))
+                if (string.IsNullOrEmpty(defaultCRS) == false)
                 {
-                    _spatialReferenceSystem = defaultCRSValue; // if no srsNode is found assume default reference systema
-                }
-                else
-                {
-                    _spatialReferenceSystem = srs; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                    if (int.TryParse(defaultCRS, out int defaultCRSValue))
+                    {
+                        _spatialReferenceSystem = defaultCRSValue; // if no srsNode is found assume default reference systema
+                    }
+                    else
+                    {
+                        _spatialReferenceSystem = 4326; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                    }
                 }
             }
 

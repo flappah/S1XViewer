@@ -19,5 +19,15 @@ namespace S1XViewer.HDF
         {
             return -1;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public override short GetTypeOfHorizontalCRS(string fileName)
+        {
+            return -1;
+        }
     }
 }

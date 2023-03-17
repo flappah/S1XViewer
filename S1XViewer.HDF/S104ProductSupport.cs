@@ -44,5 +44,37 @@ namespace S1XViewer.HDF
             return -1;
 
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public override short GetTypeOfHorizontalCRS(string fileName)
+        {
+            var fileId = H5F.open(fileName, H5F.ACC_RDONLY, H5P.DEFAULT);
+            var groupId = H5G.open(fileId, Encoding.ASCII.GetBytes("/"), H5P.DEFAULT);
+            var attribId = H5A.open(groupId, Encoding.ASCII.GetBytes("typeOfHorizontalCRS"), H5P.DEFAULT);
+
+            var value = new byte[2];
+            var handle = GCHandle.Alloc(value, GCHandleType.Pinned);
+            try
+            {
+                if (H5A.read(attribId, H5T.NATIVE_UINT8, handle.AddrOfPinnedObject()) == 0)
+                {
+                    var returnValue = BitConverter.ToInt16(value, 0);
+                    return returnValue;
+                }
+            }
+            finally
+            {
+                handle.Free();
+                H5A.close(attribId);
+                H5G.close(groupId);
+                H5F.close(fileId);
+            }
+
+            return -1;
+        }
     }
 }

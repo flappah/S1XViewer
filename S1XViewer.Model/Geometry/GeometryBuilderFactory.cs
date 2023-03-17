@@ -7,7 +7,7 @@ namespace S1XViewer.Model.Geometry
     public class GeometryBuilderFactory : IGeometryBuilderFactory
     {
         public IGeometryBuilder[] Builders { get; set; }
-
+       
         /// <summary>
         ///     Creates an ESRI geometry based on the provided XML
         /// </summary>
@@ -38,7 +38,7 @@ namespace S1XViewer.Model.Geometry
             return null;
         }
 
-        /// <summary>
+        /// <summary> 
         ///     Creates an ESRI geometry based on the provided positions
         /// </summary>
         /// <param name="geometryTypeString"></param>
@@ -46,7 +46,7 @@ namespace S1XViewer.Model.Geometry
         /// <param name="y"></param>
         /// <param name="srs">horizontal crs</param>
         /// <returns></returns>
-        public Esri.ArcGISRuntime.Geometry.Geometry Create(string geometryTypeString, double[] x, double[] y, int srs = 4326)
+        public Esri.ArcGISRuntime.Geometry.Geometry Create(string geometryTypeString, double[] x, double[] y, int srs = -1)
         {
             var locatedBuilder =
                 Builders.ToList().Find(tp => tp.GetType().ToString().Contains($"{geometryTypeString}Builder"));

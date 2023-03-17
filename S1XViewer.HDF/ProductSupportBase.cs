@@ -15,5 +15,12 @@ namespace S1XViewer.HDF
         /// <param name="tree"></param>
         /// <returns></returns>
         public abstract short GetDataCodingFormat(string fileName);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public abstract short GetTypeOfHorizontalCRS(string fileName);
     }
 }

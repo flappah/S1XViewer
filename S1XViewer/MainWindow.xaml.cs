@@ -6,12 +6,10 @@ using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
-using Microsoft.Isam.Esent.Interop;
 using Microsoft.Win32;
 using S1XViewer.Base;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
-using S1XViewer.Storage;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
@@ -28,7 +26,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Xml;
-using Windows.UI.WebUI;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
 namespace S1XViewer
@@ -58,7 +55,7 @@ namespace S1XViewer
                 int i = 1;
                 foreach (var fileName in fileNames)
                 {
-                    Application.Current.Dispatcher.Invoke((Action)delegate
+                    System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
                     {
                         var newMenuItem = new RibbonMenuItem
                         {
@@ -85,11 +82,8 @@ namespace S1XViewer
             }
             myMapView.Map = new Map(basemapStyle);
 
-            myMapView.SetViewpoint(new Viewpoint(
-                latitude: 50,
-                longitude: 0,
-                scale: 3000000));
-
+            var mapCenterPoint = new MapPoint(0, 50, SpatialReferences.Wgs84);
+            myMapView.SetViewpoint(new Viewpoint(mapCenterPoint, 3000000));
         }
 
         #region Menu Handlers
@@ -505,12 +499,6 @@ namespace S1XViewer
             {
                 SaveRecentFile(fileName);
 
-                _syncContext?.Post(new SendOrPostCallback(txt =>
-                {
-                    labelStatus.Content = $"Loading {txt} ..";
-
-                }), fileName);
-
                 // now find out which codingformat is to be used to determine S111 dataparser
                 IProductSupportFactory productSupportFactory = _container.Resolve<IProductSupportFactory>();
                 IProductSupportBase productSupport = productSupportFactory.Create(productStandard);
@@ -567,6 +555,12 @@ namespace S1XViewer
                     textBoxTimeValue.Tag = $"{productStandard}_{selectedDateTime}";
                 }
 
+                _syncContext?.Post(new SendOrPostCallback(txt =>
+                {
+                    labelStatus.Content = $"Loading {txt} ..";
+
+                }), fileName);
+
                 var dataPackage = await dataPackageParser.ParseAsync(fileName, selectedDateTime).ConfigureAwait(false);
                 if (dataPackage != null && dataPackage.GeoFeatures != null && dataPackage.GeoFeatures.Count() > 0)
                 {
@@ -577,7 +571,7 @@ namespace S1XViewer
                     }
                     else
                     {
-                        _syncContext?.Post(new SendOrPostCallback(o =>
+                        _syncContext?.Post(new SendOrPostCallback(async o =>
                         {
                             var beginTime = (DateTime)buttonBackward.Tag;
                             buttonBackward.IsEnabled = selectedDateTime > beginTime;
@@ -610,15 +604,29 @@ namespace S1XViewer
             finally
             {
                 var elapsedTime = (DateTime.Now - timerStart).ToString();
-
-                _syncContext?.Post(new SendOrPostCallback(txt =>
+                _syncContext?.Post(new SendOrPostCallback(o =>
                 {
-                    if (txt != null)
+                    if (o != null)
                     {
-                        labelStatus.Content = $"Load time: {txt} seconds. Now rendering file (this can take a while) ..";
+                        labelStatus.Content = $"Load time: {o ?? ""} seconds ..";
                         progressBar.Value = 0;
+
+                        BackgroundWorker bgw = new();
+                        bgw.DoWork += delegate
+                        {
+                            Task.Delay(5000).Wait();
+                        };
+                        bgw.RunWorkerCompleted += delegate
+                        {
+                            _syncContext?.Post(new SendOrPostCallback((o) =>
+                            {
+                                labelStatus.Content = "";
+                            }), "");
+                        };
+                        bgw.RunWorkerAsync();
                     }
                 }), elapsedTime);
+
             }
         }
 
@@ -711,22 +719,24 @@ namespace S1XViewer
                     if (txt != null)
                     {
                         labelStatus.Content = $"Load time: {txt} seconds ..";
+                        progressBar.Value = 0;
+
+                        BackgroundWorker bgw = new();
+                        bgw.DoWork += delegate
+                        {
+                            Task.Delay(5000).Wait();
+                        };
+                        bgw.RunWorkerCompleted += delegate
+                        {
+                            _syncContext?.Post(new SendOrPostCallback((o) =>
+                            {
+                                labelStatus.Content = "";
+                            }), "");
+                        };
+                        bgw.RunWorkerAsync();
                     }
                 }), elapsedTime);
-
-                BackgroundWorker bgw = new();
-                bgw.DoWork += delegate
-                {
-                    Task.Delay(5000).Wait();
-                };
-                bgw.RunWorkerCompleted += delegate
-                {
-                    _syncContext?.Post(new SendOrPostCallback((o) =>
-                    {
-                        labelStatus.Content = "";
-                    }), "");
-                };
-                bgw.RunWorkerAsync();
+                
             }
         }
 
@@ -889,7 +899,7 @@ namespace S1XViewer
         /// <param name="dataPackage">S1xx dataPackage</param>
         private async void CreateFeatureCollection(IS1xxDataPackage dataPackage)
         {
-            string theJSON_String =
+            string featureJsonString =
              @"{
                     ""labelExpressionInfo"":{""expression"":""return $feature.FeatureName""},
                     ""labelPlacement"":""esriServerPolygonPlacementAlwaysHorizontal"",
@@ -919,7 +929,7 @@ namespace S1XViewer
                }";
 
             // Create a label definition from the JSON string. 
-            LabelDefinition idLabelDefinition = LabelDefinition.FromJson(theJSON_String);
+            LabelDefinition idLabelDefinition = LabelDefinition.FromJson(featureJsonString);
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
 
@@ -952,7 +962,14 @@ namespace S1XViewer
                 return;
             }
 
-            var horizontalCRS = dataPackage.GeoFeatures[0].Geometry.SpatialReference;
+            // set projection to the srs of the first valid geometry
+            int i = 0;
+            while (dataPackage.GeoFeatures[i++].Geometry == null && i < dataPackage.GeoFeatures.Length) ;
+            SpatialReference? horizontalCRS = SpatialReferences.Wgs84;
+            if (i < dataPackage.GeoFeatures.Length)
+            {
+                horizontalCRS = dataPackage.GeoFeatures[i].Geometry.SpatialReference; 
+            }   
 
             FeatureCollectionTable polysTable = new FeatureCollectionTable(polyFields, GeometryType.Polygon, horizontalCRS)
             {
@@ -978,8 +995,10 @@ namespace S1XViewer
                 DisplayName = "Vectors"
             };
 
-            var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
-            foreach (IFeature feature in dataPackage.GeoFeatures)
+            var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };            
+
+            //foreach (IFeature feature in dataPackage.GeoFeatures)
+            Parallel.ForEach(dataPackage.GeoFeatures, async feature =>
             {
                 if (feature is IGeoFeature geoFeature)
                 {
@@ -989,62 +1008,53 @@ namespace S1XViewer
                         {
                             var secondPoint = Destination((mapPoint.Y, mapPoint.X), 150, vectorGeoFeature.Orientation.OrientationValue);
                             double width = 1.5;
-                            int speedBand = 1;
                             System.Drawing.Color color = System.Drawing.Color.FromArgb(118, 82, 226);
                             if (vectorGeoFeature.Speed.SpeedMaximum > 0.5 && vectorGeoFeature.Speed.SpeedMaximum <= 1.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 2.5;
-                                speedBand = 2;
                                 color = System.Drawing.Color.FromArgb(72, 152, 211);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 1.0 && vectorGeoFeature.Speed.SpeedMaximum <= 2.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 300, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 2.5;
-                                speedBand = 3;
                                 color = System.Drawing.Color.FromArgb(97, 203, 229);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 2.0 && vectorGeoFeature.Speed.SpeedMaximum <= 3.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 400, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 3;
-                                speedBand = 4;
                                 color = System.Drawing.Color.FromArgb(109, 188, 69);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 3.0 && vectorGeoFeature.Speed.SpeedMaximum <= 5.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 3;
-                                speedBand = 5;
                                 color = System.Drawing.Color.FromArgb(180, 220, 0);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 5.0 && vectorGeoFeature.Speed.SpeedMaximum <= 7.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 4;
-                                speedBand = 6;
                                 color = System.Drawing.Color.FromArgb(205, 193, 0);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 7.0 && vectorGeoFeature.Speed.SpeedMaximum <= 10.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 4;
-                                speedBand = 7;
                                 color = System.Drawing.Color.FromArgb(248, 167, 24);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 10.0 && vectorGeoFeature.Speed.SpeedMaximum <= 13.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 4;
-                                speedBand = 8;
                                 color = System.Drawing.Color.FromArgb(247, 162, 157);
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 13.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 5;
-                                speedBand = 9;
                                 color = System.Drawing.Color.FromArgb(255, 30, 30);
                             }
 
@@ -1059,14 +1069,20 @@ namespace S1XViewer
                             graphic.Geometry = lineGeometry;
                             graphic.Symbol = symbol;
 
-                            graphicsOverlay.Graphics.Add(graphic);
+                            lock (this)
+                            {
+                                graphicsOverlay.Graphics.Add(graphic);
+                            }
 
                             Feature vectorFeature = vectorTable.CreateFeature();
                             vectorFeature.SetAttributeValue(idField, feature.Id);
                             vectorFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
                             vectorFeature.Geometry = geoFeature.Geometry;
 
-                            await vectorTable.AddFeatureAsync(vectorFeature);
+                            lock (this)
+                            {
+                                vectorTable.AddFeatureAsync(vectorFeature);
+                            }
                         }
                         else
                         {
@@ -1075,7 +1091,10 @@ namespace S1XViewer
                             pointFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
                             pointFeature.Geometry = geoFeature.Geometry;
 
-                            await pointTable.AddFeatureAsync(pointFeature);
+                            lock (this)
+                            {
+                                pointTable.AddFeatureAsync(pointFeature);
+                            }
                         }
                     }
                     else if (geoFeature.Geometry is Polyline)
@@ -1085,7 +1104,10 @@ namespace S1XViewer
                         lineFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
                         lineFeature.Geometry = geoFeature.Geometry;
 
-                        await linesTable.AddFeatureAsync(lineFeature);
+                        lock (this)
+                        {
+                            linesTable.AddFeatureAsync(lineFeature);
+                        }
                     }
                     else
                     {
@@ -1094,10 +1116,13 @@ namespace S1XViewer
                         polyFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
                         polyFeature.Geometry = geoFeature.Geometry;
 
-                        await polysTable.AddFeatureAsync(polyFeature);
+                        lock (this)
+                        {
+                            polysTable.AddFeatureAsync(polyFeature);
+                        }
                     }
                 }
-            }
+            });
 
             FeatureCollection featuresCollection = new FeatureCollection();
             featuresCollection.Tables.Clear();
@@ -1141,11 +1166,6 @@ namespace S1XViewer
             myMapView.Map.OperationalLayers.Add(collectionLayer);
             myMapView.GraphicsOverlays.Add(graphicsOverlay);
             myMapView.GeoViewTapped += OnMapViewTapped;
-
-            _syncContext?.Post(new SendOrPostCallback((o) =>
-            {
-                labelStatus.Content = "";
-            }), "");
         }
 
         /// <summary>

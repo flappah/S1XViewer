@@ -1,7 +1,9 @@
 ﻿using HDF5CSharp.DataTypes;
+using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
@@ -30,10 +32,12 @@ namespace S1XViewer.Model
         /// </summary>
         /// <param name="datasetReader"></param>
         /// <param name="geometryBuilderFactory"></param>
-        public S111DCF2DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory)
+        /// <param name="productSupport"></param>
+        public S111DCF2DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport)
         {
             _datasetReader = datasetReader;
             _geometryBuilderFactory = geometryBuilderFactory;
+            _productSupport = productSupport;
         }
 
         /// <summary>
@@ -73,6 +77,7 @@ namespace S1XViewer.Model
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await RetrieveHdf5FileAsync(hdf5FileName);
+            long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
 
             // retrieve boundingbox
             var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
@@ -84,10 +89,7 @@ namespace S1XViewer.Model
             var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
             var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0f) ?? 0f;
 
-            var horizontalCRSAttribute = hdf5S111Root.Attributes.Find("horizontalCRS");
-            var horizontalCRS = horizontalCRSAttribute?.Value<long>(4326) ?? 4326;
-
-            dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
+            dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int) horizontalCRS);
 
             Hdf5Element? minGroup = FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
             if (minGroup != null)
@@ -148,11 +150,12 @@ namespace S1XViewer.Model
                                 var currentNonGravitationalInstance = new CurrentNonGravitational()
                                 {
                                     Id = minGroup.Name + $"_{latIdx}_{lonIdx}",
-                                    FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{longitude.ToString(new CultureInfo("en-US"))}_{latitude.ToString(new CultureInfo("en-US"))}" } },
-                                    Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
-                                    Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
+                                    FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{longitude.ToString().Replace(",", ".")}_{latitude.ToString().Replace(",", ".")}" } },
+                                    Orientation = new Orientation { OrientationValue = direction },
+                                    Speed = new Speed { SpeedMaximum = speed },
                                     Geometry = geometry
                                 };
+
                                 geoFeatures.Add(currentNonGravitationalInstance);
                             }
                         }

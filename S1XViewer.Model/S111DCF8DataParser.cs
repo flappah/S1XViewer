@@ -4,6 +4,7 @@ using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
@@ -70,6 +71,7 @@ namespace S1XViewer.Model
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await RetrieveHdf5FileAsync(hdf5FileName);
+            long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
 
             // retrieve boundingbox
             var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
@@ -79,12 +81,9 @@ namespace S1XViewer.Model
             var southBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("southBoundLatitude");
             var southBoundLatitude = southBoundLatitudeAttribute?.Value<double>(0.0) ?? 0.0;
             var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
-            var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0.0) ?? 0.0;
+            var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0.0) ?? 0.0;           
 
-            var horizontalCRSAttribute = hdf5S111Root.Attributes.Find("horizontalCRS");
-            var horizontalCRS = horizontalCRSAttribute?.Value<long>(4326) ?? 4326;
-
-            dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
+            dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int) horizontalCRS);
 
             // retrieve relevant time-frame from SurfaceCurrents collection
             var selectedSurfaceFeatureElement = FindFeatureByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
