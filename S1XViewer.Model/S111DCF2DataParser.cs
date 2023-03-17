@@ -128,6 +128,7 @@ namespace S1XViewer.Model
                     {
                         for (int lonIdx = 0; lonIdx < numPointsLongitude; lonIdx += 2)
                         {
+                            // build up featutes ard wrap 'em in datapackage
                             float speed = speedAndDirectionValues[latIdx, lonIdx];
                             float direction = speedAndDirectionValues[latIdx, lonIdx + 1];
 
@@ -155,7 +156,6 @@ namespace S1XViewer.Model
                         Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)latIdx));
                     }
 
-                    // build up featutes ard wrap 'em in datapackage
                     if (geoFeatures.Count > 0)
                     {
                         dataPackage.RawHdfData = hdf5S111Root;

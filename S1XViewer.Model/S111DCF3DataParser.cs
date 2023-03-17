@@ -115,7 +115,7 @@ namespace S1XViewer.Model
 
                         if (surfaceCurrentInfos.Length != positionValues.Length)
                         {
-                            throw new Exception("Positioning information does not match the number of surfacecurrent infos!");
+                            throw new Exception("Positioning information does not match the number of surfacecurrent info items!");
                         }
 
                         var geoFeatures = new List<IGeoFeature>();
@@ -132,7 +132,7 @@ namespace S1XViewer.Model
 
                                 var currentNonGravitationalInstance = new CurrentNonGravitational()
                                 {
-                                    Id = groupHdf5Group.Name,
+                                    Id = groupHdf5Group.Name + $"_{i}",
                                     FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{positionValues[i].longitude.ToString().Replace(",", ".")}_{positionValues[i].latitude.ToString().Replace(",", ".")}" } },
                                     Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
                                     Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
@@ -142,7 +142,6 @@ namespace S1XViewer.Model
                             }
                         }).ConfigureAwait(false);
 
-                        // build up featutes ard wrap 'em in datapackage
                         if (geoFeatures.Count > 0)
                         {
                             dataPackage.RawHdfData = hdf5S111Root;

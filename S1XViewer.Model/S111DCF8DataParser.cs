@@ -132,6 +132,7 @@ namespace S1XViewer.Model
 
                                     if (surfaceCurrentInfos != null)
                                     {
+                                        // build up featutes ard wrap 'em in datapackage
                                         var index = (int)((TimeSpan)(selectedDateTime - startDateTime)).TotalSeconds / timeInterval;
                                         if (index < surfaceCurrentInfos.Length)
                                         {
@@ -163,7 +164,6 @@ namespace S1XViewer.Model
                         }
                     }).ConfigureAwait(false);
 
-                    // build up featutes ard wrap 'em in datapackage
                     if (geoFeatures.Count > 0)
                     {
                         dataPackage.RawHdfData = hdf5S111Root;
