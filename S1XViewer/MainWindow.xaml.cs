@@ -538,37 +538,41 @@ namespace S1XViewer
                     // if there's no selected timeframe, retrieve timeframe from HDF5 file and ask user to select a valid date
                     (DateTime start, DateTime end) timeframePresentInFile = await productSupport.RetrieveTimeFrameFromHdfDatasetAsync(fileName);
 
-                    var selectDateTimeWindow = new SelectDateTimeWindow();
-                    selectDateTimeWindow.Owner = this;
-                    selectDateTimeWindow.textblockInfo.Text = $"Values available from {timeframePresentInFile.start.ToUniversalTime().ToString()} UTC to {timeframePresentInFile.end.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
-                    selectDateTimeWindow.FirstValidDate = timeframePresentInFile.start.ToUniversalTime();
-                    selectDateTimeWindow.LastValidDate = timeframePresentInFile.end.ToUniversalTime();
-
-                    if (timeframePresentInFile.start.ToString("yyyy-MM-dd") == timeframePresentInFile.end.ToString("yyyy-MM-dd"))
+                    if (timeframePresentInFile.start != DateTime.MinValue &&
+                        timeframePresentInFile.end != DateTime.MinValue)
                     {
-                        // if there's only one date, repopulate the timepicker based on the first and last time present in thhe timeframe. Automatically select the first item
-                        selectDateTimeWindow.timePicker.Items.Clear();
-                        for (int i = timeframePresentInFile.start.Hour; i <= timeframePresentInFile.end.Hour; i++)
+                        var selectDateTimeWindow = new SelectDateTimeWindow();
+                        selectDateTimeWindow.Owner = this;
+                        selectDateTimeWindow.textblockInfo.Text = $"Values available from {timeframePresentInFile.start.ToUniversalTime().ToString()} UTC to {timeframePresentInFile.end.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
+                        selectDateTimeWindow.FirstValidDate = timeframePresentInFile.start.ToUniversalTime();
+                        selectDateTimeWindow.LastValidDate = timeframePresentInFile.end.ToUniversalTime();
+
+                        if (timeframePresentInFile.start.ToString("yyyy-MM-dd") == timeframePresentInFile.end.ToString("yyyy-MM-dd"))
                         {
-                            selectDateTimeWindow.timePicker.Items.Add(new ComboBoxItem() { Content = i.ToString("00") + ":00" });
+                            // if there's only one date, repopulate the timepicker based on the first and last time present in thhe timeframe. Automatically select the first item
+                            selectDateTimeWindow.timePicker.Items.Clear();
+                            for (int i = timeframePresentInFile.start.Hour; i <= timeframePresentInFile.end.Hour; i++)
+                            {
+                                selectDateTimeWindow.timePicker.Items.Add(new ComboBoxItem() { Content = i.ToString("00") + ":00" });
+                            }
+
+                            if (selectDateTimeWindow.timePicker.Items != null && selectDateTimeWindow.timePicker.Items.Count > 0)
+                            {
+                                ((ComboBoxItem)selectDateTimeWindow.timePicker.Items[0]).IsSelected = true;
+                            }
+
+                            selectDateTimeWindow.datePicker.IsDropDownOpen = false;
                         }
 
-                        if (selectDateTimeWindow.timePicker.Items != null && selectDateTimeWindow.timePicker.Items.Count > 0)
-                        {
-                            ((ComboBoxItem)selectDateTimeWindow.timePicker.Items[0]).IsSelected = true;
-                        }
+                        selectDateTimeWindow.datePicker.SelectedDate = timeframePresentInFile.start.ToUniversalTime();
+                        selectDateTimeWindow.ShowDialog();
+                        selectedDateTime = selectDateTimeWindow.SelectedDateTime;
 
-                        selectDateTimeWindow.datePicker.IsDropDownOpen = false;
+                        buttonBackward.Tag = timeframePresentInFile.start.ToUniversalTime();
+                        buttonForward.Tag = timeframePresentInFile.end.ToUniversalTime();
+                        textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
+                        textBoxTimeValue.Tag = $"{productStandard}_{selectedDateTime}";
                     }
-
-                    selectDateTimeWindow.datePicker.SelectedDate = timeframePresentInFile.start.ToUniversalTime();
-                    selectDateTimeWindow.ShowDialog();
-                    selectedDateTime = selectDateTimeWindow.SelectedDateTime;
-
-                    buttonBackward.Tag = timeframePresentInFile.start.ToUniversalTime();
-                    buttonForward.Tag = timeframePresentInFile.end.ToUniversalTime();
-                    textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
-                    textBoxTimeValue.Tag = $"{productStandard}_{selectedDateTime}";
                 }
 
                 _syncContext?.Post(new SendOrPostCallback(txt =>
@@ -589,11 +593,21 @@ namespace S1XViewer
                     {
                         _syncContext?.Post(new SendOrPostCallback(async o =>
                         {
-                            var beginTime = (DateTime)buttonBackward.Tag;
-                            buttonBackward.IsEnabled = selectedDateTime > beginTime;
+                            if (string.IsNullOrEmpty(buttonBackward.Tag.ToString()) == false)
+                            {
+                                if (DateTime.TryParse(buttonBackward.Tag.ToString(), out DateTime beginTime))
+                                {
+                                    buttonBackward.IsEnabled = selectedDateTime > beginTime;
+                                }
+                            }
 
-                            var endTime = (DateTime)buttonForward.Tag;
-                            buttonForward.IsEnabled = selectedDateTime < endTime;
+                            if (string.IsNullOrEmpty(buttonForward.Tag.ToString()) == false)
+                            {
+                                if (DateTime.TryParse(buttonForward.Tag.ToString(), out DateTime endTime))
+                                {
+                                    buttonForward.IsEnabled = selectedDateTime < endTime;
+                                }
+                            }
 
                             if (o != null)
                             {
@@ -962,6 +976,8 @@ namespace S1XViewer
                 DisplayName = "Polygons"
             };
 
+            var filledPolyTables = new Dictionary<System.Drawing.Color, FeatureCollectionTable>();
+
             FeatureCollectionTable linesTable = new FeatureCollectionTable(lineFields, GeometryType.Polyline, horizontalCRS)
             {
                 Renderer = CreateRenderer(GeometryType.Polyline),
@@ -982,16 +998,6 @@ namespace S1XViewer
 
             var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
 
-            var colorBand1 = System.Drawing.Color.FromArgb(118, 82, 226);
-            var colorBand2 = System.Drawing.Color.FromArgb(72, 152, 211);
-            var colorBand3 = System.Drawing.Color.FromArgb(97, 203, 229);
-            var colorBand4 = System.Drawing.Color.FromArgb(109, 188, 69);
-            var colorBand5 = System.Drawing.Color.FromArgb(180, 220, 0);
-            var colorBand6 = System.Drawing.Color.FromArgb(205, 193, 0);
-            var colorBand7 = System.Drawing.Color.FromArgb(248, 167, 24);
-            var colorBand8 = System.Drawing.Color.FromArgb(247, 162, 157);
-            var colorBand9 = System.Drawing.Color.FromArgb(255, 30, 30);
-
             //foreach (IFeature feature in dataPackage.GeoFeatures)
             Parallel.ForEach(dataPackage.GeoFeatures, async feature =>
             {
@@ -1008,55 +1014,55 @@ namespace S1XViewer
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 150, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 1.5;
-                                color = colorBand1;
+                                color = System.Drawing.Color.FromArgb(118, 82, 226); 
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 0.5 && vectorGeoFeature.Speed.SpeedMaximum <= 1.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 2.5;
-                                color = colorBand2;
+                                color = System.Drawing.Color.FromArgb(72, 152, 211); 
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 1.0 && vectorGeoFeature.Speed.SpeedMaximum <= 2.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 300, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 2.5;
-                                color = colorBand3;
+                                color = System.Drawing.Color.FromArgb(97, 203, 229); 
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 2.0 && vectorGeoFeature.Speed.SpeedMaximum <= 3.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 400, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 3;
-                                color = colorBand4;
+                                color = System.Drawing.Color.FromArgb(109, 188, 69); 
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 3.0 && vectorGeoFeature.Speed.SpeedMaximum <= 5.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 3;
-                                color = colorBand5;
+                                color = System.Drawing.Color.FromArgb(180, 220, 0); 
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 5.0 && vectorGeoFeature.Speed.SpeedMaximum <= 7.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 4;
-                                color = colorBand6;
+                                color = System.Drawing.Color.FromArgb(205, 193, 0); 
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 7.0 && vectorGeoFeature.Speed.SpeedMaximum <= 10.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 4;
-                                color = colorBand7;
+                                color = System.Drawing.Color.FromArgb(248, 167, 24); 
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 10.0 && vectorGeoFeature.Speed.SpeedMaximum <= 13.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 4;
-                                color = colorBand8;
+                                color = System.Drawing.Color.FromArgb(247, 162, 157); 
                             }
                             else if (vectorGeoFeature.Speed.SpeedMaximum > 13.0)
                             {
                                 secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
                                 width = 5;
-                                color = colorBand9;
+                                color = System.Drawing.Color.FromArgb(255, 30, 30); 
                             }
 
                             var lineGeometry = new Polyline(new List<MapPoint> { mapPoint, new MapPoint(secondPoint.Lon, secondPoint.Lat) });
@@ -1084,7 +1090,7 @@ namespace S1XViewer
                             {
                                 vectorTable.AddFeatureAsync(vectorFeature);
                             }
-                        }
+                        }                       
                         else
                         {
                             Feature pointFeature = pointTable.CreateFeature();
@@ -1112,14 +1118,81 @@ namespace S1XViewer
                     }
                     else
                     {
-                        Feature polyFeature = polysTable.CreateFeature();
-                        polyFeature.SetAttributeValue(idField, feature.Id);
-                        polyFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
-                        polyFeature.Geometry = geoFeature.Geometry;
-
-                        lock (this)
+                        if (geoFeature is ISounding sounding) // this is a polygon and is rendered as a filled polygon with varying color
                         {
-                            polysTable.AddFeatureAsync(polyFeature);
+                            System.Drawing.Color color = System.Drawing.Color.Black;
+                            if (sounding.Value <= 1.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(193, 239, 255);
+                            }
+                            else if (sounding.Value > 1.0 && sounding.Value <= 2.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(156, 232, 255);
+                            }
+                            else if (sounding.Value > 2.0 && sounding.Value <= 5.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(115, 223, 255);
+                            }
+                            else if (sounding.Value > 5.0 && sounding.Value <= 10.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(74, 215, 255);
+                            }
+                            else if (sounding.Value > 10.0 && sounding.Value <= 15.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(52, 210, 255);
+                            }
+                            else if (sounding.Value > 15.0 && sounding.Value <= 20.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(36, 206, 255);
+                            }
+                            else if (sounding.Value > 20.0 && sounding.Value <= 25.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(22, 202, 255);
+                            }
+                            else
+                            {
+                                color = System.Drawing.Color.FromArgb(15, 176, 255);
+                            }
+
+                            lock(this)
+                            {
+                                if (filledPolyTables.ContainsKey(color) == false)
+                                {
+                                    var lineSym = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, color, 1);
+                                    var sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, color, lineSym);
+                                    var simpleRenderer = new SimpleRenderer(sym);
+
+                                    var filledPolysTable = new FeatureCollectionTable(polyFields, GeometryType.Polygon, horizontalCRS)
+                                    {
+                                        Renderer = simpleRenderer,
+                                        DisplayName = "Polygons"
+                                    };
+
+                                    filledPolyTables.Add(color, filledPolysTable);
+                                }
+                            }
+
+                            Feature polyFeature = filledPolyTables[color].CreateFeature();
+                            polyFeature.SetAttributeValue(idField, feature.Id);
+                            polyFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
+                            polyFeature.Geometry = geoFeature.Geometry;
+
+                            lock (this)
+                            {
+                                filledPolyTables[color].AddFeatureAsync(polyFeature);
+                            }
+                        }
+                        else
+                        {
+                            Feature polyFeature = polysTable.CreateFeature();
+                            polyFeature.SetAttributeValue(idField, feature.Id);
+                            polyFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
+                            polyFeature.Geometry = geoFeature.Geometry;
+
+                            lock (this)
+                            {
+                                polysTable.AddFeatureAsync(polyFeature);
+                            }
                         }
                     }
                 }
@@ -1127,6 +1200,14 @@ namespace S1XViewer
 
             FeatureCollection featuresCollection = new FeatureCollection();
             featuresCollection.Tables.Clear();
+
+            if (filledPolyTables.Count > 0)
+            {
+                foreach(KeyValuePair<System.Drawing.Color, FeatureCollectionTable> filledPolysTable in filledPolyTables)
+                {
+                    featuresCollection.Tables.Add(filledPolysTable.Value);
+                }
+            }
 
             if (pointTable.Count() > 0)
             {

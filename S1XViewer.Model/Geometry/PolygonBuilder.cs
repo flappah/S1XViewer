@@ -31,6 +31,73 @@ namespace S1XViewer.Model.Geometry
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <param name="srs"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, double z, int srs = -1)
+        {
+
+            if (x is null || x.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            if (y is null || y.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            var mappointList = new List<MapPoint>();
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            {
+                invertLatLon = false;
+            }
+
+            if (srs != -1)
+            {
+                _spatialReferenceSystem = srs;
+            }
+            else
+            {
+                string defaultCRS = _optionsStorage.Retrieve("comboBoxCRS");
+                if (string.IsNullOrEmpty(defaultCRS) == false)
+                {
+                    if (int.TryParse(defaultCRS, out int defaultCRSValue))
+                    {
+                        _spatialReferenceSystem = defaultCRSValue; // if no srsNode is found assume default reference systema
+                    }
+                    else
+                    {
+                        _spatialReferenceSystem = 4326; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                    }
+                }
+            }
+
+            if (invertLatLon)
+            {
+                for (int i = 0; i < x.Length; i++)
+                {
+                    mappointList.Add(new MapPoint(x[i], y[i], SpatialReference.Create(_spatialReferenceSystem)));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < x.Length; i++)
+                {
+                    mappointList.Add(new MapPoint(x[i], y[i], SpatialReference.Create(_spatialReferenceSystem)));
+                }
+            }
+
+            return new Polygon(mappointList, SpatialReference.Create(_spatialReferenceSystem));
+        }
+
+        /// <summary>
         ///     Retrieves the geometry from the specified Xml Node
         /// </summary>
         /// <param name="node">node containing a basic geometry</param>

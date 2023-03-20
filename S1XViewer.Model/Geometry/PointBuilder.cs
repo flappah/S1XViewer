@@ -76,6 +76,62 @@ namespace S1XViewer.Model.Geometry
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <param name="srs"></param>
+        /// <returns></returns>
+        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, double z, int srs = -1)
+        {
+            if (x is null || x.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            if (y is null || y.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            {
+                invertLatLon = false;
+            }
+
+            if (srs != -1)
+            {
+                _spatialReferenceSystem = srs;
+            }
+            else
+            {
+                string defaultCRS = _optionsStorage.Retrieve("comboBoxCRS");
+                if (string.IsNullOrEmpty(defaultCRS) == false)
+                {
+                    if (int.TryParse(defaultCRS, out int defaultCRSValue))
+                    {
+                        _spatialReferenceSystem = defaultCRSValue; // if no srsNode is found assume default reference systema
+                    }
+                    else
+                    {
+                        _spatialReferenceSystem = 4326; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                    }
+                }
+            }
+
+            if (invertLatLon)
+            {
+                return new MapPoint(y[0], x[0], z, SpatialReference.Create(_spatialReferenceSystem));
+            }
+            else
+            {
+                return new MapPoint(x[0], y[0], z, SpatialReference.Create(_spatialReferenceSystem));
+            }
+        }
+
+        /// <summary>
         ///     Retrieves the geometry from the specified Xml Node
         /// </summary>
         /// <param name="node">node containing a basic geometry</param>

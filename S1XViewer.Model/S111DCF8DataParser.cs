@@ -170,9 +170,9 @@ namespace S1XViewer.Model
                         }
                     }).ConfigureAwait(false);
 
+                    dataPackage.RawHdfData = hdf5S111Root;
                     if (geoFeatures.Count > 0)
                     {
-                        dataPackage.RawHdfData = hdf5S111Root;
                         dataPackage.GeoFeatures = geoFeatures.ToArray();
                         dataPackage.MetaFeatures = new IMetaFeature[0];
                         dataPackage.InformationFeatures = new IInformationFeature[0];

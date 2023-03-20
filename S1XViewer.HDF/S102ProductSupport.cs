@@ -83,9 +83,15 @@ namespace S1XViewer.HDF
             return -1;
         }
 
-        public override Task<(DateTime start, DateTime end)> RetrieveTimeFrameFromHdfDatasetAsync(string hdf5FileName)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override async Task<(DateTime start, DateTime end)> RetrieveTimeFrameFromHdfDatasetAsync(string hdf5FileName)
         {
-            throw new NotImplementedException();
+            return (DateTime.MinValue, DateTime.MinValue);
         }
     }
 }

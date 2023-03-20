@@ -51,7 +51,7 @@ namespace S1XViewer.HDF
         /// <returns></returns>
         public float[,] ReadArrayOfFloats(string fileName, string name, int dim1, int dim2)
         {
-            var mmf = MemoryMappedFile.CreateFromFile(fileName);
+            var mmf = MemoryMappedFile.CreateFromFile(fileName, FileMode.Open);
             var accessor = mmf.CreateViewAccessor();
             var file = H5File.Open(accessor);
 
@@ -66,6 +66,8 @@ namespace S1XViewer.HDF
                 catch { }
                 finally
                 {
+                    accessor.Dispose();
+                    file.Dispose();
                     mmf.Dispose();
                 }
             }

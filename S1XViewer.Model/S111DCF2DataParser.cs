@@ -7,6 +7,7 @@ using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
+using System.Globalization;
 using System.Xml;
 
 namespace S1XViewer.Model
@@ -83,6 +84,30 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int) horizontalCRS);
 
+            Hdf5Element? groupFElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/Group_F"));
+            if (groupFElement == null)
+            {
+                return dataPackage;
+            }
+
+            double nillValueSpeed = -9999.0;
+            double nillValueDirection = -9999.0;
+            var featureMetaInfoElements = _datasetReader.Read<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
+            if (featureMetaInfoElements != null)
+            {
+                foreach(SurfaceCurrentInformationInstance featureMetaInfoElement in featureMetaInfoElements)
+                {
+                    if (featureMetaInfoElement.code == "surfaceCurrentSpeed")
+                    {
+                        double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueSpeed);
+                    }
+                    else if (featureMetaInfoElement.code == "surfaceCurrentDirection")
+                    {
+                        double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueDirection);
+                    }
+                }
+            }
+
             Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
             if (featureElement == null)
             {
@@ -138,7 +163,7 @@ namespace S1XViewer.Model
                             float speed = speedAndDirectionValues[latIdx, lonIdx];
                             float direction = speedAndDirectionValues[latIdx, lonIdx + 1];
 
-                            if (speed != -9999.0 && direction != -9999.0)
+                            if (speed != nillValueSpeed && direction != nillValueDirection)
                             {
                                 double longitude = gridOriginLongitude + (((double)lonIdx / 2.0) * gridSpacingLongitudinal);
                                 double latitude = gridOriginLatitude + ((double)latIdx * gridSpacingLatitudinal);
@@ -162,9 +187,9 @@ namespace S1XViewer.Model
                         Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)latIdx));
                     }
 
+                    dataPackage.RawHdfData = hdf5S111Root;
                     if (geoFeatures.Count > 0)
                     {
-                        dataPackage.RawHdfData = hdf5S111Root;
                         dataPackage.GeoFeatures = geoFeatures.ToArray();
                         dataPackage.MetaFeatures = new IMetaFeature[0];
                         dataPackage.InformationFeatures = new IInformationFeature[0];
@@ -234,6 +259,24 @@ namespace S1XViewer.Model
                 return dataPackage;
             }
 
+            double nillValueSpeed = -9999.0;
+            double nillValueDirection = -9999.0;
+            var featureMetaInfoElements = _datasetReader.Read<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
+            if (featureMetaInfoElements != null)
+            {
+                foreach (SurfaceCurrentInformationInstance featureMetaInfoElement in featureMetaInfoElements)
+                {
+                    if (featureMetaInfoElement.code == "surfaceCurrentSpeed")
+                    {
+                        double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueSpeed);
+                    }
+                    else if (featureMetaInfoElement.code == "surfaceCurrentDirection")
+                    {
+                        double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueDirection);
+                    }
+                }
+            }
+
             Hdf5Element? minGroup = _productSupport.FindGroupByDateTime(featureElement.Children, selectedDateTime);
             if (minGroup != null)
             {
@@ -281,7 +324,7 @@ namespace S1XViewer.Model
                         float speed = speedAndDirectionValues[latIdx, lonIdx];
                         float direction = speedAndDirectionValues[latIdx, lonIdx + 1];
 
-                        if (speed != -9999.0 && direction != -9999.0)
+                        if (speed != nillValueSpeed && direction != nillValueDirection)
                         {
                             double longitude = gridOriginLongitude + (((double)lonIdx / 2.0) * gridSpacingLongitudinal);
                             double latitude = gridOriginLatitude + ((double)latIdx * gridSpacingLatitudinal);

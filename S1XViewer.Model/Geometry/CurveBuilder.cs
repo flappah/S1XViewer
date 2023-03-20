@@ -30,6 +30,11 @@ namespace S1XViewer.Model.Geometry
             throw new NotImplementedException();
         }
 
+        public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, double z, int srs = -1)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         ///     Retrieves the geometry from the specified Xml Node
         /// </summary>

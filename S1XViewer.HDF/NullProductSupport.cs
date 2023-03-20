@@ -47,9 +47,14 @@ namespace S1XViewer.HDF
             return -1;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <returns></returns>
         public override async Task<(DateTime start, DateTime end)> RetrieveTimeFrameFromHdfDatasetAsync(string hdf5FileName)
         {
-            return (DateTime.Now, DateTime.Now);
+            return (DateTime.MinValue, DateTime.MinValue);
         }
     }
 }

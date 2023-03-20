@@ -58,5 +58,27 @@ namespace S1XViewer.Model.Geometry
 
             return null;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="geometryTypeString"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        /// <param name="srs"></param>
+        /// <returns></returns>
+        public Esri.ArcGISRuntime.Geometry.Geometry Create(string geometryTypeString, double[] x, double[] y, double z, int srs = -1)
+        {
+            var locatedBuilder =
+                 Builders.ToList().Find(tp => tp.GetType().ToString().Contains($"{geometryTypeString}Builder"));
+
+            if (locatedBuilder != null)
+            {
+                return locatedBuilder.FromPositions(x, y, z, srs);
+            }
+
+            return null;
+        }
     }
 }
