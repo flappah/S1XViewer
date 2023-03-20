@@ -112,7 +112,7 @@ namespace S1XViewer
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "XML/GML files (*.xml;*.gml)|*.xml;*.gml|HDF5 files (*.h5;*.hdf5)|*.h5;*.hdf5|ENC files (*.000)|*.031|All files (*.*)|*.*"
+                Filter = "All files (*.*)|*.*|XML/GML files (*.xml;*.gml)|*.xml;*.gml|HDF5 files (*.h5;*.hdf5)|*.h5;*.hdf5|ENC files (*.000)|*.031"
             };
 
             if (openFileDialog.ShowDialog() == true)
