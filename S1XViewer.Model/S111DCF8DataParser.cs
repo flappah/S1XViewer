@@ -25,10 +25,11 @@ namespace S1XViewer.Model
         /// </summary>
         /// <param name="datasetReader"></param>
         /// <param name="geometryBuilderFactory"></param>
-        public S111DCF8DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory)
+        public S111DCF8DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport)
         {
             _datasetReader = datasetReader;
             _geometryBuilderFactory = geometryBuilderFactory;
+            _productSupport = productSupport;
         }
 
         /// <summary>
