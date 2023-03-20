@@ -67,7 +67,7 @@ namespace S1XViewer.Model
 
             Progress?.Invoke(50);
 
-            Hdf5Element hdf5S111Root = await RetrieveHdf5FileAsync(hdf5FileName);
+            Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
 
             // retrieve boundingbox
@@ -89,7 +89,7 @@ namespace S1XViewer.Model
                 return dataPackage;
             }
 
-            var selectedSurfaceFeatureElement = FindFeatureByDateTime(featureElement.Children, selectedDateTime);
+            var selectedSurfaceFeatureElement = _productSupport.FindFeatureByDateTime(featureElement.Children, selectedDateTime);
             if (selectedSurfaceFeatureElement != null)
             {
                 // now retrieve positions 
@@ -220,7 +220,7 @@ namespace S1XViewer.Model
 
             Progress?.Invoke(50);
 
-            Hdf5Element hdf5S111Root = RetrieveHdf5FileAsync(hdf5FileName).GetAwaiter().GetResult();
+            Hdf5Element hdf5S111Root = _productSupport.RetrieveHdf5FileAsync(hdf5FileName).GetAwaiter().GetResult();
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
 
             // retrieve boundingbox
@@ -242,7 +242,7 @@ namespace S1XViewer.Model
             }
 
             // retrieve relevant time-frame from SurfaceCurrents collection
-            var selectedSurfaceFeatureElement = FindFeatureByDateTime(featureElement.Children, selectedDateTime);
+            var selectedSurfaceFeatureElement = _productSupport.FindFeatureByDateTime(featureElement.Children, selectedDateTime);
             if (selectedSurfaceFeatureElement != null)
             {
                 // now retrieve positions 

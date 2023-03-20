@@ -536,7 +536,7 @@ namespace S1XViewer
                 if (selectedDateTime == null)
                 {
                     // if there's no selected timeframe, retrieve timeframe from HDF5 file and ask user to select a valid date
-                    (DateTime start, DateTime end) timeframePresentInFile = await ((IHdfDataParserBase)dataPackageParser).RetrieveTimeFrameFromHdfDatasetAsync(fileName);
+                    (DateTime start, DateTime end) timeframePresentInFile = await productSupport.RetrieveTimeFrameFromHdfDatasetAsync(fileName);
 
                     var selectDateTimeWindow = new SelectDateTimeWindow();
                     selectDateTimeWindow.Owner = this;

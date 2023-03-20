@@ -68,7 +68,7 @@ namespace S1XViewer.Model
 
             Progress?.Invoke(50);
 
-            Hdf5Element hdf5S111Root = await RetrieveHdf5FileAsync(hdf5FileName);
+            Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
 
             // retrieve boundingbox
@@ -89,7 +89,7 @@ namespace S1XViewer.Model
                 return dataPackage;
             }
 
-            Hdf5Element? minGroup = FindGroupByDateTime(featureElement.Children, selectedDateTime);
+            Hdf5Element? minGroup = _productSupport.FindGroupByDateTime(featureElement.Children, selectedDateTime);
             if (minGroup != null)
             {
                 var geoFeatures = new List<IGeoFeature>();
@@ -213,7 +213,7 @@ namespace S1XViewer.Model
 
             Progress?.Invoke(50);
 
-            Hdf5Element hdf5S111Root = RetrieveHdf5FileAsync(hdf5FileName).GetAwaiter().GetResult();
+            Hdf5Element hdf5S111Root = _productSupport.RetrieveHdf5FileAsync(hdf5FileName).GetAwaiter().GetResult();
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
 
             // retrieve boundingbox
@@ -234,7 +234,7 @@ namespace S1XViewer.Model
                 return dataPackage;
             }
 
-            Hdf5Element? minGroup = FindGroupByDateTime(featureElement.Children, selectedDateTime);
+            Hdf5Element? minGroup = _productSupport.FindGroupByDateTime(featureElement.Children, selectedDateTime);
             if (minGroup != null)
             {
                 var geoFeatures = new List<IGeoFeature>();

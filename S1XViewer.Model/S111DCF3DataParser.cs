@@ -1,20 +1,13 @@
-﻿using S1XViewer.Model.Interfaces;
-using S1XViewer.Types.Interfaces;
-using S1XViewer.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using S1XViewer.HDF;
-using HDF5CSharp.DataTypes;
-using S1XViewer.Model.Geometry;
-using S1XViewer.HDF.Interfaces;
-using S1XViewer.Storage.Interfaces;
+﻿using HDF5CSharp.DataTypes;
 using S1XViewer.Base;
+using S1XViewer.HDF;
+using S1XViewer.HDF.Interfaces;
+using S1XViewer.Model.Interfaces;
+using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
+using S1XViewer.Types.Interfaces;
+using System.Xml;
 
 namespace S1XViewer.Model
 {
@@ -75,7 +68,7 @@ namespace S1XViewer.Model
 
             Progress?.Invoke(50);
 
-            Hdf5Element hdf5S111Root = await RetrieveHdf5FileAsync(hdf5FileName);
+            Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
 
             // retrieve boundingbox
@@ -112,7 +105,7 @@ namespace S1XViewer.Model
                     }
 
                     // now retrieve group based on selectedTime 
-                    var groupHdf5Group = FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+                    var groupHdf5Group = _productSupport.FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
                     if (groupHdf5Group != null)
                     {
                         // retrieve directions and current speeds
@@ -199,7 +192,7 @@ namespace S1XViewer.Model
 
             Progress?.Invoke(50);
 
-            Hdf5Element hdf5S111Root = RetrieveHdf5FileAsync(hdf5FileName).GetAwaiter().GetResult();
+            Hdf5Element hdf5S111Root = _productSupport.RetrieveHdf5FileAsync(hdf5FileName).GetAwaiter().GetResult();
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
 
             // retrieve boundingbox
@@ -236,7 +229,7 @@ namespace S1XViewer.Model
                     }
 
                     // now retrieve group based on selectedTime 
-                    var groupHdf5Group = FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
+                    var groupHdf5Group = _productSupport.FindGroupByDateTime(hdf5S111Root.Children[1].Children, selectedDateTime);
                     if (groupHdf5Group != null)
                     {
                         // retrieve directions and current speeds

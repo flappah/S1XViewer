@@ -6,7 +6,7 @@ using System.Text;
 
 namespace S1XViewer.HDF
 {
-    public class S104ProductSupport : ProductSupportBase, IS104ProductSupport
+    public class S102ProductSupport : ProductSupportBase, IS102ProductSupport
     {
         public override Hdf5Element? FindFeatureByDateTime(List<Hdf5Element> featureInstances, DateTime? selectedDateTime)
         {
@@ -26,7 +26,7 @@ namespace S1XViewer.HDF
         public override short GetDataCodingFormat(string fileName)
         {
             var fileId = H5F.open(fileName, H5F.ACC_RDONLY, H5P.DEFAULT);
-            var groupId = H5G.open(fileId, Encoding.ASCII.GetBytes("/WaterLevel"), H5P.DEFAULT);
+            var groupId = H5G.open(fileId, Encoding.ASCII.GetBytes("/BathymetryCoverage"), H5P.DEFAULT);
             var attribId = H5A.open(groupId, Encoding.ASCII.GetBytes("dataCodingFormat"), H5P.DEFAULT);
 
             var value = new byte[2];
