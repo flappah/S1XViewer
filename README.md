@@ -26,3 +26,7 @@ Next are three S111 screenshots. The first is a datacoding format = 2 file, the 
 ![s111_dcf3_sample](https://user-images.githubusercontent.com/14106566/225870785-c367a86d-fcec-4d7c-a9be-61b7fd270ed3.png)
 
 ![S111_dcf8_sample](https://user-images.githubusercontent.com/14106566/225308598-3d99d3ab-c641-4d68-906b-32a9fefd713a.png)
+
+Finally there's an S102 screenshot. It's a datacoding format = 2 sample.
+
+![s102_dcf2_sample](https://user-images.githubusercontent.com/14106566/226903436-92f05742-029d-455f-b6b8-089a72434b53.png)
