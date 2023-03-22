@@ -13,6 +13,6 @@ namespace S1XViewer.Types.Interfaces
 
         Geometry Geometry { get; set; }
 
-        (string type, Feature? feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS);
+        (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS);
     }
 }

@@ -99,6 +99,9 @@ namespace S1XViewer
         /// <param name="e"></param>
         public void AppExit_Click(object obj, EventArgs e)
         {
+            var featureRendererFactory = _container.Resolve<IFeatureCollectionFactory>();
+            featureRendererFactory.Clear();
+
             if (myMapView != null)
             {
                 myMapView.Map = null;
@@ -506,8 +509,17 @@ namespace S1XViewer
             treeViewFeatures.Items.Clear();
 
             Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
-            myMapView?.Map?.OperationalLayers?.Clear();
-            myMapView?.GraphicsOverlays?.Clear();
+
+            myMapView.Map.OperationalLayers.Clear();
+            if (myMapView.Map.OperationalLayers.Count > 0)
+            {
+                myMapView.Map.OperationalLayers.RemoveAt(0);
+            }
+            myMapView.GraphicsOverlays.Clear();
+            if (myMapView.GraphicsOverlays.Count > 0)
+            {
+                myMapView.GraphicsOverlays.RemoveAt(0);
+            }
 
             if (encLayer != null)
             {
@@ -911,24 +923,6 @@ namespace S1XViewer
         #region Methods that have connections to ArcGIS
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="startPoint"></param>
-        /// <param name="distance"></param>
-        /// <param name="bearing"></param>
-        /// <returns></returns>
-        private (double Lat, double Lon) Destination((double Lat, double Lon) startPoint, double distance, double bearing)
-        {
-            var radius = 6378001;
-            double lat1 = startPoint.Lat * (Math.PI / 180);
-            double lon1 = startPoint.Lon * (Math.PI / 180);
-            double brng = bearing * (Math.PI / 180);
-            double lat2 = Math.Asin(Math.Sin(lat1) * Math.Cos(distance / radius) + Math.Cos(lat1) * Math.Sin(distance / radius) * Math.Cos(brng));
-            double lon2 = lon1 + Math.Atan2(Math.Sin(brng) * Math.Sin(distance / radius) * Math.Cos(lat1), Math.Cos(distance / radius) - Math.Sin(lat1) * Math.Sin(lat2));
-            return (lat2 * (180 / Math.PI), lon2 * (180 / Math.PI));
-        }
-
-        /// <summary>
         ///     Creation a feature collection for rendering on the map
         /// </summary>
         /// <param name="dataPackage">S1xx dataPackage</param>
@@ -991,6 +985,8 @@ namespace S1XViewer
                 throw new Exception("Can't retrieve FeatureRendererFactory!");
             }
 
+            featureRendererFactory.Clear();
+
             var polygonsTable = featureRendererFactory.Create("PolygonFeatures", polyFields, GeometryType.Polygon, horizontalCRS);
             var linesTable = featureRendererFactory.Create("LineFeatures", lineFields, GeometryType.Polyline, horizontalCRS);
             var pointsTable = featureRendererFactory.Create("PointFeatures", pointFields, GeometryType.Point, horizontalCRS);
@@ -1003,12 +999,11 @@ namespace S1XViewer
             var vectorFeatureList = new List<Feature>();
             var filledPolyFeatureLists = new Dictionary<string, List<Feature>>();
 
-            i = 0;
-            Parallel.ForEach(dataPackage.GeoFeatures, async feature =>
+            Parallel.ForEach(dataPackage.GeoFeatures, feature =>
             {
                 if (feature is IGeoFeature geoFeature)
                 {
-                    (string type, Feature? feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererFactory, horizontalCRS);
+                    (string type, Feature feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererFactory, horizontalCRS);
 
                     lock (this) 
                     {
@@ -1063,7 +1058,6 @@ namespace S1XViewer
             }
 
             var featuresCollection = new FeatureCollection();
-            //featuresCollection.Tables.Clear();
 
             if (filledPolygonTables.Count > 0)
             {
@@ -1156,7 +1150,7 @@ namespace S1XViewer
                         if(_resetViewpoint == true)
                         {
                             var fullExtent = GeometryEngine.CombineExtents(datasetExtents);
-                            myMapView.SetViewpoint(new Viewpoint(fullExtent));
+                            await myMapView.SetViewpointAsync(new Viewpoint(fullExtent));
                         }
                     }
                     catch (Exception) { }
@@ -1213,14 +1207,14 @@ namespace S1XViewer
 
                                     // select this feature in the feature layer
                                     var layer = subLayerResult.LayerContent as FeatureLayer;
-                                    if (layer != null)
+                                    if (layer != null && idFeature != null)
                                     {
                                         layer.SelectFeature(idFeature);
                                     }
 
-                                    if (idElement.Attributes.ContainsKey("FeatureId"))
+                                    if (idElement != null && idElement.Attributes.ContainsKey("FeatureId"))
                                     {
-                                        if (!String.IsNullOrEmpty(idElement.Attributes["FeatureId"]?.ToString()))
+                                        if (String.IsNullOrEmpty(idElement.Attributes["FeatureId"]?.ToString()) == false)
                                         {
                                             IFeature feature = FindFeature(idElement.Attributes["FeatureId"].ToString());
                                             if (feature != null)
@@ -1302,51 +1296,6 @@ namespace S1XViewer
             {
                 MessageBox.Show($"Feature selection error ({ex.Message})", ex.ToString());
             }
-        }
-
-        /// <summary>
-        ///     Creates the renderer for features on the map
-        /// </summary>
-        /// <param name="rendererType"></param>
-        /// <returns></returns>
-        private Renderer CreateRenderer(GeometryType rendererType, bool isVector = false)
-        {
-            // Return a simple renderer to match the geometry type provided
-            Symbol sym = null;
-
-            switch (rendererType)
-            {
-                case GeometryType.Point:
-                case GeometryType.Multipoint:
-                    // Create a marker symbol
-                    if (isVector == true)
-                    {
-                        sym = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.Circle, System.Drawing.Color.Black, 4);
-                    }
-                    else
-                    {
-                        sym = new SimpleMarkerSymbol(SimpleMarkerSymbolStyle.X, System.Drawing.Color.Red, 10);
-                    }
-
-                    break;
-
-                case GeometryType.Polyline:
-                    // Create a line symbol
-                    sym = new SimpleLineSymbol(SimpleLineSymbolStyle.Dash, System.Drawing.Color.DarkGray, 3);
-                    break;
-
-                case GeometryType.Polygon:
-                    // Create a fill symbol
-                    var lineSym = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, System.Drawing.Color.FromArgb(255, 50, 50, 50), 1);
-                    sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, System.Drawing.Color.FromArgb(25, System.Drawing.Color.LightGray), lineSym);
-                    break;
-
-                default:
-                    break;
-            }
-
-            // Return a new renderer that uses the symbol created above
-            return new SimpleRenderer(sym);
         }
 
         #endregion

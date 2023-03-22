@@ -63,12 +63,28 @@ namespace S1XViewer.Types
         /// <returns></returns>
         public FeatureCollectionTable Add(string key, FeatureCollectionTable featureCollectionTable)
         {
-            if (_featureCollectionTables.ContainsKey(key) == false)
+            lock (_lockOnThis)
             {
-                _featureCollectionTables.Add(key, featureCollectionTable);
+                if (_featureCollectionTables.ContainsKey(key) == false)
+                {
+                    _featureCollectionTables.Add(key, featureCollectionTable);
+                }
+
+                return featureCollectionTable;
+            }
+        }
+
+        /// <summary>
+        ///     Clears the internal storage
+        /// </summary>
+        public void Clear()
+        {
+            foreach(KeyValuePair<string, FeatureCollectionTable> table in _featureCollectionTables)
+            {
+                table.Value.CancelLoad();
             }
 
-            return featureCollectionTable;
+            _featureCollectionTables.Clear();
         }
 
         /// <summary>
@@ -128,9 +144,12 @@ namespace S1XViewer.Types
         /// <returns></returns>
         public FeatureCollectionTable? Get(string key)
         {
-            if (_featureCollectionTables.ContainsKey(key))
+            lock (_lockOnThis)
             {
-                return _featureCollectionTables[key];   
+                if (_featureCollectionTables.ContainsKey(key) == true)
+                {
+                    return _featureCollectionTables[key];
+                }
             }
 
             return null;
@@ -142,9 +161,12 @@ namespace S1XViewer.Types
         /// <param name="key"></param>
         public void Remove(string key) 
         {
-            if (_featureCollectionTables[key] != null)
+            lock (_lockOnThis)
             {
-                _featureCollectionTables.Remove(key);
+                if (_featureCollectionTables[key] != null)
+                {
+                    _featureCollectionTables.Remove(key);
+                }
             }
         }
     }

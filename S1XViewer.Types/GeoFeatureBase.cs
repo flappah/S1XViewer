@@ -39,7 +39,7 @@ namespace S1XViewer.Types
         /// </summary>
         /// <param name="featureCollectionFactory"></param>
         /// <returns></returns>
-        public virtual (string type, Feature? feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS)
+        public virtual (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS)
         {
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);

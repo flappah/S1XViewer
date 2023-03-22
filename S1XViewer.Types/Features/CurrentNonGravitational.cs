@@ -20,7 +20,7 @@ namespace S1XViewer.Types.Features
         /// </summary>
         /// <param name="featureCollectionFactory"></param>
         /// <returns></returns>
-        public override (string type, Feature? feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS)
+        public override (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS)
         {
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
