@@ -196,7 +196,32 @@ namespace S1XViewer
             _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
-            myMapView?.Map?.OperationalLayers.Clear();
+            
+            var featureRendererFactory = _container.Resolve<IFeatureCollectionFactory>();
+            featureRendererFactory.Clear();
+
+            if (myMapView != null)
+            {
+                if (myMapView.Map != null)
+                {
+                    myMapView.Map.OperationalLayers.Clear();
+                }
+                myMapView.Map = null;
+            }
+
+            var optionsStorage = _container.Resolve<IOptionsStorage>();
+            string basemap = optionsStorage.Retrieve("comboBoxBasemap");
+            BasemapStyle basemapStyle;
+            if (string.IsNullOrEmpty(basemap) == true)
+            {
+                basemapStyle = BasemapStyle.ArcGISTopographic;
+            }
+            else
+            {
+                basemapStyle = Enum.Parse<BasemapStyle>(basemap);
+            }
+            myMapView.Map = new Map(basemapStyle);
+
         }
 
         /// <summary>
