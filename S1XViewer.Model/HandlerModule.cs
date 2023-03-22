@@ -32,6 +32,8 @@ namespace S1XViewer.Model
                     .Distinct()
                     .ToList();
 
+            builder.RegisterType<FeatureRendererFactory>().As(typeof(IFeatureRendererFactory)).InstancePerLifetimeScope();
+
             builder.Register(c => new GeometryBuilderFactory
             {
                 Builders = (from geometryBuilder in geometryBuilders

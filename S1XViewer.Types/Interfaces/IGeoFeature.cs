@@ -1,4 +1,5 @@
-﻿using Esri.ArcGISRuntime.Geometry;
+﻿using Esri.ArcGISRuntime.Data;
+using Esri.ArcGISRuntime.Geometry;
 
 namespace S1XViewer.Types.Interfaces
 {
@@ -11,5 +12,8 @@ namespace S1XViewer.Types.Interfaces
         ITextContent[] TextContent { get; set; }
 
         Geometry Geometry { get; set; }
+
+        (Feature?, Esri.ArcGISRuntime.UI.Graphic?) Render(FeatureCollectionTable featureTable);
+        (Dictionary<System.Drawing.Color, FeatureCollectionTable>, Feature?) GetFeature(List<Field> fields, Dictionary<System.Drawing.Color, FeatureCollectionTable> featureTableCollection, SpatialReference? horizontalCRS);
     }
 }

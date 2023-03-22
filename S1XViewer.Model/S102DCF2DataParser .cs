@@ -131,15 +131,15 @@ namespace S1XViewer.Model
                         //we've found the relevant group. Use this group to create features on by calculating its position
                         var minGroupParentNode = (Hdf5Element)minGroup.Parent;
                         var gridOriginLatitudeElement = minGroupParentNode.Attributes.Find("gridOriginLatitude");
-                        var gridOriginLatitude = gridOriginLatitudeElement?.Value<double>() ?? -1.0;
+                        var gridOriginLatitude = gridOriginLatitudeElement?.Value<double>() ?? -999.0;
                         var gridOriginLongitudeElement = minGroupParentNode.Attributes.Find("gridOriginLongitude");
-                        var gridOriginLongitude = gridOriginLongitudeElement?.Value<double>() ?? -1.0;
+                        var gridOriginLongitude = gridOriginLongitudeElement?.Value<double>() ?? -999.0;
                         var gridSpacingLatitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLatitudinal");
-                        var gridSpacingLatitudinal = gridSpacingLatitudinalElement?.Value<double>() ?? -1.0;
+                        var gridSpacingLatitudinal = gridSpacingLatitudinalElement?.Value<double>() ?? -999.0;
                         var gridSpacingLongitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal");
-                        var gridSpacingLongitudinal = gridSpacingLongitudinalElement?.Value<double>() ?? -1.0;
+                        var gridSpacingLongitudinal = gridSpacingLongitudinalElement?.Value<double>() ?? -999.0;
 
-                        if (gridOriginLatitude == -1.0 || gridOriginLongitude == -1.0 || gridSpacingLatitudinal == -1.0 || gridSpacingLongitudinal == -1.0)
+                        if (gridOriginLatitude == -999.0 || gridOriginLongitude == -999.0 || gridSpacingLatitudinal == -999.0 || gridSpacingLongitudinal == -999.0)
                         {
                             return;
                         }

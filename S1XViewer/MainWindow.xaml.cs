@@ -20,7 +20,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -100,6 +99,12 @@ namespace S1XViewer
         /// <param name="e"></param>
         public void AppExit_Click(object obj, EventArgs e)
         {
+            if (myMapView != null)
+            {
+                myMapView.Map = null;
+                myMapView = null; 
+            }      
+
             this.Close();
         }
 
@@ -961,6 +966,16 @@ namespace S1XViewer
                 return;
             }
 
+            if (_resetViewpoint == true)
+            {
+                Envelope fullExtent = (Envelope)dataPackage.BoundingBox;
+                if (fullExtent != null)
+                {
+                    await myMapView.SetViewpointAsync(new Viewpoint(fullExtent));
+                    _resetViewpoint = false;
+                }
+            }
+
             // set projection to the srs of the first valid geometry
             int i = 0;
             while (dataPackage.GeoFeatures[i++].Geometry == null && i < dataPackage.GeoFeatures.Length) ;
@@ -970,41 +985,50 @@ namespace S1XViewer
                 horizontalCRS = dataPackage.GeoFeatures[i].Geometry.SpatialReference;
             }
 
-            FeatureCollectionTable polysTable = new FeatureCollectionTable(polyFields, GeometryType.Polygon, horizontalCRS)
+            //var featureRendererFactory = _container.Resolve<IFeatureRendererFactory>();
+            //if (featureRendererFactory == null)
+            //{
+            //    throw new Exception("Can't retrieve FeatureRendererFactory!");
+            //}
+
+
+
+
+
+
+
+            var polygonsTable = new FeatureCollectionTable(polyFields, GeometryType.Polygon, horizontalCRS)
             {
                 Renderer = CreateRenderer(GeometryType.Polygon),
                 DisplayName = "Polygons"
             };
 
-            var filledPolyTables = new Dictionary<System.Drawing.Color, FeatureCollectionTable>();
+            var filledPolygonsTables = new Dictionary<System.Drawing.Color, FeatureCollectionTable>();
 
-            FeatureCollectionTable linesTable = new FeatureCollectionTable(lineFields, GeometryType.Polyline, horizontalCRS)
+            var linesTable = new FeatureCollectionTable(lineFields, GeometryType.Polyline, horizontalCRS)
             {
                 Renderer = CreateRenderer(GeometryType.Polyline),
                 DisplayName = "Lines"
             };
 
-            FeatureCollectionTable pointsTable = new FeatureCollectionTable(pointFields, GeometryType.Point, horizontalCRS)
+            var pointsTable = new FeatureCollectionTable(pointFields, GeometryType.Point, horizontalCRS)
             {
                 Renderer = CreateRenderer(GeometryType.Point),
                 DisplayName = "Points"
             };
 
-            FeatureCollectionTable vectorsTable = new FeatureCollectionTable(pointVectorFields, GeometryType.Point, horizontalCRS)
+            var vectorsTable = new FeatureCollectionTable(pointVectorFields, GeometryType.Point, horizontalCRS)
             {
                 Renderer = CreateRenderer(GeometryType.Point, true),
                 DisplayName = "Vectors"
             };
 
-            var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
-
-            //foreach (IFeature feature in dataPackage.GeoFeatures)
-
+            var graphicslist = new List<Graphic>();
+            var pointFeatures = new List<Feature>();
+            var lineFeatures = new List<Feature>();
+            var polyFeatures = new List<Feature>();
             var vectorFeatures = new List<Feature>();
-            //var pointFeatures = new List<Feature>();
-            //var lineFeatures = new List<Feature>();
-            //var polyFeatures = new List<Feature>();
-            var filledPolysFeatures = new Dictionary<System.Drawing.Color, List<Feature>>();
+            var filledPolyFeatureLists = new Dictionary<System.Drawing.Color, List<Feature>>();
 
             i = 0;
             Parallel.ForEach(dataPackage.GeoFeatures, async feature =>
@@ -1086,7 +1110,7 @@ namespace S1XViewer
 
                             lock (this)
                             {
-                                graphicsOverlay.Graphics.Add(graphic);
+                                graphicslist.Add(graphic);
                             }
 
                             Feature vectorFeature = vectorsTable.CreateFeature();
@@ -1097,7 +1121,6 @@ namespace S1XViewer
                             lock (this)
                             {
                                 vectorFeatures.Add(vectorFeature);
-                               // vectorTable.AddFeatureAsync(vectorFeature);
                             }
                         }
                         else
@@ -1109,8 +1132,7 @@ namespace S1XViewer
 
                             lock (this)
                             {
-                                //pointFeatures.Add(pointFeature);
-                                pointsTable.AddFeatureAsync(pointFeature);
+                                pointFeatures.Add(pointFeature);
                             }
                         }
                     }
@@ -1123,8 +1145,7 @@ namespace S1XViewer
 
                         lock (this)
                         {
-                            //lineFeatures.Add(lineFeature);
-                            linesTable.AddFeatureAsync(lineFeature);
+                            lineFeatures.Add(lineFeature);
                         }
                     }
                     else
@@ -1132,33 +1153,86 @@ namespace S1XViewer
                         if (geoFeature is ISounding sounding) // this is a polygon and is rendered as a filled polygon with varying color
                         {
                             System.Drawing.Color color = System.Drawing.Color.Black;
-                            if (sounding.Value <= 1.0)
+
+                            if (sounding.Value <= -20.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(247, 148, 58);
+                            }
+                            else if (sounding.Value > -20.0 && sounding.Value <= -15.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(252, 179, 86);
+                            }
+                            else if (sounding.Value > -15.0 && sounding.Value <= -12.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(252, 188, 100);
+                            }
+                            else if (sounding.Value > -12.0 && sounding.Value <= -8.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(252, 198, 122);
+                            }
+                            else if (sounding.Value > -8.0 && sounding.Value <= -4.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(252, 203, 142);
+                            }
+                            else if (sounding.Value > -4.0 && sounding.Value <= -2.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(253, 244, 165);
+                            }
+                            else if (sounding.Value > -2.0 && sounding.Value <= -1.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(255, 247, 190);
+                            }
+                            else if (sounding.Value > -1.0 && sounding.Value <= 0.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(255, 249, 207);
+                            }
+                            else if (sounding.Value > 0.0 && sounding.Value <= 1.0)
                             {
                                 color = System.Drawing.Color.FromArgb(193, 239, 255);
                             }
-                            else if (sounding.Value > 1.0 && sounding.Value <= 2.0)
+                            else if (sounding.Value > 1.0 && sounding.Value <= 2.5)
                             {
                                 color = System.Drawing.Color.FromArgb(156, 232, 255);
                             }
-                            else if (sounding.Value > 2.0 && sounding.Value <= 5.0)
+                            else if (sounding.Value > 2.5 && sounding.Value <= 5.0)
                             {
                                 color = System.Drawing.Color.FromArgb(115, 223, 255);
                             }
                             else if (sounding.Value > 5.0 && sounding.Value <= 10.0)
                             {
-                                color = System.Drawing.Color.FromArgb(74, 215, 255);
+                                color = System.Drawing.Color.FromArgb(100, 215, 255);
                             }
                             else if (sounding.Value > 10.0 && sounding.Value <= 15.0)
                             {
-                                color = System.Drawing.Color.FromArgb(52, 210, 255);
+                                color = System.Drawing.Color.FromArgb(85, 210, 255);
                             }
                             else if (sounding.Value > 15.0 && sounding.Value <= 20.0)
                             {
-                                color = System.Drawing.Color.FromArgb(36, 206, 255);
+                                color = System.Drawing.Color.FromArgb(70, 206, 255);
                             }
                             else if (sounding.Value > 20.0 && sounding.Value <= 25.0)
                             {
-                                color = System.Drawing.Color.FromArgb(22, 202, 255);
+                                color = System.Drawing.Color.FromArgb(60, 202, 255);
+                            }
+                            else if (sounding.Value > 25.0 && sounding.Value <= 30.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(50, 202, 255);
+                            }
+                            else if (sounding.Value > 30.0 && sounding.Value <= 35.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(43, 202, 255);
+                            }
+                            else if (sounding.Value > 35.0 && sounding.Value <= 40.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(38, 202, 255);
+                            }
+                            else if (sounding.Value > 40.0 && sounding.Value <= 50.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(33, 198, 255);
+                            }
+                            else if (sounding.Value > 50.0 && sounding.Value <= 55.0)
+                            {
+                                color = System.Drawing.Color.FromArgb(28, 187, 255);
                             }
                             else
                             {
@@ -1167,7 +1241,7 @@ namespace S1XViewer
 
                             lock (this)
                             {
-                                if (filledPolyTables.ContainsKey(color) == false)
+                                if (filledPolygonsTables.ContainsKey(color) == false)
                                 {
                                     var lineSym = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, color, 1);
                                     var sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, color, lineSym);
@@ -1179,57 +1253,55 @@ namespace S1XViewer
                                         DisplayName = "Polygons"
                                     };
 
-                                    filledPolyTables.Add(color, filledPolysTable);
+                                    filledPolygonsTables.Add(color, filledPolysTable);
                                 }
                             }
 
-                            Feature polyFeature = filledPolyTables[color].CreateFeature();
+                            Feature polyFeature = filledPolygonsTables[color].CreateFeature();
                             polyFeature.SetAttributeValue(idField, feature.Id);
                             polyFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
                             polyFeature.Geometry = geoFeature.Geometry;
 
                             lock (this)
                             {
-                                if (filledPolysFeatures.ContainsKey(color) == false)
+                                if (filledPolyFeatureLists.ContainsKey(color) == false)
                                 {
-                                    filledPolysFeatures.Add(color, new List<Feature>()); 
+                                    filledPolyFeatureLists.Add(color, new List<Feature>());
                                 }
-                                filledPolysFeatures[color].Add(polyFeature);
-                                //filledPolyTables[color].AddFeatureAsync(polyFeature);
+                                filledPolyFeatureLists[color].Add(polyFeature);
                             }
                         }
                         else
                         {
-                            Feature polyFeature = polysTable.CreateFeature();
+                            Feature polyFeature = polygonsTable.CreateFeature();
                             polyFeature.SetAttributeValue(idField, feature.Id);
                             polyFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
                             polyFeature.Geometry = geoFeature.Geometry;
 
                             lock (this)
                             {
-                                //polyFeatures.Add(polyFeature);
-                                polysTable.AddFeatureAsync(polyFeature);
+                                polyFeatures.Add(polyFeature);
                             }
                         }
                     }
                 }
             });
 
-            //pointsTable.AddFeaturesAsync(polyFeatures);
-            //linesTable.AddFeaturesAsync(lineFeatures);
-            //polysTable.AddFeaturesAsync(polyFeatures);
-            vectorsTable.AddFeaturesAsync(vectorFeatures);
-            foreach(var filledPolyFeatures in filledPolysFeatures)
+            await pointsTable.AddFeaturesAsync(pointFeatures);
+            await linesTable.AddFeaturesAsync(lineFeatures);
+            await polygonsTable.AddFeaturesAsync(polyFeatures);
+            await vectorsTable.AddFeaturesAsync(vectorFeatures);
+            foreach (KeyValuePair<System.Drawing.Color, List<Feature>> filledPolyFeatureList in filledPolyFeatureLists)
             {
-                filledPolyTables[filledPolyFeatures.Key].AddFeaturesAsync(filledPolyFeatures.Value);
+                filledPolygonsTables[filledPolyFeatureList.Key].AddFeaturesAsync(filledPolyFeatureList.Value);
             }
 
-            FeatureCollection featuresCollection = new FeatureCollection();
-            featuresCollection.Tables.Clear();
+            var featuresCollection = new FeatureCollection();
+            //featuresCollection.Tables.Clear();
 
-            if (filledPolyTables.Count > 0)
+            if (filledPolygonsTables.Count > 0)
             {
-                foreach(KeyValuePair<System.Drawing.Color, FeatureCollectionTable> filledPolysTable in filledPolyTables)
+                foreach(KeyValuePair<System.Drawing.Color, FeatureCollectionTable> filledPolysTable in filledPolygonsTables)
                 {
                     featuresCollection.Tables.Add(filledPolysTable.Value);
                 }
@@ -1239,14 +1311,17 @@ namespace S1XViewer
             {
                 featuresCollection.Tables.Add(pointsTable);
             }
+
             if (vectorsTable.Count() > 0)
             {
                 featuresCollection.Tables.Add(vectorsTable);
             }
-            if (polysTable.Count() > 0)
+
+            if (polygonsTable.Count() > 0)
             {
-                featuresCollection.Tables.Add(polysTable);
+                featuresCollection.Tables.Add(polygonsTable);
             }
+
             if (linesTable.Count() > 0)
             {
                 featuresCollection.Tables.Add(linesTable);
@@ -1255,79 +1330,75 @@ namespace S1XViewer
             if (myMapView != null && myMapView.Map != null)
             {
                 string featureJsonString =
-                 @"{
-                    ""labelExpressionInfo"":{""expression"":""return $feature.FeatureName""},
-                    ""labelPlacement"":""esriServerPolygonPlacementAlwaysHorizontal"",
-                    ""symbol"":
-                        { 
-                            ""angle"":0,
-                            ""backgroundColor"":[0,0,0,0],
-                            ""borderLineColor"":[0,0,0,0],
-                            ""borderLineSize"":0,
-                            ""color"":[0,0,255,255],
-                            ""font"":
-                                {
-                                    ""decoration"":""none"",
-                                    ""size"":8,
-                                    ""style"":""normal"",
-                                    ""weight"":""normal""
-                                },
-                            ""haloColor"":[255,255,255,255],
-                            ""haloSize"":0.1,
-                            ""horizontalAlignment"":""center"",
-                            ""kerning"":false,
-                            ""type"":""esriTS"",
-                            ""verticalAlignment"":""middle"",
-                            ""xoffset"":0,
-                            ""yoffset"":0
-                        }
-               }";
+                    @"{
+                        ""labelExpressionInfo"":{""expression"":""return $feature.FeatureName""},
+                        ""labelPlacement"":""esriServerPolygonPlacementAlwaysHorizontal"",
+                        ""symbol"":
+                            { 
+                                ""angle"":0,
+                                ""backgroundColor"":[0,0,0,0],
+                                ""borderLineColor"":[0,0,0,0],
+                                ""borderLineSize"":0,
+                                ""color"":[0,0,255,255],
+                                ""font"":
+                                    {
+                                        ""decoration"":""none"",
+                                        ""size"":8,
+                                        ""style"":""normal"",
+                                        ""weight"":""normal""
+                                    },
+                                ""haloColor"":[255,255,255,255],
+                                ""haloSize"":0.1,
+                                ""horizontalAlignment"":""center"",
+                                ""kerning"":false,
+                                ""type"":""esriTS"",
+                                ""verticalAlignment"":""middle"",
+                                ""xoffset"":0,
+                                ""yoffset"":0
+                            }
+                    }";
+
+                var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
+                graphicsOverlay.Graphics.AddRange(graphicslist);
+                myMapView.GraphicsOverlays?.Add(graphicsOverlay);
 
                 // Create a label definition from the JSON string. 
                 var idLabelDefinition = LabelDefinition.FromJson(featureJsonString);
 
                 var collectionLayer = new FeatureCollectionLayer(featuresCollection);
                 // When the layer loads, zoom the map view to the extent of the feature collection
-
-                if (_resetViewpoint == true)
+                collectionLayer.Loaded += (s, e) => Dispatcher.Invoke(async () =>
                 {
-                    collectionLayer.Loaded += (s, e) => Dispatcher.Invoke(() =>
+                    try
                     {
-                        try
+                        List<Envelope> datasetExtents = new List<Envelope>();
+
+                        foreach (FeatureLayer layer in collectionLayer.Layers)
                         {
-                            List<Envelope> dataSetExtents = new List<Envelope>();
-                            foreach (FeatureLayer layer in collectionLayer.Layers)
+                            if (idLabelDefinition != null)
                             {
-                                if (idLabelDefinition != null)
-                                {
-                                    layer.LabelDefinitions.Add(idLabelDefinition);
-                                    layer.LabelsEnabled = true;
-                                }
-
-                                if (layer.FullExtent != null)
-                                {
-                                    dataSetExtents.Add(layer.FullExtent);
-                                }
+                                layer.LabelDefinitions.Add(idLabelDefinition);
+                                layer.LabelsEnabled = true;
                             }
 
-                            Envelope fullExtent;
-                            if (dataSetExtents.Count > 0)
+                            if (layer.FullExtent != null)
                             {
-                                fullExtent = GeometryEngine.CombineExtents(dataSetExtents);
+                                datasetExtents.Add(layer.FullExtent);
                             }
-                            else
-                            {
-                                fullExtent = (Envelope)dataPackage.BoundingBox;
-                            }
-                            myMapView.SetViewpointAsync(new Viewpoint(fullExtent));
                         }
-                        catch (Exception) { }
-                    });
-                }
+
+                        if(_resetViewpoint == true)
+                        {
+                            var fullExtent = GeometryEngine.CombineExtents(datasetExtents);
+                            myMapView.SetViewpoint(new Viewpoint(fullExtent));
+                        }
+                    }
+                    catch (Exception) { }
+                });
+                await collectionLayer.LoadAsync();
 
                 // Add the layer to the Map's Operational Layers collection
                 myMapView.Map.OperationalLayers.Add(collectionLayer);
-                myMapView.GraphicsOverlays?.Add(graphicsOverlay);
                 myMapView.GeoViewTapped += OnMapViewTapped;
             }
         }
