@@ -985,325 +985,91 @@ namespace S1XViewer
                 horizontalCRS = dataPackage.GeoFeatures[i].Geometry.SpatialReference;
             }
 
-            //var featureRendererFactory = _container.Resolve<IFeatureRendererFactory>();
-            //if (featureRendererFactory == null)
-            //{
-            //    throw new Exception("Can't retrieve FeatureRendererFactory!");
-            //}
-
-
-
-
-
-
-
-            var polygonsTable = new FeatureCollectionTable(polyFields, GeometryType.Polygon, horizontalCRS)
+            var featureRendererFactory = _container.Resolve<IFeatureCollectionFactory>();
+            if (featureRendererFactory == null)
             {
-                Renderer = CreateRenderer(GeometryType.Polygon),
-                DisplayName = "Polygons"
-            };
+                throw new Exception("Can't retrieve FeatureRendererFactory!");
+            }
 
-            var filledPolygonsTables = new Dictionary<System.Drawing.Color, FeatureCollectionTable>();
+            var polygonsTable = featureRendererFactory.Create("PolygonFeatures", polyFields, GeometryType.Polygon, horizontalCRS);
+            var linesTable = featureRendererFactory.Create("LineFeatures", lineFields, GeometryType.Polyline, horizontalCRS);
+            var pointsTable = featureRendererFactory.Create("PointFeatures", pointFields, GeometryType.Point, horizontalCRS);
+            var vectorsTable = featureRendererFactory.Create("VectorFeatures", pointVectorFields, GeometryType.Point, horizontalCRS, true);
 
-            var linesTable = new FeatureCollectionTable(lineFields, GeometryType.Polyline, horizontalCRS)
-            {
-                Renderer = CreateRenderer(GeometryType.Polyline),
-                DisplayName = "Lines"
-            };
-
-            var pointsTable = new FeatureCollectionTable(pointFields, GeometryType.Point, horizontalCRS)
-            {
-                Renderer = CreateRenderer(GeometryType.Point),
-                DisplayName = "Points"
-            };
-
-            var vectorsTable = new FeatureCollectionTable(pointVectorFields, GeometryType.Point, horizontalCRS)
-            {
-                Renderer = CreateRenderer(GeometryType.Point, true),
-                DisplayName = "Vectors"
-            };
-
-            var graphicslist = new List<Graphic>();
-            var pointFeatures = new List<Feature>();
-            var lineFeatures = new List<Feature>();
-            var polyFeatures = new List<Feature>();
-            var vectorFeatures = new List<Feature>();
-            var filledPolyFeatureLists = new Dictionary<System.Drawing.Color, List<Feature>>();
+            var graphicList = new List<Graphic>();
+            var pointFeatureList = new List<Feature>();
+            var lineFeatureList = new List<Feature>();
+            var polygonFeatureList = new List<Feature>();
+            var vectorFeatureList = new List<Feature>();
+            var filledPolyFeatureLists = new Dictionary<string, List<Feature>>();
 
             i = 0;
             Parallel.ForEach(dataPackage.GeoFeatures, async feature =>
             {
                 if (feature is IGeoFeature geoFeature)
                 {
-                    if (geoFeature.Geometry is MapPoint mapPoint)
+                    (string type, Feature? feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererFactory, horizontalCRS);
+
+                    lock (this) 
                     {
-                        if (geoFeature is IVectorFeature vectorGeoFeature)
+                        switch (renderedFeature.type)
                         {
-                            (double Lat, double Lon) secondPoint = (mapPoint.Y, mapPoint.X);
-                            double width = 0.75;
-                            System.Drawing.Color color = System.Drawing.Color.Black;
-                            if (vectorGeoFeature.Speed.SpeedMaximum <= 0.5)
-                            {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 150, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 1.5;
-                                color = System.Drawing.Color.FromArgb(118, 82, 226);
-                            }
-                            else if (vectorGeoFeature.Speed.SpeedMaximum > 0.5 && vectorGeoFeature.Speed.SpeedMaximum <= 1.0)
-                            {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2.5;
-                                color = System.Drawing.Color.FromArgb(72, 152, 211);
-                            }
-                            else if (vectorGeoFeature.Speed.SpeedMaximum > 1.0 && vectorGeoFeature.Speed.SpeedMaximum <= 2.0)
-                            {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 300, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 2.5;
-                                color = System.Drawing.Color.FromArgb(97, 203, 229);
-                            }
-                            else if (vectorGeoFeature.Speed.SpeedMaximum > 2.0 && vectorGeoFeature.Speed.SpeedMaximum <= 3.0)
-                            {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 400, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 3;
-                                color = System.Drawing.Color.FromArgb(109, 188, 69);
-                            }
-                            else if (vectorGeoFeature.Speed.SpeedMaximum > 3.0 && vectorGeoFeature.Speed.SpeedMaximum <= 5.0)
-                            {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 3;
-                                color = System.Drawing.Color.FromArgb(180, 220, 0);
-                            }
-                            else if (vectorGeoFeature.Speed.SpeedMaximum > 5.0 && vectorGeoFeature.Speed.SpeedMaximum <= 7.0)
-                            {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 4;
-                                color = System.Drawing.Color.FromArgb(205, 193, 0);
-                            }
-                            else if (vectorGeoFeature.Speed.SpeedMaximum > 7.0 && vectorGeoFeature.Speed.SpeedMaximum <= 10.0)
-                            {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 4;
-                                color = System.Drawing.Color.FromArgb(248, 167, 24);
-                            }
-                            else if (vectorGeoFeature.Speed.SpeedMaximum > 10.0 && vectorGeoFeature.Speed.SpeedMaximum <= 13.0)
-                            {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 4;
-                                color = System.Drawing.Color.FromArgb(247, 162, 157);
-                            }
-                            else if (vectorGeoFeature.Speed.SpeedMaximum > 13.0)
-                            {
-                                secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, vectorGeoFeature.Orientation.OrientationValue);
-                                width = 5;
-                                color = System.Drawing.Color.FromArgb(255, 30, 30);
-                            }
+                            case "PointFeatures":
+                                pointFeatureList.Add(renderedFeature.feature);
+                                break;
 
-                            var lineGeometry = new Polyline(new List<MapPoint> { mapPoint, new MapPoint(secondPoint.Lon, secondPoint.Lat) });
+                            case "LineFeatures":
+                                lineFeatureList.Add(renderedFeature.feature);
+                                break;
 
-                            var symbol = new SimpleLineSymbol();
-                            symbol.MarkerStyle = SimpleLineSymbolMarkerStyle.Arrow;
-                            symbol.Color = color;
-                            symbol.Width = width;
+                            case "PolygonFeatures":
+                                polygonFeatureList.Add(renderedFeature.feature);
+                                break;
 
-                            var graphic = new Graphic();
-                            graphic.Geometry = lineGeometry;
-                            graphic.Symbol = symbol;
+                            case "VectorFeatures":
+                                vectorFeatureList.Add(renderedFeature.feature);
+                                break;
 
-                            lock (this)
-                            {
-                                graphicslist.Add(graphic);
-                            }
+                            default:
+                                if (filledPolyFeatureLists.ContainsKey(renderedFeature.type) == false)
+                                {
+                                    filledPolyFeatureLists.Add(renderedFeature.type, new List<Feature>());
+                                }
+                                filledPolyFeatureLists[renderedFeature.type].Add(renderedFeature.feature);
 
-                            Feature vectorFeature = vectorsTable.CreateFeature();
-                            vectorFeature.SetAttributeValue(idField, feature.Id);
-                            vectorFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
-                            vectorFeature.Geometry = geoFeature.Geometry;
-
-                            lock (this)
-                            {
-                                vectorFeatures.Add(vectorFeature);
-                            }
-                        }
-                        else
-                        {
-                            Feature pointFeature = pointsTable.CreateFeature();
-                            pointFeature.SetAttributeValue(idField, feature.Id);
-                            pointFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
-                            pointFeature.Geometry = geoFeature.Geometry;
-
-                            lock (this)
-                            {
-                                pointFeatures.Add(pointFeature);
-                            }
+                                break;
                         }
                     }
-                    else if (geoFeature.Geometry is Polyline)
+
+                    if (renderedFeature.graphic != null)
                     {
-                        Feature lineFeature = linesTable.CreateFeature();
-                        lineFeature.SetAttributeValue(idField, feature.Id);
-                        lineFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
-                        lineFeature.Geometry = geoFeature.Geometry;
-
-                        lock (this)
-                        {
-                            lineFeatures.Add(lineFeature);
-                        }
-                    }
-                    else
-                    {
-                        if (geoFeature is ISounding sounding) // this is a polygon and is rendered as a filled polygon with varying color
-                        {
-                            System.Drawing.Color color = System.Drawing.Color.Black;
-
-                            if (sounding.Value <= -20.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(247, 148, 58);
-                            }
-                            else if (sounding.Value > -20.0 && sounding.Value <= -15.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(252, 179, 86);
-                            }
-                            else if (sounding.Value > -15.0 && sounding.Value <= -12.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(252, 188, 100);
-                            }
-                            else if (sounding.Value > -12.0 && sounding.Value <= -8.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(252, 198, 122);
-                            }
-                            else if (sounding.Value > -8.0 && sounding.Value <= -4.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(252, 203, 142);
-                            }
-                            else if (sounding.Value > -4.0 && sounding.Value <= -2.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(253, 244, 165);
-                            }
-                            else if (sounding.Value > -2.0 && sounding.Value <= -1.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(255, 247, 190);
-                            }
-                            else if (sounding.Value > -1.0 && sounding.Value <= 0.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(255, 249, 207);
-                            }
-                            else if (sounding.Value > 0.0 && sounding.Value <= 1.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(193, 239, 255);
-                            }
-                            else if (sounding.Value > 1.0 && sounding.Value <= 2.5)
-                            {
-                                color = System.Drawing.Color.FromArgb(156, 232, 255);
-                            }
-                            else if (sounding.Value > 2.5 && sounding.Value <= 5.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(115, 223, 255);
-                            }
-                            else if (sounding.Value > 5.0 && sounding.Value <= 10.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(100, 215, 255);
-                            }
-                            else if (sounding.Value > 10.0 && sounding.Value <= 15.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(85, 210, 255);
-                            }
-                            else if (sounding.Value > 15.0 && sounding.Value <= 20.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(70, 206, 255);
-                            }
-                            else if (sounding.Value > 20.0 && sounding.Value <= 25.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(60, 202, 255);
-                            }
-                            else if (sounding.Value > 25.0 && sounding.Value <= 30.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(50, 202, 255);
-                            }
-                            else if (sounding.Value > 30.0 && sounding.Value <= 35.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(43, 202, 255);
-                            }
-                            else if (sounding.Value > 35.0 && sounding.Value <= 40.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(38, 202, 255);
-                            }
-                            else if (sounding.Value > 40.0 && sounding.Value <= 50.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(33, 198, 255);
-                            }
-                            else if (sounding.Value > 50.0 && sounding.Value <= 55.0)
-                            {
-                                color = System.Drawing.Color.FromArgb(28, 187, 255);
-                            }
-                            else
-                            {
-                                color = System.Drawing.Color.FromArgb(15, 176, 255);
-                            }
-
-                            lock (this)
-                            {
-                                if (filledPolygonsTables.ContainsKey(color) == false)
-                                {
-                                    var lineSym = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, color, 1);
-                                    var sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, color, lineSym);
-                                    var simpleRenderer = new SimpleRenderer(sym);
-
-                                    var filledPolysTable = new FeatureCollectionTable(polyFields, GeometryType.Polygon, horizontalCRS)
-                                    {
-                                        Renderer = simpleRenderer,
-                                        DisplayName = "Polygons"
-                                    };
-
-                                    filledPolygonsTables.Add(color, filledPolysTable);
-                                }
-                            }
-
-                            Feature polyFeature = filledPolygonsTables[color].CreateFeature();
-                            polyFeature.SetAttributeValue(idField, feature.Id);
-                            polyFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
-                            polyFeature.Geometry = geoFeature.Geometry;
-
-                            lock (this)
-                            {
-                                if (filledPolyFeatureLists.ContainsKey(color) == false)
-                                {
-                                    filledPolyFeatureLists.Add(color, new List<Feature>());
-                                }
-                                filledPolyFeatureLists[color].Add(polyFeature);
-                            }
-                        }
-                        else
-                        {
-                            Feature polyFeature = polygonsTable.CreateFeature();
-                            polyFeature.SetAttributeValue(idField, feature.Id);
-                            polyFeature.SetAttributeValue(nameField, geoFeature.FeatureName?.First()?.Name);
-                            polyFeature.Geometry = geoFeature.Geometry;
-
-                            lock (this)
-                            {
-                                polyFeatures.Add(polyFeature);
-                            }
-                        }
+                        graphicList.Add(renderedFeature.graphic);
                     }
                 }
             });
 
-            await pointsTable.AddFeaturesAsync(pointFeatures);
-            await linesTable.AddFeaturesAsync(lineFeatures);
-            await polygonsTable.AddFeaturesAsync(polyFeatures);
-            await vectorsTable.AddFeaturesAsync(vectorFeatures);
-            foreach (KeyValuePair<System.Drawing.Color, List<Feature>> filledPolyFeatureList in filledPolyFeatureLists)
+            await pointsTable.AddFeaturesAsync(pointFeatureList);
+            await linesTable.AddFeaturesAsync(lineFeatureList);
+            await polygonsTable.AddFeaturesAsync(polygonFeatureList);
+            await vectorsTable.AddFeaturesAsync(vectorFeatureList);
+
+            var filledPolygonTables = new List<FeatureCollectionTable>();
+            foreach (KeyValuePair<string, List<Feature>> filledPolyFeatureList in filledPolyFeatureLists)
             {
-                filledPolygonsTables[filledPolyFeatureList.Key].AddFeaturesAsync(filledPolyFeatureList.Value);
+                var filledPolygonTable = featureRendererFactory.Get(filledPolyFeatureList.Key);
+                filledPolygonTables.Add(filledPolygonTable);
+
+                filledPolygonTable.AddFeaturesAsync(filledPolyFeatureList.Value);
             }
 
             var featuresCollection = new FeatureCollection();
             //featuresCollection.Tables.Clear();
 
-            if (filledPolygonsTables.Count > 0)
+            if (filledPolygonTables.Count > 0)
             {
-                foreach(KeyValuePair<System.Drawing.Color, FeatureCollectionTable> filledPolysTable in filledPolygonsTables)
+                foreach(FeatureCollectionTable filledPolysTable in filledPolygonTables)
                 {
-                    featuresCollection.Tables.Add(filledPolysTable.Value);
+                    featuresCollection.Tables.Add(filledPolysTable);
                 }
             }
 
@@ -1359,7 +1125,7 @@ namespace S1XViewer
                     }";
 
                 var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
-                graphicsOverlay.Graphics.AddRange(graphicslist);
+                graphicsOverlay.Graphics.AddRange(graphicList);
                 myMapView.GraphicsOverlays?.Add(graphicsOverlay);
 
                 // Create a label definition from the JSON string. 

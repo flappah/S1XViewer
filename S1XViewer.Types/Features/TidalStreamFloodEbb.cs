@@ -16,10 +16,11 @@ namespace S1XViewer.Types.Features
         public Speed Speed { get; set; }
 
         /// <summary>
-        ///     Creates an ARCGIS featire
+        ///     Renders an ARCGIS feature
         /// </summary>
+        /// <param name="featureCollectionFactory"></param>
         /// <returns></returns>
-        public override (Feature?, Esri.ArcGISRuntime.UI.Graphic?) Render(FeatureCollectionTable featureTable)
+        public override (string type, Feature? feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS)
         {
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
@@ -97,16 +98,17 @@ namespace S1XViewer.Types.Features
                     graphic.Geometry = lineGeometry;
                     graphic.Symbol = symbol;
 
+                    FeatureCollectionTable featureTable = featureCollectionFactory.Get("VectorFeatures");
                     Feature vectorFeature = featureTable.CreateFeature();
                     vectorFeature.SetAttributeValue(idField, Id);
                     vectorFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
                     vectorFeature.Geometry = Geometry;
 
-                    return (vectorFeature, graphic);
+                    return ("VectorFeatures", vectorFeature, graphic);
                 }
             }
 
-            return base.Render(featureTable);
+            return base.Render(featureCollectionFactory, horizontalCRS);
         }
 
         /// <summary>

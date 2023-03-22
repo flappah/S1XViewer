@@ -6,6 +6,7 @@ using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
 using System.Drawing;
+using System.Globalization;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
@@ -24,30 +25,8 @@ namespace S1XViewer.Types.Features
         /// </summary>
         /// <param name="featureTable"></param>
         /// <returns></returns>
-        public override (Feature?, Esri.ArcGISRuntime.UI.Graphic?) Render(FeatureCollectionTable featureTable)
+        public override (string type, Feature? feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS)
         {
-            return (null, null);
-        }
-
-        /// <summary>
-        ///     Creates an ARCGIS feature
-        /// </summary>
-        /// <param name="fields"></param>
-        /// <param name="featureTableCollection"></param>
-        /// <param name="horizontalCRS"></param>
-        /// <returns></returns>
-        public virtual (Dictionary<System.Drawing.Color, FeatureCollectionTable>, Feature?) GetFeature(List<Field> fields, Dictionary<System.Drawing.Color, FeatureCollectionTable> featureTableCollection, SpatialReference? horizontalCRS)
-        {
-            if (fields is null)
-            {
-                throw new ArgumentNullException(nameof(fields));
-            }
-
-            if (featureTableCollection is null)
-            {
-                throw new ArgumentNullException(nameof(featureTableCollection));
-            }
-
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
 
@@ -139,32 +118,26 @@ namespace S1XViewer.Types.Features
                     color = System.Drawing.Color.FromArgb(15, 176, 255);
                 }
 
-                lock (this)
+                var lineSym = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, color, 1);
+                var sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, color, lineSym);
+                var simpleRenderer = new SimpleRenderer(sym);
+
+                var key = $"FilledPolyFeatures_{color.R}{color.G}{color.B}";
+                var featureCollectionTable = featureCollectionFactory.Get(key);
+                if (featureCollectionTable == null)
                 {
-                    if (featureTableCollection.ContainsKey(color) == false)
-                    {
-                        var lineSym = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, color, 1);
-                        var sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, color, lineSym);
-                        var simpleRenderer = new SimpleRenderer(sym);
-
-                        var filledPolysTable = new FeatureCollectionTable(fields, GeometryType.Polygon, horizontalCRS)
-                        {
-                            Renderer = simpleRenderer,
-                            DisplayName = "Polygons"
-                        };
-
-                        featureTableCollection.Add(color, filledPolysTable);
-                    }
+                    featureCollectionTable = featureCollectionFactory.Create(key, new List<Field> { idField, nameField }, GeometryType.Polygon, horizontalCRS, false, simpleRenderer);
                 }
 
-                Feature polyFeature = featureTableCollection[color].CreateFeature();
+                Feature polyFeature = featureCollectionTable.CreateFeature();
                 polyFeature.SetAttributeValue(idField, Id);
                 polyFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
                 polyFeature.Geometry = Geometry;
-                return (featureTableCollection, polyFeature);
+
+                return (key, polyFeature, null);
             }
 
-            return (new Dictionary<System.Drawing.Color, FeatureCollectionTable>(), null);
+            return base.Render(featureCollectionFactory, horizontalCRS);
         }
 
         /// <summary>

@@ -31,6 +31,8 @@ namespace S1XViewer.Types
                 }
             };
 
+            builder.RegisterType<FeatureCollectionFactory>().As(typeof(IFeatureCollectionFactory)).InstancePerLifetimeScope();
+
             builder.Register(c => new FeatureFactory()
             {
                 Features = (from featureType in featureTypes
