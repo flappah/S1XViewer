@@ -622,6 +622,7 @@ namespace S1XViewer
                 myMapView.GraphicsOverlays.RemoveAt(0);
             }
             myMapView?.GraphicsOverlays?.Clear();
+            myMapView?.Map?.Tables.Clear();
 
             if (encLayer != null)
             {
@@ -789,6 +790,7 @@ namespace S1XViewer
                 myMapView.GraphicsOverlays.RemoveAt(0);
             }
             myMapView?.GraphicsOverlays?.Clear();
+            myMapView?.Map?.Tables.Clear();
 
             if (encLayer != null)
             {
