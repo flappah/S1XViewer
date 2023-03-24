@@ -25,6 +25,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Xml;
+using Windows.Security.Authentication.Identity.Core;
 using Windows.UI.StartScreen;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
@@ -41,6 +42,7 @@ namespace S1XViewer
         private string _selectedFilename = string.Empty;
         private bool _resetViewpoint = true;
         private bool _disposing = false;
+        private bool _uiInitializing = true;
 
         /// <summary>
         ///     Basic initialization
@@ -76,22 +78,25 @@ namespace S1XViewer
 
             var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
             var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
+            var optionsStorage = _container.Resolve<IOptionsStorage>();
 
             Application.Current.Dispatcher.Invoke((Action)delegate
             {
+                string colorSchemeSelection = optionsStorage.Retrieve("ColorSchemeSelection") ?? string.Empty;
+                colorSchemeSelection = String.IsNullOrEmpty(colorSchemeSelection) ? "default.xml" : colorSchemeSelection;
+
                 foreach (string colorSchemeName in colorSchemeNames)
                 {
                     var newComboboxItem = new RibbonGalleryItem { Content = colorSchemeName };
+                    if (colorSchemeSelection.Equals(colorSchemeName))
+                    {
+                        newComboboxItem.IsSelected = true;
+                    }
+                    newComboboxItem.Selected += ColorSchemeItem_Selected;
                     galeryColorSchemes.Items.Add(newComboboxItem);
-                }
-
-                if (galeryColorSchemes.Items.Count > 0)
-                {
-                    ((RibbonGalleryItem)galeryColorSchemes.Items[0]).IsSelected = true;
                 }
             });
 
-            var optionsStorage = _container.Resolve<IOptionsStorage>();
             string basemap = optionsStorage.Retrieve("comboBoxBasemap");
             BasemapStyle basemapStyle;
             if (string.IsNullOrEmpty(basemap) == true)
@@ -108,6 +113,36 @@ namespace S1XViewer
             myMapView.SetViewpoint(new Viewpoint(mapCenterPoint, 3000000));
 
             Closing += MainWindow_Closing;
+            Loaded += MainWindow_Loaded;            
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ColorSchemeItem_Selected(object sender, RoutedEventArgs e)
+        {
+            if (_uiInitializing == false)
+            {
+                if (e.Source is RibbonGalleryItem selectedItem)
+                {
+                    var optionsStorage = _container.Resolve<IOptionsStorage>();
+                    var colorSchemeSelection = String.IsNullOrEmpty(selectedItem.Content?.ToString()) ? "default.xml" : selectedItem.Content?.ToString();
+                    optionsStorage.Store("ColorSchemeSelection", colorSchemeSelection);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            _uiInitializing = false;
         }
 
         /// <summary>
@@ -130,7 +165,7 @@ namespace S1XViewer
             }
         }
 
-        #region Menu Handlers
+        #region Ribbon Button and Menu Handlers
 
         /// <summary>
         /// 
@@ -577,16 +612,16 @@ namespace S1XViewer
 
             Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
 
-            myMapView.Map.OperationalLayers.Clear();
-            if (myMapView.Map.OperationalLayers.Count > 0)
+            if (myMapView?.Map?.OperationalLayers.Count > 0)
             {
                 myMapView.Map.OperationalLayers.RemoveAt(0);
             }
-            myMapView.GraphicsOverlays.Clear();
-            if (myMapView.GraphicsOverlays.Count > 0)
+            myMapView?.Map?.OperationalLayers.Clear();
+            if (myMapView?.GraphicsOverlays?.Count > 0)
             {
                 myMapView.GraphicsOverlays.RemoveAt(0);
             }
+            myMapView?.GraphicsOverlays?.Clear();
 
             if (encLayer != null)
             {
@@ -722,22 +757,7 @@ namespace S1XViewer
                 {
                     if (o != null)
                     {
-                        labelStatus.Content = $"Load time: {o ?? ""} seconds ..";
-                        progressBar.Value = 0;
-
-                        BackgroundWorker bgw = new();
-                        bgw.DoWork += delegate
-                        {
-                            Task.Delay(5000).Wait();
-                        };
-                        bgw.RunWorkerCompleted += delegate
-                        {
-                            _syncContext?.Post(new SendOrPostCallback((o) =>
-                            {
-                                labelStatus.Content = "";
-                            }), "");
-                        };
-                        bgw.RunWorkerAsync();
+                        labelStatus.Content = $"Load time: {o ?? ""} seconds. Now rendering file ..";
                     }
                 }), elapsedTime);
 
@@ -752,12 +772,22 @@ namespace S1XViewer
         private async Task LoadGMLFile(string productStandard, string fileName)
         {
             this.mainRibbon.Title = $"Viewing {fileName.LastPart(@"\")}";
+
             _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
 
             Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
-            myMapView?.Map?.OperationalLayers?.Clear();
+
+            if (myMapView?.Map?.OperationalLayers.Count > 0)
+            {
+                myMapView.Map.OperationalLayers.RemoveAt(0);
+            }
+            myMapView?.Map?.OperationalLayers.Clear();
+            if (myMapView?.GraphicsOverlays?.Count > 0)
+            {
+                myMapView.GraphicsOverlays.RemoveAt(0);
+            }
             myMapView?.GraphicsOverlays?.Clear();
 
             if (encLayer != null)
@@ -832,22 +862,7 @@ namespace S1XViewer
                 {
                     if (txt != null)
                     {
-                        labelStatus.Content = $"Load time: {txt} seconds ..";
-                        progressBar.Value = 0;
-
-                        BackgroundWorker bgw = new();
-                        bgw.DoWork += delegate
-                        {
-                            Task.Delay(5000).Wait();
-                        };
-                        bgw.RunWorkerCompleted += delegate
-                        {
-                            _syncContext?.Post(new SendOrPostCallback((o) =>
-                            {
-                                labelStatus.Content = "";
-                            }), "");
-                        };
-                        bgw.RunWorkerAsync();
+                        labelStatus.Content = $"Load time: {txt} seconds. Now rendering file ..";
                     }
                 }), elapsedTime);
                 
@@ -987,7 +1002,7 @@ namespace S1XViewer
 
         #endregion
 
-        #region Methods that have connections to ArcGIS
+        #region ArcGIS Runtime connections
 
         /// <summary>
         ///     Creation a feature collection for rendering on the map
@@ -1049,7 +1064,7 @@ namespace S1XViewer
             var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
             featureRendererManager.Clear();
 
-            var colorSchemeName = comboboxColorSchemes.Text ?? "default.xml"; // default.xml is literally the default!
+            var colorSchemeName = String.IsNullOrEmpty(comboboxColorSchemes.Text) ? "default.xml" : comboboxColorSchemes.Text;
             featureRendererManager.LoadColorScheme(colorSchemeName, dataPackage.Type.ToString().LastPart("."));
 
             var polygonsTable = featureRendererManager.Create("PolygonFeatures", polyFields, GeometryType.Polygon, horizontalCRS);
@@ -1119,7 +1134,7 @@ namespace S1XViewer
                 FeatureCollectionTable? filledPolygonTable = featureRendererManager.Get(filledPolyFeatureList.Key);
                 if (filledPolygonTable != null)
                 {
-                    filledPolygonTables.Add(filledPolygonTable);
+                    filledPolygonTables.Add(filledPolygonTable);                
                     filledPolygonTable.AddFeaturesAsync(filledPolyFeatureList.Value); // no await applied since this speeds up rendering in the UI! 
                 }
             }
@@ -1219,11 +1234,17 @@ namespace S1XViewer
                             var fullExtent = GeometryEngine.CombineExtents(datasetExtents);
                             await myMapView.SetViewpointAsync(new Viewpoint(fullExtent));
                         }
+
+                        _syncContext?.Post(new SendOrPostCallback(o =>
+                        {
+                            labelStatus.Content = $"";
+                            progressBar.Value = 0;
+                        }), null);
                     }
                     catch (Exception) { }
                 });
                 await collectionLayer.LoadAsync();
-
+               
                 // Add the layer to the Map's Operational Layers collection
                 myMapView.Map.OperationalLayers.Add(collectionLayer);
                 myMapView.GeoViewTapped += OnMapViewTapped;
