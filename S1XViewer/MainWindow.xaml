@@ -33,10 +33,17 @@
                     <RibbonButton x:Name="buttonResetLayers" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" Label="Reset Layers" Click="ResetLayers_Click"/>
                     <RibbonButton x:Name="buttonOptions" LargeImageSource="/images/Fa-Team-Fontawesome-FontAwesome-Gear.ico" Label="Options" Click="OptionsMenu_Click"/>
                 </RibbonGroup>
-                <RibbonGroup x:Name="groupNavigation" Header="Navigate dataset">
+                <RibbonGroup x:Name="groupNavigation" Header="Navigate Dataset">
                     <RibbonButton x:Name="buttonBackward" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Left.ico" Label="Previous" IsEnabled="False" Click="buttonBackward_Click" />
                     <RibbonTextBox x:Name="textBoxTimeValue" Margin="0,7,0,0" IsEnabled="False" FontSize="11" />
                     <RibbonButton x:Name="buttonForward" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" Label="Next" IsEnabled="False" Click="buttonForward_Click" />
+                </RibbonGroup>
+                <RibbonGroup x:Name="colorSchemes" Header="Color Schemes">
+                    <RibbonComboBox x:Name="comboboxColorSchemes" Margin="0,7,0,0" IsEnabled="False">
+                        <RibbonGallery SelectedItem="Green" SelectedValuePath="Content" MaxColumnCount="1">
+                            <RibbonGalleryCategory x:Name="galeryColorSchemes"/>
+                        </RibbonGallery>                        
+                    </RibbonComboBox>
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>

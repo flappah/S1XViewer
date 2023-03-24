@@ -1,8 +1,6 @@
 ﻿using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Symbology;
-using S1XViewer.Base;
-using System.Xml;
 
 namespace S1XViewer.Types.Interfaces
 {
@@ -15,5 +13,6 @@ namespace S1XViewer.Types.Interfaces
         FeatureCollectionTable? Get(string key);
         void LoadColorScheme(string fileName, string standard);
         void Remove(string key);
+        string[] RetrieveColorSchemeNames();
     }
 }

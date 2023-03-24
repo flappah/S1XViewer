@@ -3,7 +3,6 @@ using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Hydrography;
 using Esri.ArcGISRuntime.Mapping;
-using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
 using Microsoft.Win32;
@@ -20,14 +19,13 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Xml;
-using Windows.Security.Authentication.Identity.Core;
+using Windows.UI.StartScreen;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
 namespace S1XViewer
@@ -62,7 +60,7 @@ namespace S1XViewer
                 int i = 1;
                 foreach (var fileName in fileNames)
                 {
-                    System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
+                    Application.Current.Dispatcher.Invoke((Action)delegate
                     {
                         var newMenuItem = new RibbonMenuItem
                         {
@@ -73,6 +71,23 @@ namespace S1XViewer
 
                         RecentFilesMenuItem.Items.Add(newMenuItem);
                     });
+                }
+            });
+
+            var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
+            var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
+
+            Application.Current.Dispatcher.Invoke((Action)delegate
+            {
+                foreach (string colorSchemeName in colorSchemeNames)
+                {
+                    var newComboboxItem = new RibbonGalleryItem { Content = colorSchemeName };
+                    galeryColorSchemes.Items.Add(newComboboxItem);
+                }
+
+                if (galeryColorSchemes.Items.Count > 0)
+                {
+                    ((RibbonGalleryItem)galeryColorSchemes.Items[0]).IsSelected = true;
                 }
             });
 
@@ -157,6 +172,7 @@ namespace S1XViewer
                 buttonBackward.Tag = "";
                 textBoxTimeValue.Text = string.Empty;
                 textBoxTimeValue.Tag = "";
+                comboboxColorSchemes.IsEnabled = false;
 
                 var currentFolder = openFileDialog.FileName.Substring(0, openFileDialog.FileName.LastIndexOf(@"\"));
                 if (String.IsNullOrEmpty(currentFolder) == false)
@@ -190,8 +206,6 @@ namespace S1XViewer
 
                     if (productStandard.IsNumeric() == false)
                     {
-
-
                         // if no standard could be determined, ask the user
                         var selectStandardForm = new SelectStandardWindow();
                         selectStandardForm.Owner = this;
@@ -208,6 +222,58 @@ namespace S1XViewer
                 else if (_selectedFilename.Contains(".031"))
                 {
                     _ = LoadENCFile(_selectedFilename);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Handler for recent files
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void AutoOpen_Click(object sender, RoutedEventArgs e)
+        {
+            _selectedFilename = ((MenuItem)sender).Tag.ToString() ?? string.Empty;
+            comboboxColorSchemes.IsEnabled = false;
+
+            if (string.IsNullOrEmpty(_selectedFilename) == false)
+            {
+                if (_selectedFilename?.Contains("CATALOG.XML") == false &&
+                    _selectedFilename?.ToUpper().Contains(".XML") == true || _selectedFilename?.ToUpper().Contains(".GML") == true)
+                {
+                    _ = LoadGMLFile("", _selectedFilename);
+                }
+                else if (_selectedFilename?.ToUpper().Contains("CATALOG.XML") == true)
+                {
+                    _ = LoadExchangeSet(_selectedFilename);
+                }
+                else if (_selectedFilename?.ToUpper().Contains(".HDF5") == true || _selectedFilename?.ToUpper().Contains(".H5") == true)
+                {
+                    // filename contains the IHO product standard. First 3 chars indicate the standard to use!
+                    string productStandard;
+                    if (_selectedFilename.Contains(@"\"))
+                    {
+                        productStandard = _selectedFilename.LastPart(@"\").Substring(0, 3);
+                    }
+                    else
+                    {
+                        productStandard = _selectedFilename.Substring(0, 3);
+                    }
+
+                    if (productStandard.IsNumeric() == false)
+                    {
+                        // if no standard could be determined, ask the user
+                        var selectStandardForm = new SelectStandardWindow();
+                        selectStandardForm.Owner = this;
+                        selectStandardForm.ShowDialog();
+                        productStandard = selectStandardForm.SelectedStandard;
+                    }
+                    else
+                    {
+                        productStandard = $"S{productStandard}";
+                    }
+
+                    _ = LoadHDF5File(productStandard, _selectedFilename, null);
                 }
             }
         }
@@ -262,57 +328,6 @@ namespace S1XViewer
                 Container = _container
             };
             newOptionsMenu.Show();
-        }
-
-        /// <summary>
-        ///     Handler for recent files
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void AutoOpen_Click(object sender, RoutedEventArgs e)
-        {
-            _selectedFilename = ((MenuItem)sender).Tag.ToString() ?? string.Empty;
-
-            if (string.IsNullOrEmpty(_selectedFilename) == false)
-            {
-                if (_selectedFilename?.Contains("CATALOG.XML") == false &&
-                    _selectedFilename?.ToUpper().Contains(".XML") == true || _selectedFilename?.ToUpper().Contains(".GML") == true)
-                {
-                    _= LoadGMLFile("", _selectedFilename);
-                }
-                else if (_selectedFilename?.ToUpper().Contains("CATALOG.XML") == true)
-                {
-                    _ = LoadExchangeSet(_selectedFilename);
-                }
-                else if (_selectedFilename?.ToUpper().Contains(".HDF5") == true || _selectedFilename?.ToUpper().Contains(".H5") == true)
-                {
-                    // filename contains the IHO product standard. First 3 chars indicate the standard to use!
-                    string productStandard;
-                    if (_selectedFilename.Contains(@"\"))
-                    {
-                        productStandard = _selectedFilename.LastPart(@"\").Substring(0, 3);
-                    }
-                    else
-                    {
-                        productStandard = _selectedFilename.Substring(0, 3);
-                    }
-
-                    if (productStandard.IsNumeric() == false)
-                    {
-                        // if no standard could be determined, ask the user
-                        var selectStandardForm = new SelectStandardWindow();
-                        selectStandardForm.Owner = this;
-                        selectStandardForm.ShowDialog();
-                        productStandard = selectStandardForm.SelectedStandard;
-                    }
-                    else
-                    {
-                        productStandard = $"S{productStandard}";
-                    }
-
-                    _ = LoadHDF5File(productStandard, _selectedFilename, null);
-                }
-            }
         }
 
         /// <summary>
@@ -555,6 +570,7 @@ namespace S1XViewer
                 this.mainRibbon.Title += $"@ {((DateTime)selectedDateTime).ToString("yyyy-MM-dd HH:mm")} UTC";
             }
 
+            comboboxColorSchemes.IsEnabled = productStandard == "S102";
             _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
@@ -1031,13 +1047,10 @@ namespace S1XViewer
             }
 
             var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
-            if (featureRendererManager == null)
-            {
-                throw new Exception("Can't retrieve FeatureRendererManager!");
-            }
-
             featureRendererManager.Clear();
-            featureRendererManager.LoadColorScheme("default.xml", dataPackage.Type.ToString().LastPart("."));
+
+            var colorSchemeName = comboboxColorSchemes.Text ?? "default.xml"; // default.xml is literally the default!
+            featureRendererManager.LoadColorScheme(colorSchemeName, dataPackage.Type.ToString().LastPart("."));
 
             var polygonsTable = featureRendererManager.Create("PolygonFeatures", polyFields, GeometryType.Polygon, horizontalCRS);
             var linesTable = featureRendererManager.Create("LineFeatures", lineFields, GeometryType.Polyline, horizontalCRS);

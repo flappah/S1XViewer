@@ -38,6 +38,7 @@
     <PackageReference Include="Esri.ArcGISRuntime" Version="200.0.0" />
     <PackageReference Include="Esri.ArcGISRuntime.Hydrography" Version="200.0.0" />
     <PackageReference Include="Esri.ArcGISRuntime.WPF" Version="200.0.0" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.0" />
     <PackageReference Include="HDF5-CSharp" Version="1.16.3" />
   </ItemGroup>
 
@@ -61,6 +62,9 @@
 
   <ItemGroup>
     <None Update="colorschemes\default.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="colorschemes\ijmuiden_sample.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="colorschemes\ncp.xml">

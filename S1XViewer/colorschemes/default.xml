@@ -6,8 +6,8 @@
             <Color a="" r="247" g="148" b="58"/>
         </Range>
         <Range>
-            <Min inclusive="false">-15.0</Min>
-            <Max inclusive="true">-20.0</Max>
+            <Min inclusive="false">-20.0</Min>
+            <Max inclusive="true">-15.0</Max>
             <Color a="" r="252" g="179" b="86"/>
         </Range>
         <Range>

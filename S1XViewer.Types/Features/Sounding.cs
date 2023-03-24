@@ -6,7 +6,6 @@ using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
 using System.Drawing;
-using System.Globalization;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
@@ -32,7 +31,7 @@ namespace S1XViewer.Types.Features
 
             if (Geometry is Polygon polygon)
             {
-                System.Drawing.Color color = System.Drawing.Color.Black;
+                var color = Color.Black;
                 foreach(ColorSchemeRangeItem schemeItem in featureRendererManager.ColorScheme)
                 {
                     if (schemeItem.Between(Value))
@@ -41,95 +40,6 @@ namespace S1XViewer.Types.Features
                         break;
                     }
                 }
-
-
-                //switch (Value)
-                //{
-                //    case <= -20.0:
-                //        color = System.Drawing.Color.FromArgb(247, 148, 58);
-                //        break;
-
-                //    case > -20.0 and <= -15.0:
-                //        color = System.Drawing.Color.FromArgb(252, 179, 86);
-                //        break;
-
-                //    case > -15.0 and <= -12.0:
-                //        color = System.Drawing.Color.FromArgb(252, 188, 100);
-                //        break;
-
-                //    case > -12.0 and <= -8.0:
-                //        color = System.Drawing.Color.FromArgb(252, 198, 122);
-                //        break;
-
-                //    case > -8.0 and <= -4.0:
-                //        color = System.Drawing.Color.FromArgb(252, 203, 142);
-                //        break;
-
-                //    case > -4.0 and <= -2.0:
-                //        color = System.Drawing.Color.FromArgb(253, 244, 165);
-                //        break;
-
-                //    case > -2.0 and <= -1.0:
-                //        color = System.Drawing.Color.FromArgb(255, 247, 190);
-                //        break;
-
-                //    case > -1.0 and <= 0.0:
-                //        color = System.Drawing.Color.FromArgb(255, 249, 207);
-                //        break;
-
-                //    case > 0.0 and <= 1.0:
-                //        color = System.Drawing.Color.FromArgb(193, 239, 255);
-                //        break;
-
-                //    case > 1.0 and <= 2.5:
-                //        color = System.Drawing.Color.FromArgb(156, 232, 255);
-                //        break;
-
-                //    case > 2.5 and <= 5.0:
-                //        color = System.Drawing.Color.FromArgb(115, 223, 255);
-                //        break;
-
-                //    case > 5.0 and <= 10.0:
-                //        color = System.Drawing.Color.FromArgb(100, 215, 255);
-                //        break;
-
-                //    case > 10.0 and <= 15.0:
-                //        color = System.Drawing.Color.FromArgb(85, 210, 255);
-                //        break;
-
-                //    case > 15.0 and <= 20.0:
-                //        color = System.Drawing.Color.FromArgb(70, 206, 255);
-                //        break;
-
-                //    case > 20.0 and <= 25.0:
-                //        color = System.Drawing.Color.FromArgb(60, 203, 255);
-                //        break;
-
-                //    case > 25.0 and <= 30.0:
-                //        color = System.Drawing.Color.FromArgb(50, 201, 255);
-                //        break;
-
-                //    case > 30.0 and <= 35.0:
-                //        color = System.Drawing.Color.FromArgb(43, 199, 250);
-                //        break;
-
-                //    case > 35.0 and <= 40.0:
-                //        color = System.Drawing.Color.FromArgb(38, 196, 248);
-                //        break;
-
-                //    case > 40.0 and <= 50.0:
-                //        color = System.Drawing.Color.FromArgb(33, 193, 246);
-                //        break;
-
-                //    case > 50.0 and <= 55.0:
-                //        color = System.Drawing.Color.FromArgb(28, 187, 244);
-                //        break;
-
-                //    default:
-                //        color = System.Drawing.Color.FromArgb(15, 176, 240);
-                //        break;
-
-                //}
 
                 var lineSym = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, color, 1);
                 var sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, color, lineSym);
