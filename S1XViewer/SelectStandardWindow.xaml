@@ -8,6 +8,7 @@
         Title="Select ISO S1xx Standard" Height="200" Width="260" ResizeMode="NoResize">
     <Grid>
         <ComboBox HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Width="220" SelectionChanged="ComboBox_SelectionChanged">
+            <ComboBoxItem Content="S102"/>
             <ComboBoxItem Content="S104"/>
             <ComboBoxItem Content="S111"/>
             <ComboBoxItem Content="S122"/>

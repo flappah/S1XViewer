@@ -1,14 +1,19 @@
 ﻿using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Symbology;
+using S1XViewer.Base;
 using S1XViewer.Types.Interfaces;
+using System.Runtime.CompilerServices;
+using System.Xml;
 
 namespace S1XViewer.Types
 {
-    public class FeatureCollectionFactory : IFeatureCollectionFactory
+    public class FeatureRendererManager : IFeatureRendererManager
     {
         private static Dictionary<string, FeatureCollectionTable> _featureCollectionTables = new Dictionary<string, FeatureCollectionTable>();
         private object _lockOnThis = new object();
+
+        public List<ColorSchemeRangeItem> ColorScheme { get; set; } = new List<ColorSchemeRangeItem>();
 
         /// <summary>
         ///     Creates the renderer for features on the map
@@ -53,6 +58,36 @@ namespace S1XViewer.Types
 
             // Return a new renderer that uses the symbol created above
             return new SimpleRenderer(sym);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="standard"></param>
+        public void LoadColorScheme(string fileName, string standard)
+        {
+            var fullPath = System.Reflection.Assembly.GetAssembly(GetType())?.Location;
+            var directory = Path.GetDirectoryName(fullPath);
+
+            var xmlDocument = new XmlDocument();
+            xmlDocument.Load($@"{directory}\colorschemes\{fileName}");
+
+            XmlNodeList? ranges = xmlDocument.DocumentElement?.SelectNodes($"ColorScheme[@type='{standard}']/Range");
+            if (ranges != null && ranges.Count > 0)
+            {
+                foreach (XmlNode range in ranges)
+                {
+                    var item = new ColorSchemeRangeItem();
+                    item.Parse(range);
+                    ColorScheme.Add(item);
+                }
+            }
+            else
+            {
+                // if no colorschemes add one black value
+                ColorScheme.Add(new ColorSchemeRangeItem { Color = System.Drawing.Color.Black, Max = 15000.0, Min = -15000.0 });
+            }
         }
 
         /// <summary>

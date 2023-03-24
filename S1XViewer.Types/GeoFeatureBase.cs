@@ -1,6 +1,5 @@
 ﻿using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
-using Esri.ArcGISRuntime.Symbology;
 using S1XViewer.Types.Interfaces;
 
 namespace S1XViewer.Types
@@ -37,16 +36,16 @@ namespace S1XViewer.Types
         /// <summary>
         ///     Renders an ARCGIS feature
         /// </summary>
-        /// <param name="featureCollectionFactory"></param>
+        /// <param name="featureRendererManager"></param>
         /// <returns></returns>
-        public virtual (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS)
+        public virtual (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS)
         {
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
 
             if (Geometry is MapPoint mapPoint)
             {
-                FeatureCollectionTable featureTable = featureCollectionFactory.Get("PointFeatures");
+                FeatureCollectionTable featureTable = featureRendererManager.Get("PointFeatures");
 
                 Feature pointFeature = featureTable.CreateFeature();
                 pointFeature.SetAttributeValue(idField, Id);
@@ -57,7 +56,7 @@ namespace S1XViewer.Types
             }
             else if (Geometry is Polyline)
             {
-                FeatureCollectionTable featureTable = featureCollectionFactory.Get("LineFeatures");
+                FeatureCollectionTable featureTable = featureRendererManager.Get("LineFeatures");
 
                 Feature lineFeature = featureTable.CreateFeature();
                 lineFeature.SetAttributeValue(idField, Id);
@@ -68,7 +67,7 @@ namespace S1XViewer.Types
             }
             else
             {
-                FeatureCollectionTable featureTable = featureCollectionFactory.Get("PolygonFeatures");
+                FeatureCollectionTable featureTable = featureRendererManager.Get("PolygonFeatures");
 
                 Feature polyFeature = featureTable.CreateFeature();
                 polyFeature.SetAttributeValue(idField, Id);

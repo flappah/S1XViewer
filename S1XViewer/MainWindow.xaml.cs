@@ -20,12 +20,14 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Xml;
+using Windows.Security.Authentication.Identity.Core;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
 namespace S1XViewer
@@ -40,6 +42,7 @@ namespace S1XViewer
         private SynchronizationContext? _syncContext;
         private string _selectedFilename = string.Empty;
         private bool _resetViewpoint = true;
+        private bool _disposing = false;
 
         /// <summary>
         ///     Basic initialization
@@ -88,6 +91,28 @@ namespace S1XViewer
 
             var mapCenterPoint = new MapPoint(0, 50, SpatialReferences.Wgs84);
             myMapView.SetViewpoint(new Viewpoint(mapCenterPoint, 3000000));
+
+            Closing += MainWindow_Closing;
+        }
+
+        /// <summary>
+        ///     To handle closing the mainform when user presses the window its close button (X)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_Closing(object? sender, CancelEventArgs e)
+        {
+            if (_disposing == false)
+            {
+                var featureRendererFactory = _container.Resolve<IFeatureRendererManager>();
+                featureRendererFactory.Clear();
+
+                if (myMapView != null)
+                {
+                    myMapView.Map = null;
+                    myMapView = null;
+                }
+            }
         }
 
         #region Menu Handlers
@@ -99,7 +124,8 @@ namespace S1XViewer
         /// <param name="e"></param>
         public void AppExit_Click(object obj, EventArgs e)
         {
-            var featureRendererFactory = _container.Resolve<IFeatureCollectionFactory>();
+            _disposing = true;
+            var featureRendererFactory = _container.Resolve<IFeatureRendererManager>();
             featureRendererFactory.Clear();
 
             if (myMapView != null)
@@ -197,7 +223,7 @@ namespace S1XViewer
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
             
-            var featureRendererFactory = _container.Resolve<IFeatureCollectionFactory>();
+            var featureRendererFactory = _container.Resolve<IFeatureRendererManager>();
             featureRendererFactory.Clear();
 
             if (myMapView != null)
@@ -1004,18 +1030,19 @@ namespace S1XViewer
                 horizontalCRS = dataPackage.GeoFeatures[i].Geometry.SpatialReference;
             }
 
-            var featureRendererFactory = _container.Resolve<IFeatureCollectionFactory>();
-            if (featureRendererFactory == null)
+            var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
+            if (featureRendererManager == null)
             {
-                throw new Exception("Can't retrieve FeatureRendererFactory!");
+                throw new Exception("Can't retrieve FeatureRendererManager!");
             }
 
-            featureRendererFactory.Clear();
+            featureRendererManager.Clear();
+            featureRendererManager.LoadColorScheme("default.xml", dataPackage.Type.ToString().LastPart("."));
 
-            var polygonsTable = featureRendererFactory.Create("PolygonFeatures", polyFields, GeometryType.Polygon, horizontalCRS);
-            var linesTable = featureRendererFactory.Create("LineFeatures", lineFields, GeometryType.Polyline, horizontalCRS);
-            var pointsTable = featureRendererFactory.Create("PointFeatures", pointFields, GeometryType.Point, horizontalCRS);
-            var vectorsTable = featureRendererFactory.Create("VectorFeatures", pointVectorFields, GeometryType.Point, horizontalCRS, true);
+            var polygonsTable = featureRendererManager.Create("PolygonFeatures", polyFields, GeometryType.Polygon, horizontalCRS);
+            var linesTable = featureRendererManager.Create("LineFeatures", lineFields, GeometryType.Polyline, horizontalCRS);
+            var pointsTable = featureRendererManager.Create("PointFeatures", pointFields, GeometryType.Point, horizontalCRS);
+            var vectorsTable = featureRendererManager.Create("VectorFeatures", pointVectorFields, GeometryType.Point, horizontalCRS, true);
 
             var graphicList = new List<Graphic>();
             var pointFeatureList = new List<Feature>();
@@ -1028,7 +1055,7 @@ namespace S1XViewer
             {
                 if (feature is IGeoFeature geoFeature)
                 {
-                    (string type, Feature feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererFactory, horizontalCRS);
+                    (string type, Feature feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererManager, horizontalCRS);
 
                     lock (this) 
                     {
@@ -1076,10 +1103,12 @@ namespace S1XViewer
             var filledPolygonTables = new List<FeatureCollectionTable>();
             foreach (KeyValuePair<string, List<Feature>> filledPolyFeatureList in filledPolyFeatureLists)
             {
-                var filledPolygonTable = featureRendererFactory.Get(filledPolyFeatureList.Key);
-                filledPolygonTables.Add(filledPolygonTable);
-
-                filledPolygonTable.AddFeaturesAsync(filledPolyFeatureList.Value);
+                FeatureCollectionTable? filledPolygonTable = featureRendererManager.Get(filledPolyFeatureList.Key);
+                if (filledPolygonTable != null)
+                {
+                    filledPolygonTables.Add(filledPolygonTable);
+                    filledPolygonTable.AddFeaturesAsync(filledPolyFeatureList.Value); // no await applied since this speeds up rendering in the UI! 
+                }
             }
 
             var featuresCollection = new FeatureCollection();

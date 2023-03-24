@@ -25,7 +25,7 @@ namespace S1XViewer.Types.Features
         /// </summary>
         /// <param name="featureTable"></param>
         /// <returns></returns>
-        public override (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureCollectionFactory featureCollectionFactory, SpatialReference? horizontalCRS)
+        public override (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS)
         {
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
@@ -33,100 +33,113 @@ namespace S1XViewer.Types.Features
             if (Geometry is Polygon polygon)
             {
                 System.Drawing.Color color = System.Drawing.Color.Black;
-                if (Value <= -20.0)
+                foreach(ColorSchemeRangeItem schemeItem in featureRendererManager.ColorScheme)
                 {
-                    color = System.Drawing.Color.FromArgb(247, 148, 58);
+                    if (schemeItem.Between(Value))
+                    {
+                        color = schemeItem.Color;
+                        break;
+                    }
                 }
-                else if (Value > -20.0 && Value <= -15.0)
-                {
-                    color = System.Drawing.Color.FromArgb(252, 179, 86);
-                }
-                else if (Value > -15.0 && Value <= -12.0)
-                {
-                    color = System.Drawing.Color.FromArgb(252, 188, 100);
-                }
-                else if (Value > -12.0 && Value <= -8.0)
-                {
-                    color = System.Drawing.Color.FromArgb(252, 198, 122);
-                }
-                else if (Value > -8.0 && Value <= -4.0)
-                {
-                    color = System.Drawing.Color.FromArgb(252, 203, 142);
-                }
-                else if (Value > -4.0 && Value <= -2.0)
-                {
-                    color = System.Drawing.Color.FromArgb(253, 244, 165);
-                }
-                else if (Value > -2.0 && Value <= -1.0)
-                {
-                    color = System.Drawing.Color.FromArgb(255, 247, 190);
-                }
-                else if (Value > -1.0 && Value <= 0.0)
-                {
-                    color = System.Drawing.Color.FromArgb(255, 249, 207);
-                }
-                else if (Value > 0.0 && Value <= 1.0)
-                {
-                    color = System.Drawing.Color.FromArgb(193, 239, 255);
-                }
-                else if (Value > 1.0 && Value <= 2.5)
-                {
-                    color = System.Drawing.Color.FromArgb(156, 232, 255);
-                }
-                else if (Value > 2.5 && Value <= 5.0)
-                {
-                    color = System.Drawing.Color.FromArgb(115, 223, 255);
-                }
-                else if (Value > 5.0 && Value <= 10.0)
-                {
-                    color = System.Drawing.Color.FromArgb(100, 215, 255);
-                }
-                else if (Value > 10.0 && Value <= 15.0)
-                {
-                    color = System.Drawing.Color.FromArgb(85, 210, 255);
-                }
-                else if (Value > 15.0 && Value <= 20.0)
-                {
-                    color = System.Drawing.Color.FromArgb(70, 206, 255);
-                }
-                else if (Value > 20.0 && Value <= 25.0)
-                {
-                    color = System.Drawing.Color.FromArgb(60, 202, 255);
-                }
-                else if (Value > 25.0 && Value <= 30.0)
-                {
-                    color = System.Drawing.Color.FromArgb(50, 202, 255);
-                }
-                else if (Value > 30.0 && Value <= 35.0)
-                {
-                    color = System.Drawing.Color.FromArgb(43, 202, 255);
-                }
-                else if (Value > 35.0 && Value <= 40.0)
-                {
-                    color = System.Drawing.Color.FromArgb(38, 202, 255);
-                }
-                else if (Value > 40.0 && Value <= 50.0)
-                {
-                    color = System.Drawing.Color.FromArgb(33, 198, 255);
-                }
-                else if (Value > 50.0 && Value <= 55.0)
-                {
-                    color = System.Drawing.Color.FromArgb(28, 187, 255);
-                }
-                else
-                {
-                    color = System.Drawing.Color.FromArgb(15, 176, 255);
-                }
+
+
+                //switch (Value)
+                //{
+                //    case <= -20.0:
+                //        color = System.Drawing.Color.FromArgb(247, 148, 58);
+                //        break;
+
+                //    case > -20.0 and <= -15.0:
+                //        color = System.Drawing.Color.FromArgb(252, 179, 86);
+                //        break;
+
+                //    case > -15.0 and <= -12.0:
+                //        color = System.Drawing.Color.FromArgb(252, 188, 100);
+                //        break;
+
+                //    case > -12.0 and <= -8.0:
+                //        color = System.Drawing.Color.FromArgb(252, 198, 122);
+                //        break;
+
+                //    case > -8.0 and <= -4.0:
+                //        color = System.Drawing.Color.FromArgb(252, 203, 142);
+                //        break;
+
+                //    case > -4.0 and <= -2.0:
+                //        color = System.Drawing.Color.FromArgb(253, 244, 165);
+                //        break;
+
+                //    case > -2.0 and <= -1.0:
+                //        color = System.Drawing.Color.FromArgb(255, 247, 190);
+                //        break;
+
+                //    case > -1.0 and <= 0.0:
+                //        color = System.Drawing.Color.FromArgb(255, 249, 207);
+                //        break;
+
+                //    case > 0.0 and <= 1.0:
+                //        color = System.Drawing.Color.FromArgb(193, 239, 255);
+                //        break;
+
+                //    case > 1.0 and <= 2.5:
+                //        color = System.Drawing.Color.FromArgb(156, 232, 255);
+                //        break;
+
+                //    case > 2.5 and <= 5.0:
+                //        color = System.Drawing.Color.FromArgb(115, 223, 255);
+                //        break;
+
+                //    case > 5.0 and <= 10.0:
+                //        color = System.Drawing.Color.FromArgb(100, 215, 255);
+                //        break;
+
+                //    case > 10.0 and <= 15.0:
+                //        color = System.Drawing.Color.FromArgb(85, 210, 255);
+                //        break;
+
+                //    case > 15.0 and <= 20.0:
+                //        color = System.Drawing.Color.FromArgb(70, 206, 255);
+                //        break;
+
+                //    case > 20.0 and <= 25.0:
+                //        color = System.Drawing.Color.FromArgb(60, 203, 255);
+                //        break;
+
+                //    case > 25.0 and <= 30.0:
+                //        color = System.Drawing.Color.FromArgb(50, 201, 255);
+                //        break;
+
+                //    case > 30.0 and <= 35.0:
+                //        color = System.Drawing.Color.FromArgb(43, 199, 250);
+                //        break;
+
+                //    case > 35.0 and <= 40.0:
+                //        color = System.Drawing.Color.FromArgb(38, 196, 248);
+                //        break;
+
+                //    case > 40.0 and <= 50.0:
+                //        color = System.Drawing.Color.FromArgb(33, 193, 246);
+                //        break;
+
+                //    case > 50.0 and <= 55.0:
+                //        color = System.Drawing.Color.FromArgb(28, 187, 244);
+                //        break;
+
+                //    default:
+                //        color = System.Drawing.Color.FromArgb(15, 176, 240);
+                //        break;
+
+                //}
 
                 var lineSym = new SimpleLineSymbol(SimpleLineSymbolStyle.Solid, color, 1);
                 var sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, color, lineSym);
                 var simpleRenderer = new SimpleRenderer(sym);
 
                 var key = $"FilledPolyFeatures_{color.R}{color.G}{color.B}";
-                var featureCollectionTable = featureCollectionFactory.Get(key);
+                var featureCollectionTable = featureRendererManager.Get(key);
                 if (featureCollectionTable == null)
                 {
-                    featureCollectionTable = featureCollectionFactory.Create(key, new List<Field> { idField, nameField }, GeometryType.Polygon, horizontalCRS, false, simpleRenderer);
+                    featureCollectionTable = featureRendererManager.Create(key, new List<Field> { idField, nameField }, GeometryType.Polygon, horizontalCRS, false, simpleRenderer);
                 }
 
                 Feature polyFeature = featureCollectionTable.CreateFeature();
@@ -137,7 +150,7 @@ namespace S1XViewer.Types.Features
                 return (key, polyFeature, null);
             }
 
-            return base.Render(featureCollectionFactory, horizontalCRS);
+            return base.Render(featureRendererManager, horizontalCRS);
         }
 
         /// <summary>

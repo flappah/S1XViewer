@@ -31,7 +31,7 @@ namespace S1XViewer.Types
                 }
             };
 
-            builder.RegisterType<FeatureCollectionFactory>().As(typeof(IFeatureCollectionFactory)).InstancePerLifetimeScope();
+            builder.RegisterType<FeatureRendererManager>().As(typeof(IFeatureRendererManager)).InstancePerLifetimeScope();
 
             builder.Register(c => new FeatureFactory()
             {

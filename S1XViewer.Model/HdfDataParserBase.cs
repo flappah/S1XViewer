@@ -9,7 +9,7 @@ namespace S1XViewer.Model
 {
     public abstract class HdfDataParserBase : DataParserBase, IHdfDataParserBase
     {
-        protected IS111ProductSupport _productSupport;
+        protected IProductSupportBase _productSupport;
 
         /// <summary>
         ///     Retrieves the horizontal CRS

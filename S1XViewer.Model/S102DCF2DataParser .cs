@@ -1,22 +1,13 @@
-﻿using S1XViewer.Model.Interfaces;
-using S1XViewer.Types.Interfaces;
-using S1XViewer.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using S1XViewer.HDF;
-using HDF5CSharp.DataTypes;
-using S1XViewer.Model.Geometry;
-using S1XViewer.HDF.Interfaces;
-using S1XViewer.Storage.Interfaces;
+﻿using HDF5CSharp.DataTypes;
 using S1XViewer.Base;
+using S1XViewer.HDF;
+using S1XViewer.HDF.Interfaces;
+using S1XViewer.Model.Interfaces;
+using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
-using System.Globalization;
-using System.Net.WebSockets;
+using S1XViewer.Types.Interfaces;
+using System.Xml;
 
 namespace S1XViewer.Model
 {
@@ -34,7 +25,7 @@ namespace S1XViewer.Model
         /// <param name="datasetReader"></param>
         /// <param name="geometryBuilderFactory"></param>
         /// <param name="productSupport"></param>
-        public S102DCF2DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport)
+        public S102DCF2DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS102ProductSupport productSupport)
         {
             _datasetReader = datasetReader;
             _geometryBuilderFactory = geometryBuilderFactory;
@@ -72,29 +63,29 @@ namespace S1XViewer.Model
 
             var dataPackage = new S1xxDataPackage
             {
-                Type = S1xxTypes.S111,
+                Type = S1xxTypes.S102,
                 RawXmlData = null,
                 RawHdfData = null
             };
 
             Progress?.Invoke(50);
 
-            Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
-            long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
+            Hdf5Element hdf5S102Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
+            long horizontalCRS = RetrieveHorizontalCRS(hdf5S102Root, hdf5FileName);
 
             // retrieve boundingbox
-            var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
+            var eastBoundLongitudeAttribute = hdf5S102Root.Attributes.Find("eastBoundLongitude");
             var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<double>(0f) ?? 0.0;
-            var northBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("northBoundLatitude");
+            var northBoundLatitudeAttribute = hdf5S102Root.Attributes.Find("northBoundLatitude");
             var northBoundLatitude = northBoundLatitudeAttribute?.Value<double>(0f) ?? 0f;
-            var southBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("southBoundLatitude");
+            var southBoundLatitudeAttribute = hdf5S102Root.Attributes.Find("southBoundLatitude");
             var southBoundLatitude = southBoundLatitudeAttribute?.Value<double>(0f) ?? 0f;
-            var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
+            var westBoundLongitudeAttribute = hdf5S102Root.Attributes.Find("westBoundLongitude");
             var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0f) ?? 0f;
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
-            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/BathymetryCoverage"));
+            Hdf5Element? featureElement = hdf5S102Root.Children.Find(elm => elm.Name.Equals("/BathymetryCoverage"));
             if (featureElement == null)
             {
                 return dataPackage;
@@ -210,7 +201,7 @@ namespace S1XViewer.Model
                             Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)latIdx));
                         }
 
-                        dataPackage.RawHdfData = hdf5S111Root;
+                        dataPackage.RawHdfData = hdf5S102Root;
                         if (geoFeatures.Count > 0)
                         {
                             dataPackage.GeoFeatures = geoFeatures.ToArray();

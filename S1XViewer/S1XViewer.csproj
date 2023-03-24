@@ -60,6 +60,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="colorschemes\default.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="colorschemes\ncp.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="crs.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
