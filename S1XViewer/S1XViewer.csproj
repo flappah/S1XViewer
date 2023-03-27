@@ -23,6 +23,7 @@
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" />
+    <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Square-Plus.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Sun.ico" />
   </ItemGroup>
 
@@ -57,6 +58,9 @@
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" />
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" />
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" />
+    <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Square-Plus.ico">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Sun.ico" />
     <Resource Include="Paomedia-Small-N-Flat-Map.ico" />
   </ItemGroup>

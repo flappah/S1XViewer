@@ -440,6 +440,16 @@ namespace S1XViewer
             }
         }
 
+        /// <summary>
+        ///     To edit and add color schemes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonEditColorScheme_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         #endregion
 
         #region UI logic
