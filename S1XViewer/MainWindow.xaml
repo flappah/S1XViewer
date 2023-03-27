@@ -44,7 +44,7 @@
                             <RibbonGalleryCategory x:Name="galeryColorSchemes"/>
                         </RibbonGallery>                        
                     </RibbonComboBox>
-                    <RibbonButton x:Name="buttonEditColorScheme" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Square-Plus.ico" Click="buttonEditColorScheme_Click" />
+                    <RibbonButton x:Name="buttonEditColorScheme" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Square-Plus.ico" Label="Edit" Click="buttonEditColorScheme_Click" />
                 </RibbonGroup>
                 <RibbonGroup x:Name="measuringFunctions" Header="Measure">
                     <esri:MeasureToolbar MapView="{Binding ElementName=myMapView}" Background="White"/>

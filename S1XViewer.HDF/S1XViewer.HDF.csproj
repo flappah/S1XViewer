@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.5.0" />
-    <PackageReference Include="HDF5-CSharp" Version="1.16.3" />
+    <PackageReference Include="HDF5-CSharp" Version="1.17.0" />
   </ItemGroup>
 
   <ItemGroup>

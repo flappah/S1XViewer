@@ -7,8 +7,8 @@ namespace S1XViewer.Types
     {
         public System.Drawing.Color Color { get; set; }
         public double? Min { get; set; }
+        public bool MinInclusive { get; set; }
         public double? Max { get; set; }
-        public bool MinInclusive { get; set; }  
         public bool MaxInclusive { get; set; }
 
         /// <summary>

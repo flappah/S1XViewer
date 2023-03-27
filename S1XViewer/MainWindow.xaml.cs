@@ -447,7 +447,8 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void buttonEditColorScheme_Click(object sender, RoutedEventArgs e)
         {
-
+            var colorSchemesForm = new DefineColourSchemeWindow();
+            colorSchemesForm.ShowDialog();
         }
 
         #endregion
@@ -1150,7 +1151,7 @@ namespace S1XViewer
                     filledPolygonTable.AddFeaturesAsync(filledPolyFeatureList.Value); // no await applied since this speeds up rendering in the UI! 
                 }
             }
-
+ 
             var featuresCollection = new FeatureCollection();
 
             if (filledPolygonTables.Count > 0)
