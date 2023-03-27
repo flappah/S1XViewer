@@ -89,6 +89,7 @@ namespace S1XViewer.Types
             XmlNodeList? ranges = xmlDocument.DocumentElement?.SelectNodes($"ColorScheme[@type='{standard}']/Range");
             if (ranges != null && ranges.Count > 0)
             {
+                ColorScheme = new List<ColorSchemeRangeItem>();
                 foreach (XmlNode range in ranges)
                 {
                     var item = new ColorSchemeRangeItem();
@@ -201,6 +202,15 @@ namespace S1XViewer.Types
             }
 
             return null;
+        }
+
+        /// <summary>
+        ///     Returns all featurecollectiontable-s
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, FeatureCollectionTable> Getall()
+        {
+            return _featureCollectionTables;
         }
 
         /// <summary>

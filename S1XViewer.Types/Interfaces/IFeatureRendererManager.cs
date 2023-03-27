@@ -11,6 +11,7 @@ namespace S1XViewer.Types.Interfaces
         void Clear();
         FeatureCollectionTable Create(string key, List<Field> fields, GeometryType geometryType, SpatialReference? spatialReference, bool isVector = false, Renderer? renderer = null);
         FeatureCollectionTable? Get(string key);
+        Dictionary<string, FeatureCollectionTable> Getall();
         void LoadColorScheme(string fileName, string standard);
         void Remove(string key);
         string[] RetrieveColorSchemeNames();

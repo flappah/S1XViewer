@@ -25,8 +25,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Xml;
-using Windows.Security.Authentication.Identity.Core;
-using Windows.UI.StartScreen;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
 namespace S1XViewer
@@ -616,6 +614,7 @@ namespace S1XViewer
             {
                 myMapView.Map.OperationalLayers.RemoveAt(0);
             }
+
             myMapView?.Map?.OperationalLayers.Clear();
             if (myMapView?.GraphicsOverlays?.Count > 0)
             {
@@ -791,6 +790,7 @@ namespace S1XViewer
             }
             myMapView?.GraphicsOverlays?.Clear();
             myMapView?.Map?.Tables.Clear();
+            myMapView.Map.RetryLoadAsync();
 
             if (encLayer != null)
             {
@@ -1136,7 +1136,7 @@ namespace S1XViewer
                 FeatureCollectionTable? filledPolygonTable = featureRendererManager.Get(filledPolyFeatureList.Key);
                 if (filledPolygonTable != null)
                 {
-                    filledPolygonTables.Add(filledPolygonTable);                
+                    filledPolygonTables.Add(filledPolygonTable);
                     filledPolygonTable.AddFeaturesAsync(filledPolyFeatureList.Value); // no await applied since this speeds up rendering in the UI! 
                 }
             }
