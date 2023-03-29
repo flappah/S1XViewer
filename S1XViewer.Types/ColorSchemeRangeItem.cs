@@ -1,11 +1,10 @@
-﻿using Esri.ArcGISRuntime.Portal;
-using System.Xml;
+﻿using System.Xml;
 
 namespace S1XViewer.Types
 {
     public class ColorSchemeRangeItem
     {
-        public System.Drawing.Color Color { get; set; }
+        public System.Windows.Media.Color Color { get; set; } 
         public double? Min { get; set; }
         public bool MinInclusive { get; set; }
         public double? Max { get; set; }
@@ -137,12 +136,12 @@ namespace S1XViewer.Types
 
                     if (r != -1 && g != -1 && b != -1)
                     {
-                        Color = System.Drawing.Color.FromArgb(r, g, b);
+                        Color = System.Windows.Media.Color.FromRgb((byte)r, (byte)g, (byte)b);
                     }
 
                     if (a != -1)
                     {
-                        Color = System.Drawing.Color.FromArgb(a, Color);
+                        Color = System.Windows.Media.Color.FromArgb((byte)a, (byte)r, (byte)g, (byte) b);
                     }
                 }
             }

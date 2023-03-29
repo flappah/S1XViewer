@@ -447,7 +447,13 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void buttonEditColorScheme_Click(object sender, RoutedEventArgs e)
         {
+            var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
+            var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
+
             var colorSchemesForm = new DefineColourSchemeWindow();
+            colorSchemesForm.FeatureRendererManager = featureRendererManager;
+            colorSchemesForm.Standard = "S102";
+            colorSchemesForm.comboBoxColorSchemes.ItemsSource = colorSchemeNames.ToList();
             colorSchemesForm.ShowDialog();
         }
 
@@ -466,7 +472,7 @@ namespace S1XViewer
             (var productStandard, var productFileNames) = exchangeSetLoader.Parse(xmlDocument);
 
             productStandard = productStandard?.Replace("-", "").ToUpper() ?? string.Empty;
-            if (productStandard.In("S104", "S111") == true)
+            if (productStandard.In("S102", "S104", "S111") == true)
             {
                 DateTime? selectedDateTime = DateTime.Now;
                 if (productFileNames.Count > 1)

@@ -3,6 +3,7 @@ using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Symbology;
 using S1XViewer.Base;
 using S1XViewer.Types.Interfaces;
+using System.IO;
 using System.Xml;
 
 namespace S1XViewer.Types
@@ -78,11 +79,16 @@ namespace S1XViewer.Types
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="standard"></param>
-        public void LoadColorScheme(string fileName, string standard)
+        public bool LoadColorScheme(string fileName, string standard)
         {
             var fullPath = System.Reflection.Assembly.GetAssembly(GetType())?.Location;
             var directory = Path.GetDirectoryName(fullPath);
 
+            if (File.Exists($@"{directory}\colorschemes\{fileName}") == false)
+            {
+                return false;            
+            }
+            
             var xmlDocument = new XmlDocument();
             xmlDocument.Load($@"{directory}\colorschemes\{fileName}");
 
@@ -100,8 +106,10 @@ namespace S1XViewer.Types
             else
             {
                 // if there are no colorschemes add one black value
-                ColorScheme.Add(new ColorSchemeRangeItem { Color = System.Drawing.Color.Black, Max = 15000.0, Min = -15000.0 });
+                ColorScheme.Add(new ColorSchemeRangeItem { Color = System.Windows.Media.Colors.Black, Max = 15000.0, Min = -15000.0 });
             }
+
+            return true;
         }
 
         /// <summary>

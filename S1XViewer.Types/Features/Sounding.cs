@@ -13,14 +13,14 @@ namespace S1XViewer.Types.Features
     public class Sounding : GeoFeatureBase, ISounding, IS102Feature
     {
         public double Value { get; set; }
-        public string[] QualityOfVerticalMeasurement { get; set; }    
+        public string[] QualityOfVerticalMeasurement { get; set; } = new string[0]; 
         public DateTime ReportedDate { get; set; }
-        public string Status { get; set; }  
-        public string[] TechniqueOfVerticalMeasurement { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string[] TechniqueOfVerticalMeasurement { get; set; } = new string[0];
         public IVerticalUncertainty? VerticalUncertainty { get; set; }
         
         /// <summary>
-        /// 
+        ///     Renders the featur for use in ArcGIS Runtime
         /// </summary>
         /// <param name="featureTable"></param>
         /// <returns></returns>
@@ -36,7 +36,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (schemeItem.Between(Value))
                     {
-                        color = schemeItem.Color;
+                        color = System.Drawing.Color.FromArgb(schemeItem.Color.A, schemeItem.Color.R, schemeItem.Color.G, schemeItem.Color.B);
                         break;
                     }
                 }
@@ -45,7 +45,7 @@ namespace S1XViewer.Types.Features
                 var sym = new SimpleFillSymbol(SimpleFillSymbolStyle.Solid, color, lineSym);
                 var simpleRenderer = new SimpleRenderer(sym);
 
-                var key = $"FilledPolyFeatures_{color.R}{color.G}{color.B}";
+                var key = $"FilledPolyFeatures_{color.R.ToString()}{color.G.ToString()}{color.B.ToString()}";
                 var featureCollectionTable = featureRendererManager.Get(key);
                 if (featureCollectionTable == null)
                 {
@@ -64,7 +64,7 @@ namespace S1XViewer.Types.Features
         }
 
         /// <summary>
-        /// 
+        ///     Deepclones the feature
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>

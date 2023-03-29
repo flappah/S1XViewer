@@ -6,28 +6,53 @@
         xmlns:local="clr-namespace:S1XViewer"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
         mc:Ignorable="d"
-        Title="Define Colour Scheme" Height="450" Width="800">
-    <Window.Resources>
-        <DataTemplate x:Key="colorTemplate">
-                        
-            
-        </DataTemplate>
-    </Window.Resources>
+        Title="Define Colour Scheme" Height="470" Width="800">
     <Grid>
-        <ComboBox x:Name="comboBoxColorSchemes" HorizontalAlignment="Left" Margin="10,52,0,0" VerticalAlignment="Top" Width="258"/>
-        <DataGrid x:Name="dataGridColorSchemes" AutoGenerateColumns="False" ItemsSource="{Binding Items}" HorizontalAlignment="Center" Width="780" Margin="0,79,0,51">
+        <ComboBox x:Name="comboBoxColorSchemes" HorizontalAlignment="Left" Margin="10,30,0,0" Width="258" Height="22" VerticalAlignment="Top" SelectionChanged="comboBoxColorSchemes_SelectionChanged"/>
+        <DataGrid x:Name="dataGridColorSchemes" AutoGenerateColumns="False" Margin="10,57,35,51">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Color">
+                <DataGridTemplateColumn Header="Color" MinWidth="100">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate x:Name="ColorCellTemplate">
-                            <xctk:ColorPicker SelectedColor="{Binding Color, UpdateSourceTrigger=PropertyChanged}" DisplayColorAndName="True" UsingAlphaChannel="False"/>
+                            <xctk:ColorPicker SelectedColor="{Binding Color, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" DisplayColorAndName="True" UsingAlphaChannel="True" ShowTabHeaders="True" ShowAvailableColors="True" ShowRecentColors="True"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Min" MinWidth="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:Name="MinCellTemplate">
+                            <TextBox Text="{Binding Min, UpdateSourceTrigger=LostFocus}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="MinInclusive">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:Name="MinInclusiveCellTemplate">
+                            <CheckBox IsChecked="{Binding MinInclusive, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Max" MinWidth="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:Name="MaxCellTemplate">
+                            <TextBox Text="{Binding Max, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="MaxInclusive">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:Name="MaxInclusiveCellTemplate">
+                            <CheckBox IsChecked="{Binding MaxInclusive, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <Button x:Name="buttonAddColorSCheme" Content="Add Color Scheme" HorizontalAlignment="Left" Margin="273,53,0,0" VerticalAlignment="Top" Click="buttonAddColorSCheme_Click"/>
-        <Button x:Name="buttonOk" Content="Ok" Margin="709,0,10,15" Click="buttonOk_Click" Height="19" VerticalAlignment="Bottom"/>
+        <Button x:Name="buttonNewColorSCheme" Content="New Color Scheme" HorizontalAlignment="Left" Width="120" Margin="280,31,0,0" Click="buttonNewColorScheme_Click" Height="20" VerticalAlignment="Top"/>
+        <Button x:Name="buttonOk" Content="Ok" Margin="0,0,10,15" Click="buttonOk_Click" Height="19" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="81"/>
+        <Button x:Name="buttonAddRow" Content="+" Margin="0,57,10,0" RenderTransformOrigin="-0.167,0.4" Click="buttonAddRow_Click" HorizontalAlignment="Right" Width="20" Height="20" VerticalAlignment="Top"/>
+        <Button x:Name="buttonRemoveRow" Content="-" Margin="0,82,10,0" RenderTransformOrigin="-0.167,0.4" Click="buttonRemoveRow_Click" HorizontalAlignment="Right" Width="20" Height="20" VerticalAlignment="Top"/>
+        <Button x:Name="buttonCancel" Content="Cancel" Margin="0,0,104,15" Height="19" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="81" Click="buttonCancel_Click"/>
 
     </Grid>
 </Window>
