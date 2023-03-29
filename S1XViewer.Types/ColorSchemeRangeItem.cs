@@ -1,8 +1,11 @@
-﻿using System.Xml;
+﻿using System.Globalization;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace S1XViewer.Types
 {
-    public class ColorSchemeRangeItem
+    public class ColorSchemeRangeItem : IXmlSerializable
     {
         public System.Windows.Media.Color Color { get; set; } 
         public double? Min { get; set; }
@@ -47,6 +50,11 @@ namespace S1XViewer.Types
 
                 return minResult && maxResult;
             }
+        }
+
+        public XmlSchema? GetSchema()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -147,6 +155,49 @@ namespace S1XViewer.Types
             }
 
             return this;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Writes Xml
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public void WriteXml(XmlWriter writer)
+        {
+            writer.WriteStartElement("Range");
+
+            if (Max != null)
+            {
+                writer.WriteStartElement("Max");
+                writer.WriteAttributeString("Inclusive", MaxInclusive ? "true" : "false");  
+              
+                writer.WriteString(Max.ToString().Replace(",", "."));
+                writer.WriteEndElement();
+            }
+
+            if (Min != null)
+            {
+                writer.WriteStartElement("Min");
+                writer.WriteAttributeString("Inclusive", MinInclusive ? "true" : "false");
+
+                writer.WriteString(Min.ToString().Replace(",", "."));
+                writer.WriteEndElement();
+            }
+
+            writer.WriteStartElement("Color");
+            writer.WriteAttributeString("a", Color.A.ToString() ?? "");
+            writer.WriteAttributeString("r", Color.R.ToString());
+            writer.WriteAttributeString("g", Color.G.ToString());
+            writer.WriteAttributeString("b", Color.B.ToString());
+
+            writer.WriteEndElement();
+
+            writer.WriteEndElement();
         }
     }
 }

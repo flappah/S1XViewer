@@ -358,6 +358,7 @@ namespace S1XViewer
         {
             var newOptionsMenu = new OptionsWindow
             {
+                Owner = this,
                 Container = _container
             };
             newOptionsMenu.Show();
@@ -451,6 +452,7 @@ namespace S1XViewer
             var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
 
             var colorSchemesForm = new DefineColourSchemeWindow();
+            colorSchemesForm.Owner = this;
             colorSchemesForm.FeatureRendererManager = featureRendererManager;
             colorSchemesForm.Standard = "S102";
             colorSchemesForm.comboBoxColorSchemes.ItemsSource = colorSchemeNames.ToList();
