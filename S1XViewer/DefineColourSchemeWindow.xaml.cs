@@ -186,5 +186,19 @@ namespace S1XViewer
                 }
             }
         }
+
+        /// <summary>
+        ///     if cell contents change, set window to changed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dataGridColorSchemes_CurrentCellChanged(object sender, EventArgs e)
+        {
+            _isChanged = true;
+            if (Title.Contains("*") == false)
+            {
+                Title += "*";
+            }
+        }
     }
 }

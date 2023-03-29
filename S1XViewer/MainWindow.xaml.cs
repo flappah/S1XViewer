@@ -448,15 +448,19 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void buttonEditColorScheme_Click(object sender, RoutedEventArgs e)
         {
-            var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
-            var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
+            try
+            {
+                var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
+                var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
 
-            var colorSchemesForm = new DefineColourSchemeWindow();
-            colorSchemesForm.Owner = this;
-            colorSchemesForm.FeatureRendererManager = featureRendererManager;
-            colorSchemesForm.Standard = "S102";
-            colorSchemesForm.comboBoxColorSchemes.ItemsSource = colorSchemeNames.ToList();
-            colorSchemesForm.ShowDialog();
+                var colorSchemesForm = new DefineColourSchemeWindow();
+                colorSchemesForm.Owner = this;
+                colorSchemesForm.FeatureRendererManager = featureRendererManager;
+                colorSchemesForm.Standard = "S102";
+                colorSchemesForm.comboBoxColorSchemes.ItemsSource = colorSchemeNames.ToList();
+                colorSchemesForm.ShowDialog();
+            }
+            catch (Exception) { }
         }
 
         #endregion

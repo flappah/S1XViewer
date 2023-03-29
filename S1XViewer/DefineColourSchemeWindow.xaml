@@ -9,7 +9,7 @@
         Title="Define Color Scheme" Height="470" Width="800">
     <Grid>
         <ComboBox x:Name="comboBoxColorSchemes" Text="{Binding ColorSchemeName, UpdateSourceTrigger=PropertyChanged}" IsEditable="True" HorizontalAlignment="Left" Margin="10,30,0,0" Width="258" Height="22" VerticalAlignment="Top" SelectionChanged="comboBoxColorSchemes_SelectionChanged"/>
-        <DataGrid x:Name="dataGridColorSchemes" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" AutoGenerateColumns="False" SelectionMode="Single" Margin="10,57,35,51" CanUserAddRows="True" CanUserDeleteRows="True" CanUserResizeRows="True" >
+        <DataGrid x:Name="dataGridColorSchemes" ItemsSource="{Binding Items, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" CurrentCellChanged="dataGridColorSchemes_CurrentCellChanged" AutoGenerateColumns="False" SelectionMode="Single" Margin="10,57,35,51" CanUserAddRows="True" CanUserDeleteRows="True" CanUserSortColumns="True" AllowDrop="True" >
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Color" MinWidth="100">
                     <DataGridTemplateColumn.CellTemplate>
