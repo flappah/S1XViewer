@@ -1,16 +1,14 @@
-﻿using S1XViewer.Types;
+﻿using S1XViewer.Base;
+using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
-using S1XViewer.Base;
-using System.IO;
-using System.DirectoryServices.ActiveDirectory;
 
 namespace S1XViewer
 {
@@ -64,9 +62,10 @@ namespace S1XViewer
                 xmlWriter.WriteAttributeString("type", Standard);
                 xmlWriter.WriteAttributeString("name", comboBoxColorSchemes.Text);
 
-                foreach (ColorSchemeRangeItem item in dataGridColorSchemes.Items)
+                foreach (var item in dataGridColorSchemes.Items)
                 {
-                    item.WriteXml(xmlWriter);
+                    if (item is ColorSchemeRangeItem colorSchemeRangeItem)
+                        colorSchemeRangeItem.WriteXml(xmlWriter);
                 }
 
                 xmlWriter.WriteEndElement();
@@ -121,7 +120,28 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void buttonAddRow_Click(object sender, RoutedEventArgs e)
         {
-            dataGridColorSchemes.Items.Add(new ColorSchemeRangeItem());
+            if (dataGridColorSchemes.SelectedItems != null && dataGridColorSchemes.SelectedItems.Count > 0)
+            {
+                var Items = new List<ColorSchemeRangeItem>();
+                foreach(ColorSchemeRangeItem item in dataGridColorSchemes.Items)
+                {
+                    if (item.Color == ((ColorSchemeRangeItem) dataGridColorSchemes.SelectedItems[0]).Color &&
+                        item.Min == ((ColorSchemeRangeItem)dataGridColorSchemes.SelectedItems[0]).Min && 
+                        item.Max == ((ColorSchemeRangeItem)dataGridColorSchemes.SelectedItems[0]).Max)
+                    {
+                        Items.Add(new ColorSchemeRangeItem());
+                    }
+
+                    Items.Add(item);
+                }
+
+                dataGridColorSchemes.Items.Clear();
+                dataGridColorSchemes.ItemsSource = Items;
+            }
+            else
+            {
+                dataGridColorSchemes.Items.Add(new ColorSchemeRangeItem());
+            }
 
             _isChanged = true;
             if (Title.Contains("*") == false)

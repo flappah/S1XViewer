@@ -171,21 +171,21 @@ namespace S1XViewer.Types
         {
             writer.WriteStartElement("Range");
 
-            if (Max != null)
-            {
-                writer.WriteStartElement("Max");
-                writer.WriteAttributeString("Inclusive", MaxInclusive ? "true" : "false");  
-              
-                writer.WriteString(Max.ToString().Replace(",", "."));
-                writer.WriteEndElement();
-            }
-
             if (Min != null)
             {
                 writer.WriteStartElement("Min");
-                writer.WriteAttributeString("Inclusive", MinInclusive ? "true" : "false");
+                writer.WriteAttributeString("inclusive", MinInclusive ? "true" : "false");
 
                 writer.WriteString(Min.ToString().Replace(",", "."));
+                writer.WriteEndElement();
+            }
+
+            if (Max != null)
+            {
+                writer.WriteStartElement("Max");
+                writer.WriteAttributeString("inclusive", MaxInclusive ? "true" : "false");  
+              
+                writer.WriteString(Max.ToString().Replace(",", "."));
                 writer.WriteEndElement();
             }
 
