@@ -19,7 +19,7 @@ namespace S1XViewer
     {
         private bool _isChanged = false;
 
-        public ObservableCollection<ColorSchemeRangeItem> Items { get; set; } 
+        //public ObservableCollection<ColorSchemeRangeItem> Items { get; set; } 
         public IFeatureRendererManager? FeatureRendererManager { get; set; }
         public string Standard { get; set; } = string.Empty;
         public string ColorSchemeName { get; set; } = string.Empty;
@@ -31,9 +31,9 @@ namespace S1XViewer
         {
             InitializeComponent();
 
-            this.DataContext = this;
-            dataGridColorSchemes.ItemsSource = Items;
-            Items = new ObservableCollection<ColorSchemeRangeItem>();
+            //this.DataContext = this;
+            //dataGridColorSchemes.ItemsSource = Items;
+            //Items = new ObservableCollection<ColorSchemeRangeItem>();
         }
 
         /// <summary>
@@ -44,6 +44,8 @@ namespace S1XViewer
         private void buttonOk_Click(object sender, RoutedEventArgs e)
         {
             // save XML to color scheme file
+            MessageBoxResult messageBoxResult = MessageBoxResult.OK;
+
             if (_isChanged == true)
             {
                 var stringWriter = new StringWriterWithEncoding(Encoding.UTF8);
@@ -79,19 +81,21 @@ namespace S1XViewer
                 var fullPath = System.Reflection.Assembly.GetAssembly(GetType())?.Location;
                 var directory = Path.GetDirectoryName(fullPath);
 
-                MessageBoxResult messageBoxResult = MessageBoxResult.OK;
                 if (File.Exists(@$"{directory}\colorschemes\{comboBoxColorSchemes.Text}"))
                 {
-                    messageBoxResult = MessageBox.Show("Color scheme exists! Do you want to overwrite the color scheme?", "Color scheme exists", MessageBoxButton.OKCancel);
+                    messageBoxResult = MessageBox.Show("Color scheme exists! Do you want to overwrite the color scheme?", "Color scheme exists", MessageBoxButton.YesNoCancel);
                 }
 
-                if (messageBoxResult == MessageBoxResult.OK)
+                if (messageBoxResult == MessageBoxResult.Yes)
                 {
                     File.WriteAllText(@$"{directory}\colorschemes\{comboBoxColorSchemes.Text}", xmlString);
                 }
             }
 
-            Close();
+            if (messageBoxResult != MessageBoxResult.Cancel)
+            {
+                Close();
+            }
         }
 
         /// <summary>
@@ -101,13 +105,13 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void buttonCancel_Click(object sender, RoutedEventArgs e)
         {
-            MessageBoxResult messageBoxResult = MessageBoxResult.OK;
+            MessageBoxResult messageBoxResult = MessageBoxResult.Yes;
             if (_isChanged == true)
             {
-                messageBoxResult = MessageBox.Show("Changes have been made. Are you sure to cancel the changes?", "Changes have been made", MessageBoxButton.OKCancel);
+                messageBoxResult = MessageBox.Show("Changes have been made. Are you sure to cancel the changes?", "Changes have been made", MessageBoxButton.YesNo);
             }
 
-            if (messageBoxResult == MessageBoxResult.OK)
+            if (messageBoxResult == MessageBoxResult.Yes)
             {
                 Close();
             }
@@ -122,25 +126,39 @@ namespace S1XViewer
         {
             if (dataGridColorSchemes.SelectedItems != null && dataGridColorSchemes.SelectedItems.Count > 0)
             {
-                var Items = new List<ColorSchemeRangeItem>();
-                foreach(ColorSchemeRangeItem item in dataGridColorSchemes.Items)
+                var selectedItem = dataGridColorSchemes.SelectedItems[0] as ColorSchemeRangeItem;
+                if (selectedItem != null)
                 {
-                    if (item.Color == ((ColorSchemeRangeItem) dataGridColorSchemes.SelectedItems[0]).Color &&
-                        item.Min == ((ColorSchemeRangeItem)dataGridColorSchemes.SelectedItems[0]).Min && 
-                        item.Max == ((ColorSchemeRangeItem)dataGridColorSchemes.SelectedItems[0]).Max)
+                    var copiedItems = new List<ColorSchemeRangeItem>();
+                    foreach (ColorSchemeRangeItem item in dataGridColorSchemes.Items)
                     {
-                        Items.Add(new ColorSchemeRangeItem());
+                        copiedItems.Add(item);
+                    }
+                    dataGridColorSchemes.Items.Clear();
+
+                    var newItems = new List<ColorSchemeRangeItem>();
+                    int i = 0;
+                    foreach (ColorSchemeRangeItem item in copiedItems)
+                    {
+                        if (item.Id == selectedItem.Id)
+                        {
+                            newItems.Add(new ColorSchemeRangeItem() { Id = i++ });
+                        }
+
+                        item.Id = i++;
+                        newItems.Add(item);
                     }
 
-                    Items.Add(item);
+                    foreach (var item in newItems)
+                    {
+                        dataGridColorSchemes.Items.Add(item);
+                    }
                 }
-
-                dataGridColorSchemes.Items.Clear();
-                dataGridColorSchemes.ItemsSource = Items;
             }
             else
             {
-                dataGridColorSchemes.Items.Add(new ColorSchemeRangeItem());
+                int highestId = dataGridColorSchemes.Items.Count == 0 ? -1 : ((ColorSchemeRangeItem)dataGridColorSchemes.Items[dataGridColorSchemes.Items.Count - 1]).Id;
+                dataGridColorSchemes.Items.Add(new ColorSchemeRangeItem() { Id = highestId + 1 });
             }
 
             _isChanged = true;
@@ -193,13 +211,15 @@ namespace S1XViewer
 
                 if (String.IsNullOrEmpty(selectedFileName) == false)
                 {
-                    Items.Clear();
+                    //Items.Clear();
                     dataGridColorSchemes.Items.Clear();
 
                     if (FeatureRendererManager.LoadColorScheme(selectedFileName, Standard) == true)
                     {
+                        int i = 0;
                         foreach (ColorSchemeRangeItem colorSchemeItem in FeatureRendererManager.ColorScheme)
                         {
+                            colorSchemeItem.Id = i++;
                             dataGridColorSchemes.Items.Add(colorSchemeItem);
                         }
                     }
@@ -219,6 +239,16 @@ namespace S1XViewer
             {
                 Title += "*";
             }
+        }
+
+        /// <summary>
+        ///     To avoid 'EditItem' exception
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dataGridColorSchemes_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        {
+            e.Cancel = true;
         }
     }
 }

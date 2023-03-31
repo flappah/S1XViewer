@@ -7,6 +7,7 @@ namespace S1XViewer.Types
 {
     public class ColorSchemeRangeItem : IXmlSerializable
     {
+        public int Id { get; set; }
         public System.Windows.Media.Color Color { get; set; } 
         public double? Min { get; set; }
         public bool MinInclusive { get; set; }
