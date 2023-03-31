@@ -54,6 +54,8 @@ namespace S1XViewer.Model
                 productStandard = productSpecificationNameNode.InnerText;
             }
 
+            DatasetInfoItems = new List<DatasetInfo>();
+
             var datasetDicoveryNodes = xmlDocument.DocumentElement.SelectNodes("S100XC:datasetDiscoveryMetadata", nsmgr);
             var productFileNames = new List<string>();
             if (datasetDicoveryNodes != null && datasetDicoveryNodes.Count > 0)

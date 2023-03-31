@@ -12,7 +12,7 @@
             <ColumnDefinition Width="703*"/>
         </Grid.ColumnDefinitions>
         <Button x:Name="buttonOk" Content="Ok" Margin="612,0,10,15" Click="buttonOk_Click" Height="19" VerticalAlignment="Bottom" Grid.Column="1"/>
-        <DataGrid x:Name="dataGrid" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.ColumnSpan="2" Margin="5,10,10,51" SelectionChanged="dataGrid_SelectionChanged" MouseDoubleClick="dataGrid_MouseDoubleClick"/>
+        <DataGrid x:Name="dataGrid" Grid.ColumnSpan="2" Margin="5,10,10,51" SelectionChanged="dataGrid_SelectionChanged" MouseDoubleClick="dataGrid_MouseDoubleClick"/>
 
     </Grid>
 </Window>
