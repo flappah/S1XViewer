@@ -141,28 +141,31 @@ namespace S1XViewer.Model
                                     {
                                         // build up featutes ard wrap 'em in datapackage
                                         var index = (int)((TimeSpan)(selectedDateTime - startDateTime)).TotalSeconds / timeInterval;
-                                        if (index < surfaceCurrentInfos.Length)
+                                        // with varying groupsizes indexes can fall outside the boundary. Set to limits if necessary
+                                        if (index < 0)
                                         {
-                                            var direction = surfaceCurrentInfos[index].direction;
-                                            var speed = surfaceCurrentInfos[index].speed;
-
-                                            var geometry =
-                                                _geometryBuilderFactory.Create("Point", new double[] { positionValues[stationNumber].longitude }, new double[] { positionValues[stationNumber].latitude }, (int)horizontalCRS);
-
-                                            var currentNonGravitationalInstance = new CurrentNonGravitational()
-                                            {
-                                                Id = groupHdf5Group.Name,
-                                                FeatureName = new FeatureName[] { new FeatureName { DisplayName = featureName } },
-                                                Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
-                                                Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
-                                                Geometry = geometry
-                                            };
-                                            geoFeatures.Add(currentNonGravitationalInstance);
+                                            index = 0;
                                         }
-                                        else
+                                        else if (index > surfaceCurrentInfos.Length)
                                         {
-                                            throw new Exception($"Calulated index larger than storage of SurfaceCurrents! selectedDateTime:{selectedDateTime},startDateTime:{startDateTime},timeInterval:{timeInterval},index:{index}");
+                                            index = surfaceCurrentInfos.Length;
                                         }
+
+                                        var direction = surfaceCurrentInfos[index].direction;
+                                        var speed = surfaceCurrentInfos[index].speed;
+
+                                        var geometry =
+                                            _geometryBuilderFactory.Create("Point", new double[] { positionValues[stationNumber].longitude }, new double[] { positionValues[stationNumber].latitude }, (int)horizontalCRS);
+
+                                        var currentNonGravitationalInstance = new CurrentNonGravitational()
+                                        {
+                                            Id = groupHdf5Group.Name,
+                                            FeatureName = new FeatureName[] { new FeatureName { DisplayName = featureName } },
+                                            Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
+                                            Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
+                                            Geometry = geometry
+                                        };
+                                        geoFeatures.Add(currentNonGravitationalInstance);
                                     }
                                 }
 
