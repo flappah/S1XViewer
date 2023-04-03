@@ -241,7 +241,7 @@ namespace S1XViewer
                     {
                         // if no standard could be determined, ask the user
                         var selectStandardForm = new SelectStandardWindow();
-                        selectStandardForm.Owner = this;
+                        selectStandardForm.Owner = Application.Current.MainWindow;
                         selectStandardForm.ShowDialog();
                         productStandard = selectStandardForm.SelectedStandard;
                     }
@@ -297,7 +297,7 @@ namespace S1XViewer
                     {
                         // if no standard could be determined, ask the user
                         var selectStandardForm = new SelectStandardWindow();
-                        selectStandardForm.Owner = this;
+                        selectStandardForm.Owner = Application.Current.MainWindow;
                         selectStandardForm.ShowDialog();
                         productStandard = selectStandardForm.SelectedStandard;
                     }
@@ -454,7 +454,7 @@ namespace S1XViewer
                 var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
 
                 var colorSchemesForm = new DefineColourSchemeWindow();
-                colorSchemesForm.Owner = this;
+                colorSchemesForm.Owner = Application.Current.MainWindow;
                 colorSchemesForm.FeatureRendererManager = featureRendererManager;
                 colorSchemesForm.Standard = "S102";
                 colorSchemesForm.comboBoxColorSchemes.ItemsSource = colorSchemeNames.ToList();
@@ -484,7 +484,7 @@ namespace S1XViewer
                 if (productFileNames.Count > 1)
                 {
                     var selectDatasetWindow = new SelectDatasetWindow();
-                    selectDatasetWindow.Owner = this;
+                    selectDatasetWindow.Owner = Application.Current.MainWindow;
                     selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                     selectDatasetWindow.ShowDialog();
                     _selectedFilename = selectDatasetWindow.SelectedFilename;
@@ -513,7 +513,7 @@ namespace S1XViewer
                             }
 
                             var selectDateTimeWindow = new SelectDateTimeWindow();
-                            selectDateTimeWindow.Owner = this;
+                            selectDateTimeWindow.Owner = Application.Current.MainWindow;
                             selectDateTimeWindow.textblockInfo.Text = $"Values available from {beginTime.ToUniversalTime().ToString()} UTC to {endTime.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
                             selectDateTimeWindow.FirstValidDate = beginTime.ToUniversalTime();
                             selectDateTimeWindow.LastValidDate = endTime.ToUniversalTime();
@@ -541,7 +541,7 @@ namespace S1XViewer
             else if (productFileNames.Count > 1)
             {
                 var selectDatasetWindow = new SelectDatasetWindow();
-                selectDatasetWindow.Owner = this; 
+                selectDatasetWindow.Owner = Application.Current.MainWindow; 
                 selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                 selectDatasetWindow.ShowDialog();
 
@@ -684,7 +684,7 @@ namespace S1XViewer
                         timeframePresentInFile.end != DateTime.MinValue)
                     {
                         var selectDateTimeWindow = new SelectDateTimeWindow();
-                        selectDateTimeWindow.Owner = this;
+                        selectDateTimeWindow.Owner = Application.Current.MainWindow;
                         selectDateTimeWindow.textblockInfo.Text = $"Values available from {timeframePresentInFile.start.ToUniversalTime().ToString()} UTC to {timeframePresentInFile.end.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
                         selectDateTimeWindow.FirstValidDate = timeframePresentInFile.start.ToUniversalTime();
                         selectDateTimeWindow.LastValidDate = timeframePresentInFile.end.ToUniversalTime();

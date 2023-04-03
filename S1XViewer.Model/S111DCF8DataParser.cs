@@ -158,7 +158,7 @@ namespace S1XViewer.Model
                                         var direction = surfaceCurrentInfos[index].direction;
                                         var speed = surfaceCurrentInfos[index].speed;
 
-                                        var geometry =
+                                        Esri.ArcGISRuntime.Geometry.Geometry geometry =
                                             _geometryBuilderFactory.Create("Point", new double[] { positionValues[stationNumber].longitude }, new double[] { positionValues[stationNumber].latitude }, (int)horizontalCRS);
 
                                         var currentNonGravitationalInstance = new CurrentNonGravitational()
