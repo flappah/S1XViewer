@@ -1225,9 +1225,13 @@ namespace S1XViewer
                             }
                     }";
 
-                var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
-                graphicsOverlay.Graphics.AddRange(graphicList);
-                myMapView.GraphicsOverlays?.Add(graphicsOverlay);
+                try
+                {
+                    var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
+                    graphicsOverlay.Graphics.AddRange(graphicList);
+                    myMapView.GraphicsOverlays?.Add(graphicsOverlay);
+                }
+                catch (Exception) { }
 
                 // Create a label definition from the JSON string. 
                 var idLabelDefinition = LabelDefinition.FromJson(featureJsonString);

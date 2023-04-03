@@ -139,16 +139,20 @@ namespace S1XViewer.Model
 
                                     if (surfaceCurrentInfos != null)
                                     {
-                                        // build up featutes ard wrap 'em in datapackage
+                                        // build up features ard wrap 'em in datapackage
                                         var index = (int)((TimeSpan)(selectedDateTime - startDateTime)).TotalSeconds / timeInterval;
-                                        // with varying groupsizes indexes can fall outside the boundary. Set to limits if necessary
+                                        /* 
+                                         * with varying groupsizes indexes can sometimes fall outside the boundary because different 
+                                         * reference tidalstations have timeseries of differents length wrapped inside 1 package. 
+                                         * Set to limits if necessary
+                                         */
                                         if (index < 0)
                                         {
                                             index = 0;
                                         }
-                                        else if (index > surfaceCurrentInfos.Length)
+                                        else if (index >= surfaceCurrentInfos.Length)
                                         {
-                                            index = surfaceCurrentInfos.Length;
+                                            index = surfaceCurrentInfos.Length - 1;
                                         }
 
                                         var direction = surfaceCurrentInfos[index].direction;
