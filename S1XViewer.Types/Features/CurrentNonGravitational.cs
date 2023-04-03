@@ -49,43 +49,43 @@ namespace S1XViewer.Types.Features
 
                         case > 1.0 and <= 2.0:
                             secondPoint = Destination((mapPoint.Y, mapPoint.X), 300, Orientation.OrientationValue);
-                            width = 2.5;
+                            width = 3.0;
                             color = System.Drawing.Color.FromArgb(97, 203, 229);
                             break;
 
                         case > 2.0 and <= 3.0:
                             secondPoint = Destination((mapPoint.Y, mapPoint.X), 400, Orientation.OrientationValue);
-                            width = 3;
+                            width = 3.5;
                             color = System.Drawing.Color.FromArgb(109, 188, 69);
                             break;
 
                         case > 3.0 and <= 5.0:
                             secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 3;
+                            width = 4.0;
                             color = System.Drawing.Color.FromArgb(180, 220, 0);
                             break;
 
                         case > 5.0 and <= 7.0:
                             secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 4;
+                            width = 5.0;
                             color = System.Drawing.Color.FromArgb(205, 193, 0);
                             break;
 
                         case > 7.0 and <= 10.0:
                             secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 4;
+                            width = 5.0;
                             color = System.Drawing.Color.FromArgb(248, 167, 24);
                             break;
 
                         case > 10.0 and <= 13.0:
                             secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 4;
+                            width = 5.0;
                             color = System.Drawing.Color.FromArgb(247, 162, 157);
                             break;
 
                         case > 13.0:
                             secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 5;
+                            width = 7.5;
                             color = System.Drawing.Color.FromArgb(255, 30, 30);
                             break;
                     }
