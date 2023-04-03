@@ -1266,9 +1266,23 @@ namespace S1XViewer
 
                         _syncContext?.Post(new SendOrPostCallback(o =>
                         {
-                            labelStatus.Content = $"";
+                            labelStatus.Content = labelStatus.Content.ToString()?.Replace(" Now rendering file ..", "");
                             progressBar.Value = 0;
                         }), null);
+
+                        BackgroundWorker bgw = new();
+                        bgw.DoWork += delegate
+                        {
+                            Task.Delay(5000).Wait();
+                        };
+                        bgw.RunWorkerCompleted += delegate
+                        {
+                            _syncContext?.Post(new SendOrPostCallback((o) =>
+                            {
+                                labelStatus.Content = "";
+                            }), "");
+                        };
+                        bgw.RunWorkerAsync();
                     }
                     catch (Exception) { }
                 });
