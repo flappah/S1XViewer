@@ -21,7 +21,7 @@
                 </RibbonQuickAccessToolBar>
             </Ribbon.QuickAccessToolBar>
             <Ribbon.ApplicationMenu>
-                <RibbonApplicationMenu SmallImageSource="/Paomedia-Small-N-Flat-Map.ico">
+                <RibbonApplicationMenu SmallImageSource="/Paomedia-Small-N-Flat-Map.ico" >
                     <RibbonApplicationMenuItem Header="_Open" x:Name="AppOpen" ImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Click="AppOpen_Click"/>
                     <RibbonApplicationMenuItem Header="_Recent Files" x:Name="RecentFilesMenuItem" />
                     <RibbonApplicationMenuItem Header="E_xit" x:Name="AppExit" Click="AppExit_Click" />

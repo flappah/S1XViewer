@@ -266,11 +266,13 @@ namespace S1XViewer
         /// <param name="e"></param>
         public void AutoOpen_Click(object sender, RoutedEventArgs e)
         {
-            _selectedFilename = ((MenuItem)sender).Tag.ToString() ?? string.Empty;
+            _selectedFilename = ((RibbonMenuItem)sender).Tag.ToString() ?? string.Empty;
             comboboxColorSchemes.IsEnabled = false;
 
             if (string.IsNullOrEmpty(_selectedFilename) == false)
             {
+                _resetViewpoint = true;
+
                 if (_selectedFilename?.Contains("CATALOG.XML") == false &&
                     _selectedFilename?.ToUpper().Contains(".XML") == true || _selectedFilename?.ToUpper().Contains(".GML") == true)
                 {
@@ -497,7 +499,10 @@ namespace S1XViewer
                     selectDatasetWindow.Owner = Application.Current.MainWindow;
                     selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                     selectDatasetWindow.ShowDialog();
-                    _selectedFilename = selectDatasetWindow.SelectedFilename;
+
+                    var directory = System.Environment.CurrentDirectory;
+                   
+                    _selectedFilename = @$"{directory}\{selectDatasetWindow.SelectedFilename}";
 
                     var filename = _selectedFilename.LastPart(@"\");
                     if (string.IsNullOrEmpty(filename) == false)
@@ -987,10 +992,14 @@ namespace S1XViewer
             int i = 1;
             foreach (var newFileName in recentFiles)
             {
-                var newMenuItem = new MenuItem
+                var newMenuItem = new RibbonMenuItem
                 {
                     Name = $"MenuItem{i++}",
                     Header = newFileName.LastPart(@"\"),
+                    CanUserResizeHorizontally = true,
+                    Width = 200,
+                    ToolTipDescription = newFileName.LastPart(@"\"),
+                    ToolTipTitle = $"Recent File",
                     Tag = newFileName
                 };
                 newMenuItem.Click += AutoOpen_Click;
