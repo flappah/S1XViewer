@@ -138,9 +138,10 @@ namespace S1XViewer
 
                     var newItems = new List<ColorSchemeRangeItem>();
                     int i = 0;
+                    var selectedId = selectedItem.Id;
                     foreach (ColorSchemeRangeItem item in copiedItems)
                     {
-                        if (item.Id == selectedItem.Id)
+                        if (item.Id == selectedId)
                         {
                             newItems.Add(new ColorSchemeRangeItem() { Id = i++ });
                         }
@@ -153,6 +154,8 @@ namespace S1XViewer
                     {
                         dataGridColorSchemes.Items.Add(item);
                     }
+
+                    dataGridColorSchemes.Items.Refresh();
                 }
             }
             else
@@ -178,12 +181,37 @@ namespace S1XViewer
             if (dataGridColorSchemes.SelectedItems != null && dataGridColorSchemes.SelectedItems.Count > 0)
             {
                 ColorSchemeRangeItem selectedRow = (ColorSchemeRangeItem)dataGridColorSchemes.SelectedItems[0];
-                dataGridColorSchemes.Items.Remove(selectedRow);
 
-                _isChanged = true;
-                if (Title.Contains("*") == false)
+                if (selectedRow != null)
                 {
-                    Title += "*";
+                    int i = 0;
+                    foreach (ColorSchemeRangeItem item in dataGridColorSchemes.Items)
+                    {
+                        if (item.Id == selectedRow.Id)
+                        {
+                            break;
+                        }
+                        i++;
+                    }
+
+                    if (i > 0)
+                    {
+                        ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i - 1]).Max = selectedRow.Max;
+                    }
+                    else
+                    {
+                        ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i + 1]).Min = selectedRow.Min;
+                    }
+
+                    dataGridColorSchemes.Items.Remove(selectedRow);
+
+                    _isChanged = true;
+                    if (Title.Contains("*") == false)
+                    {
+                        Title += "*";
+                    }
+
+                    dataGridColorSchemes.Items.Refresh();
                 }
             }
         }
