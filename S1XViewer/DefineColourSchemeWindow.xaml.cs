@@ -8,6 +8,7 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 using System.Xml;
 
 namespace S1XViewer
@@ -143,7 +144,36 @@ namespace S1XViewer
                     {
                         if (item.Id == selectedId)
                         {
-                            newItems.Add(new ColorSchemeRangeItem() { Id = i++ });
+                            // do a best guess for new value settings including a color calculation
+                            double? newMax;
+                            double? newMin;
+                            bool newMaxInclusive;
+                            bool newMinInclusive;
+                            System.Windows.Media.Color newColor;
+                            if (i > 0)
+                            {
+                                newMax = item.Min;
+                                newMaxInclusive = item.MaxInclusive;
+                                newMin = copiedItems[i - 1].Max;
+                                newMinInclusive = false;
+
+                                var newColorA = Convert.ToByte(((byte)item.Color.A + (byte)copiedItems[i - 1].Color.A) / (byte)2);
+                                var newColorR = Convert.ToByte(((byte)item.Color.R + (byte)copiedItems[i - 1].Color.R) / (byte)2);
+                                var newColorG = Convert.ToByte(((byte)item.Color.G + (byte)copiedItems[i - 1].Color.G) / (byte)2);
+                                var newColorB = Convert.ToByte(((byte)item.Color.B + (byte)copiedItems[i - 1].Color.B) / (byte)2);
+                                newColor = System.Windows.Media.Color.FromArgb(newColorA, newColorR, newColorG, newColorB);
+                            }
+                            else
+                            {
+                                newMax = item.Max;
+                                newMaxInclusive = item.MaxInclusive;
+                                newMin = null;
+                                newMinInclusive = false;
+                                item.Min = item.Max;
+                                newColor = item.Color;
+                            }
+
+                            newItems.Add(new ColorSchemeRangeItem() { Id = i++, Max = newMax, MaxInclusive = newMaxInclusive, Min = newMin, MinInclusive = newMinInclusive, Color = newColor });
                         }
 
                         item.Id = i++;
@@ -161,7 +191,8 @@ namespace S1XViewer
             else
             {
                 int highestId = dataGridColorSchemes.Items.Count == 0 ? -1 : ((ColorSchemeRangeItem)dataGridColorSchemes.Items[dataGridColorSchemes.Items.Count - 1]).Id;
-                dataGridColorSchemes.Items.Add(new ColorSchemeRangeItem() { Id = highestId + 1 });
+                var newColor = dataGridColorSchemes.Items.Count == 0 ? System.Windows.Media.Color.FromArgb(255, 255, 255, 255) : ((ColorSchemeRangeItem)dataGridColorSchemes.Items[dataGridColorSchemes.Items.Count - 1]).Color;
+                dataGridColorSchemes.Items.Add(new ColorSchemeRangeItem() { Id = highestId + 1, Color = newColor });
             }
 
             _isChanged = true;
@@ -197,12 +228,14 @@ namespace S1XViewer
                     if (i > 0)
                     {
                         ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i - 1]).Max = selectedRow.Max;
+                        ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i - 1]).MaxInclusive = selectedRow.MaxInclusive;
                     }
                     else
                     {
                         ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i + 1]).Min = selectedRow.Min;
+                        ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i - 1]).MinInclusive = selectedRow.MinInclusive;
                     }
-
+                     
                     dataGridColorSchemes.Items.Remove(selectedRow);
 
                     _isChanged = true;
@@ -233,22 +266,37 @@ namespace S1XViewer
                 throw new ArgumentNullException(nameof(e));
             }
 
-            if (e.AddedItems != null && e.AddedItems.Count > 0)
+            MessageBoxResult messageBoxResult = MessageBoxResult.Yes;
+            if (_isChanged == true)
             {
-                var selectedFileName = e.AddedItems[0].ToString();
+                messageBoxResult = MessageBox.Show("Changes have been made. Are you sure to cancel the changes?", "Changes have been made", MessageBoxButton.YesNo);
+            }
 
-                if (String.IsNullOrEmpty(selectedFileName) == false)
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                if (e.AddedItems != null && e.AddedItems.Count > 0)
                 {
-                    //Items.Clear();
-                    dataGridColorSchemes.Items.Clear();
+                    var selectedFileName = e.AddedItems[0].ToString();
 
-                    if (FeatureRendererManager.LoadColorScheme(selectedFileName, Standard) == true)
+                    if (String.IsNullOrEmpty(selectedFileName) == false)
                     {
-                        int i = 0;
-                        foreach (ColorSchemeRangeItem colorSchemeItem in FeatureRendererManager.ColorScheme)
+                        //Items.Clear();
+                        dataGridColorSchemes.Items.Clear();
+
+                        if (FeatureRendererManager.LoadColorScheme(selectedFileName, Standard) == true)
                         {
-                            colorSchemeItem.Id = i++;
-                            dataGridColorSchemes.Items.Add(colorSchemeItem);
+                            int i = 0;
+                            foreach (ColorSchemeRangeItem colorSchemeItem in FeatureRendererManager.ColorScheme)
+                            {
+                                colorSchemeItem.Id = i++;
+                                dataGridColorSchemes.Items.Add(colorSchemeItem);
+                            }
+                        }
+
+                        _isChanged = false;
+                        if (Title.Contains("*") == false)
+                        {
+                            Title += Title.Replace("*", "");
                         }
                     }
                 }

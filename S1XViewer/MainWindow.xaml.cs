@@ -384,7 +384,7 @@ namespace S1XViewer
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonBackward_Click(object sender, RoutedEventArgs e)
+        private async void buttonBackward_Click(object sender, RoutedEventArgs e)
         {
             var firstDateTimeSeries = (DateTime)buttonBackward.Tag;
 
@@ -395,17 +395,22 @@ namespace S1XViewer
                 if (DateTime.TryParse(textboxTimeValueTagValues[1], out DateTime selectedDateTime) == true)
                 {
                     DateTime proposedDateTime = selectedDateTime.AddHours(-1);
+                    _resetViewpoint = false;
+
+                    buttonBackward.IsEnabled = false;
+                    buttonForward.IsEnabled = false;
+
+                    textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
+                    textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
+                    await LoadHDF5File(productStandard, _selectedFilename, proposedDateTime).ConfigureAwait(true);
+
                     if (proposedDateTime <= firstDateTimeSeries)
                     {
                         buttonBackward.IsEnabled = false;
                         return;
                     }
-                    buttonForward.IsEnabled = true;
-                    _resetViewpoint = false;
 
-                    textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
-                    textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
-                    _ = LoadHDF5File(productStandard, _selectedFilename, proposedDateTime);
+                    buttonForward.IsEnabled = true;
                 }
             }
         }
@@ -416,7 +421,7 @@ namespace S1XViewer
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonForward_Click(object sender, RoutedEventArgs e)
+        private async void buttonForward_Click(object sender, RoutedEventArgs e)
         {
             var lastDateTimeSeries = (DateTime)buttonForward.Tag;
             var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
@@ -426,17 +431,22 @@ namespace S1XViewer
                 if (DateTime.TryParse(textboxTimeValueTagValues[1], out DateTime selectedDateTime) == true)
                 {
                     DateTime proposedDateTime = selectedDateTime.AddHours(1);
-                    if (proposedDateTime >= lastDateTimeSeries)
-                    {
-                        buttonBackward.IsEnabled = false;
-                        return;
-                    }
-                    buttonBackward.IsEnabled = true;
                     _resetViewpoint = false;
+
+                    buttonBackward.IsEnabled = false;
+                    buttonForward.IsEnabled = false;
 
                     textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
                     textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
-                    _ = LoadHDF5File(productStandard, _selectedFilename, proposedDateTime);
+                    await LoadHDF5File(productStandard, _selectedFilename, proposedDateTime).ConfigureAwait(true);
+
+                    if (proposedDateTime >= lastDateTimeSeries)
+                    {
+                        buttonForward.IsEnabled = false;
+                        return;
+                    }
+
+                    buttonBackward.IsEnabled = true;
                 }
             }
         }
@@ -735,11 +745,16 @@ namespace S1XViewer
                     {
                         _syncContext?.Post(new SendOrPostCallback(async o =>
                         {
+                            if (o != null)
+                            {
+                                CreateFeatureCollection((IS1xxDataPackage)o);
+                            }
+
                             if (string.IsNullOrEmpty(buttonBackward.Tag.ToString()) == false)
                             {
                                 if (DateTime.TryParse(buttonBackward.Tag.ToString(), out DateTime beginTime))
                                 {
-                                    buttonBackward.IsEnabled = selectedDateTime > beginTime;
+                                    buttonBackward.IsEnabled = selectedDateTime >= beginTime;
                                 }
                             }
 
@@ -749,11 +764,6 @@ namespace S1XViewer
                                 {
                                     buttonForward.IsEnabled = selectedDateTime < endTime;
                                 }
-                            }
-
-                            if (o != null)
-                            {
-                                CreateFeatureCollection((IS1xxDataPackage)o);
                             }
                         }), dataPackage);
 
