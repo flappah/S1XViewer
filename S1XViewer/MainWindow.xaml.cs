@@ -3,6 +3,7 @@ using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Hydrography;
 using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.Rasters;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
 using Microsoft.Win32;
@@ -37,7 +38,6 @@ namespace S1XViewer
         private readonly Autofac.IContainer _container;
         private List<IS1xxDataPackage> _dataPackages = new List<IS1xxDataPackage>();
         private SynchronizationContext? _syncContext;
-        private string _selectedFilename = string.Empty;
         private bool _resetViewpoint = true;
         private bool _disposing = false;
         private bool _uiInitializing = true;
@@ -106,6 +106,7 @@ namespace S1XViewer
                 basemapStyle = Enum.Parse<BasemapStyle>(basemap);
             }
             myMapView.Map = new Map(basemapStyle);
+            myMapView.GeoViewTapped += OnMapViewTapped;
 
             var mapCenterPoint = new MapPoint(0, 50, SpatialReferences.Wgs84);
             myMapView.SetViewpoint(new Viewpoint(mapCenterPoint, 3000000));
@@ -186,11 +187,134 @@ namespace S1XViewer
         }
 
         /// <summary>
+        ///     Handler for recent files
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void AutoOpen_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedFilename = ((RibbonMenuItem)sender).Tag.ToString() ?? string.Empty;            
+            comboboxColorSchemes.IsEnabled = false;
+
+            if (string.IsNullOrEmpty(selectedFilename) == false)
+            {
+                _resetViewpoint = true;
+
+                if (selectedFilename?.Contains("CATALOG.XML") == false &&
+                    selectedFilename?.ToUpper().Contains(".XML") == true || selectedFilename?.ToUpper().Contains(".GML") == true)
+                {
+                    _ = LoadGMLFile("", selectedFilename);
+                }
+                else if (selectedFilename?.ToUpper().Contains("CATALOG.XML") == true)
+                {
+                    _ = LoadExchangeSet(selectedFilename);
+                }
+                else if (selectedFilename?.ToUpper().Contains(".HDF5") == true || selectedFilename?.ToUpper().Contains(".H5") == true)
+                {
+                    // filename contains the IHO product standard. First 3 chars indicate the standard to use!
+                    string productStandard;
+                    if (selectedFilename.Contains(@"\"))
+                    {
+                        productStandard = selectedFilename.LastPart(@"\").Substring(0, 3);
+                    }
+                    else
+                    {
+                        productStandard = selectedFilename.Substring(0, 3);
+                    }
+
+                    if (productStandard.IsNumeric() == false)
+                    {
+                        // if no standard could be determined, ask the user
+                        var selectStandardForm = new SelectStandardWindow();
+                        selectStandardForm.Owner = Application.Current.MainWindow;
+                        selectStandardForm.ShowDialog();
+                        productStandard = selectStandardForm.SelectedStandard;
+                    }
+                    else
+                    {
+                        productStandard = $"S{productStandard}";
+                    }
+
+                    _ = LoadHDF5File(productStandard, selectedFilename, null);
+                }
+            }
+        }
+        
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void AppOpen_Click(object sender, RoutedEventArgs e)
+        private void buttonFileAdd_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "HDF5 files (*.h5;*.hdf5)|*.h5;*.hdf5|ENC files (*.000)|*.031"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                buttonForward.IsEnabled = false;
+                buttonForward.Tag = "";
+                buttonBackward.IsEnabled = false;
+                buttonBackward.Tag = "";
+                textBoxTimeValue.Text = string.Empty;
+                textBoxTimeValue.Tag = "";
+                comboboxColorSchemes.IsEnabled = false;
+
+                var currentFolder = openFileDialog.FileName.Substring(0, openFileDialog.FileName.LastIndexOf(@"\"));
+                if (String.IsNullOrEmpty(currentFolder) == false)
+                {
+                    Directory.SetCurrentDirectory(currentFolder);
+                }
+
+                var selectedFilename = openFileDialog.FileName;
+                _resetViewpoint = true;
+
+                if (selectedFilename.ToUpper().Contains(".H5") || selectedFilename.ToUpper().Contains(".HDF5"))
+                {
+                    // filename contains the IHO product standard. First 3 chars indicate the standard to use!
+                    string productStandard;
+                    if (selectedFilename.Contains(@"\"))
+                    {
+                        productStandard = selectedFilename.LastPart(@"\").Substring(0, 3);
+                    }
+                    else
+                    {
+                        productStandard = selectedFilename.Substring(0, 3);
+                    }
+
+                    if (productStandard.IsNumeric() == false)
+                    {
+                        // if no standard could be determined, ask the user
+                        var selectStandardForm = new SelectStandardWindow();
+                        selectStandardForm.Owner = Application.Current.MainWindow;
+                        selectStandardForm.ShowDialog();
+                        productStandard = selectStandardForm.SelectedStandard;
+                    }
+                    else
+                    {
+                        productStandard = $"S{productStandard}";
+                    }
+
+                    _ = LoadHDF5File(productStandard, selectedFilename, null, false);
+                }
+                else if (selectedFilename.Contains(".031"))
+                {
+                    _ = LoadENCFile(selectedFilename);
+                }
+
+                buttonRefresh.Tag = selectedFilename;
+                buttonRefresh.IsEnabled = true;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void buttonFileOpen_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
@@ -213,28 +337,28 @@ namespace S1XViewer
                     Directory.SetCurrentDirectory(currentFolder);
                 }
 
-                _selectedFilename = openFileDialog.FileName;
+                var selectedFilename = openFileDialog.FileName;
                 _resetViewpoint = true;
 
-                if (_selectedFilename.ToUpper().Contains("CATALOG") && _selectedFilename.ToUpper().Contains(".XML"))
+                if (selectedFilename.ToUpper().Contains("CATALOG") && selectedFilename.ToUpper().Contains(".XML"))
                 {
-                    _ = LoadExchangeSet(_selectedFilename);
+                    _ = LoadExchangeSet(selectedFilename);
                 }
-                else if (_selectedFilename.ToUpper().Contains(".XML") || _selectedFilename.ToUpper().Contains(".GML"))
+                else if (selectedFilename.ToUpper().Contains(".XML") || selectedFilename.ToUpper().Contains(".GML"))
                 {
-                    _ = LoadGMLFile("", _selectedFilename);
+                    _ = LoadGMLFile("", selectedFilename);
                 }
-                else if (_selectedFilename.ToUpper().Contains(".H5") || _selectedFilename.ToUpper().Contains(".HDF5"))
+                else if (selectedFilename.ToUpper().Contains(".H5") || selectedFilename.ToUpper().Contains(".HDF5"))
                 {
                     // filename contains the IHO product standard. First 3 chars indicate the standard to use!
                     string productStandard;
-                    if (_selectedFilename.Contains(@"\"))
+                    if (selectedFilename.Contains(@"\"))
                     {
-                        productStandard = _selectedFilename.LastPart(@"\").Substring(0, 3);
+                        productStandard = selectedFilename.LastPart(@"\").Substring(0, 3);
                     }
                     else
                     {
-                        productStandard = _selectedFilename.Substring(0, 3);
+                        productStandard = selectedFilename.Substring(0, 3);
                     }
 
                     if (productStandard.IsNumeric() == false)
@@ -250,66 +374,15 @@ namespace S1XViewer
                         productStandard = $"S{productStandard}";
                     }
 
-                    _ = LoadHDF5File(productStandard, _selectedFilename, null);
+                    _ = LoadHDF5File(productStandard, selectedFilename, null);
                 }
-                else if (_selectedFilename.Contains(".031"))
+                else if (selectedFilename.Contains(".031"))
                 {
-                    _ = LoadENCFile(_selectedFilename);
+                    _ = LoadENCFile(selectedFilename);
                 }
-            }
-        }
 
-        /// <summary>
-        ///     Handler for recent files
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void AutoOpen_Click(object sender, RoutedEventArgs e)
-        {
-            _selectedFilename = ((RibbonMenuItem)sender).Tag.ToString() ?? string.Empty;
-            comboboxColorSchemes.IsEnabled = false;
-
-            if (string.IsNullOrEmpty(_selectedFilename) == false)
-            {
-                _resetViewpoint = true;
-
-                if (_selectedFilename?.Contains("CATALOG.XML") == false &&
-                    _selectedFilename?.ToUpper().Contains(".XML") == true || _selectedFilename?.ToUpper().Contains(".GML") == true)
-                {
-                    _ = LoadGMLFile("", _selectedFilename);
-                }
-                else if (_selectedFilename?.ToUpper().Contains("CATALOG.XML") == true)
-                {
-                    _ = LoadExchangeSet(_selectedFilename);
-                }
-                else if (_selectedFilename?.ToUpper().Contains(".HDF5") == true || _selectedFilename?.ToUpper().Contains(".H5") == true)
-                {
-                    // filename contains the IHO product standard. First 3 chars indicate the standard to use!
-                    string productStandard;
-                    if (_selectedFilename.Contains(@"\"))
-                    {
-                        productStandard = _selectedFilename.LastPart(@"\").Substring(0, 3);
-                    }
-                    else
-                    {
-                        productStandard = _selectedFilename.Substring(0, 3);
-                    }
-
-                    if (productStandard.IsNumeric() == false)
-                    {
-                        // if no standard could be determined, ask the user
-                        var selectStandardForm = new SelectStandardWindow();
-                        selectStandardForm.Owner = Application.Current.MainWindow;
-                        selectStandardForm.ShowDialog();
-                        productStandard = selectStandardForm.SelectedStandard;
-                    }
-                    else
-                    {
-                        productStandard = $"S{productStandard}";
-                    }
-
-                    _ = LoadHDF5File(productStandard, _selectedFilename, null);
-                }
+                buttonRefresh.Tag = selectedFilename;
+                buttonRefresh.IsEnabled = true;
             }
         }
 
@@ -318,23 +391,35 @@ namespace S1XViewer
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void ResetLayers_Click(object sender, RoutedEventArgs e)
+        public void buttonClearLayers_Click(object sender, RoutedEventArgs e)
         {
             _dataPackages.Clear();
-            dataGridFeatureProperties.ItemsSource = null;
-            treeViewFeatures.Items.Clear();
-            
-            var featureRendererFactory = _container.Resolve<IFeatureRendererManager>();
-            featureRendererFactory.Clear();
 
-            if (myMapView != null)
+            Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
+
+            if (myMapView != null && myMapView.Map != null)
             {
-                if (myMapView.Map != null)
+                while (myMapView.Map.OperationalLayers.Count > 0)
                 {
-                    myMapView.Map.OperationalLayers.Clear();
+                    myMapView.Map.OperationalLayers.RemoveAt(0);
                 }
-                myMapView.Map = null;
+
+                myMapView.Map.OperationalLayers.Clear();
+                if (myMapView.GraphicsOverlays?.Count > 0)
+                {
+                    myMapView.GraphicsOverlays.RemoveAt(0);
+                }
+                myMapView.GraphicsOverlays?.Clear();
+                myMapView.Map.Tables.Clear();
+
+                if (encLayer != null)
+                {
+                    myMapView.Map.OperationalLayers?.Add(encLayer);
+                }
             }
+
+            var featureRendererFactory = _container.Resolve<IFeatureRendererManager>();
+            featureRendererFactory.Clear();            
 
             var optionsStorage = _container.Resolve<IOptionsStorage>();
             string basemap = optionsStorage.Retrieve("comboBoxBasemap");
@@ -356,7 +441,7 @@ namespace S1XViewer
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void OptionsMenu_Click(object sender, RoutedEventArgs e)
+        public void buttonOptions_Click(object sender, RoutedEventArgs e)
         {
             var newOptionsMenu = new OptionsWindow
             {
@@ -390,11 +475,12 @@ namespace S1XViewer
         {
             var firstDateTimeSeries = (DateTime)buttonBackward.Tag;
 
-            var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
-            if (textboxTimeValueTagValues?.Length == 2)
+            var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "#" }, StringSplitOptions.RemoveEmptyEntries);
+            if (textboxTimeValueTagValues?.Length == 3)
             {
-                string productStandard = textboxTimeValueTagValues[0];
-                if (DateTime.TryParse(textboxTimeValueTagValues[1], out DateTime selectedDateTime) == true)
+                string selectedFileName = textboxTimeValueTagValues[0];
+                string productStandard = textboxTimeValueTagValues[1];
+                if (DateTime.TryParse(textboxTimeValueTagValues[2], out DateTime selectedDateTime) == true)
                 {
                     DateTime proposedDateTime = selectedDateTime.AddHours(-1);
                     _resetViewpoint = false;
@@ -404,7 +490,7 @@ namespace S1XViewer
 
                     textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
                     textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
-                    await LoadHDF5File(productStandard, _selectedFilename, proposedDateTime).ConfigureAwait(true);
+                    await LoadHDF5File(productStandard, selectedFileName, proposedDateTime).ConfigureAwait(true);
 
                     if (proposedDateTime <= firstDateTimeSeries)
                     {
@@ -429,8 +515,9 @@ namespace S1XViewer
             var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
             if (textboxTimeValueTagValues?.Length == 2)
             {
-                string productStandard = textboxTimeValueTagValues[0];
-                if (DateTime.TryParse(textboxTimeValueTagValues[1], out DateTime selectedDateTime) == true)
+                string selectedFileName = textboxTimeValueTagValues[0];
+                string productStandard = textboxTimeValueTagValues[1];
+                if (DateTime.TryParse(textboxTimeValueTagValues[2], out DateTime selectedDateTime) == true)
                 {
                     DateTime proposedDateTime = selectedDateTime.AddHours(1);
                     _resetViewpoint = false;
@@ -440,7 +527,7 @@ namespace S1XViewer
 
                     textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
                     textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
-                    await LoadHDF5File(productStandard, _selectedFilename, proposedDateTime).ConfigureAwait(true);
+                    await LoadHDF5File(productStandard, selectedFileName, proposedDateTime).ConfigureAwait(true);
 
                     if (proposedDateTime >= lastDateTimeSeries)
                     {
@@ -475,6 +562,80 @@ namespace S1XViewer
             catch (Exception) { }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void buttonRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            var fileName = ((RibbonButton)sender).Tag.ToString();
+
+            if (String.IsNullOrEmpty(fileName) == false)
+            {
+                if (fileName.ToUpper().Contains(".H5") || fileName.ToUpper().Contains(".HDF5"))
+                {
+                    // filename contains the IHO product standard. First 3 chars indicate the standard to use!
+                    string productStandard;
+                    if (fileName.Contains(@"\"))
+                    {
+                        productStandard = fileName.LastPart(@"\").Substring(0, 3);
+                    }
+                    else
+                    {
+                        productStandard = fileName.Substring(0, 3);
+                    }
+
+                    if (productStandard.IsNumeric() == false)
+                    {
+                        // if no standard could be determined, ask the user
+                        var selectStandardForm = new SelectStandardWindow();
+                        selectStandardForm.Owner = Application.Current.MainWindow;
+                        selectStandardForm.ShowDialog();
+                        productStandard = selectStandardForm.SelectedStandard;
+                    }
+                    else
+                    {
+                        productStandard = $"S{productStandard}";
+                    }
+
+                    _ = LoadHDF5File(productStandard, fileName, null);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void buttonResetView_Click(object sender, RoutedEventArgs e)
+        {
+            if (myMapView != null && myMapView.Map != null && myMapView.Map.OperationalLayers != null && myMapView.Map.OperationalLayers.Count() > 0)
+            {
+                List<Envelope> datasetExtents = new List<Envelope>();
+                foreach (var layer in myMapView.Map.OperationalLayers)
+                {
+                    if (layer is FeatureCollectionLayer featureCollectionLayer)
+                    {
+                        if (featureCollectionLayer.FullExtent != null)
+                        {
+                            foreach(var table in featureCollectionLayer.FeatureCollection.Tables)
+                            {
+                                datasetExtents.Add(table.Extent);
+                            }
+                        }
+                    }
+                }
+
+                if (datasetExtents.Count > 0)
+                {
+                    var fullExtent = GeometryEngine.CombineExtents(datasetExtents);
+                    await myMapView.SetViewpointAsync(new Viewpoint(fullExtent));
+                }
+            }
+        }
+
         #endregion
 
         #region UI logic
@@ -489,6 +650,7 @@ namespace S1XViewer
             var xmlDocument = exchangeSetLoader.Load(fullFileName);
             (var productStandard, var productFileNames) = exchangeSetLoader.Parse(xmlDocument);
 
+            string selectedFilename = string.Empty;
             productStandard = productStandard?.Replace("-", "").ToUpper() ?? string.Empty;
             if (productStandard.In("S102", "S104", "S111") == true)
             {
@@ -500,11 +662,10 @@ namespace S1XViewer
                     selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                     selectDatasetWindow.ShowDialog();
 
-                    var directory = System.Environment.CurrentDirectory;
-                   
-                    _selectedFilename = @$"{directory}\{selectDatasetWindow.SelectedFilename}";
+                    var directory = System.Environment.CurrentDirectory;                   
+                    selectedFilename = @$"{directory}\{selectDatasetWindow.SelectedFilename}";
 
-                    var filename = _selectedFilename.LastPart(@"\");
+                    var filename = selectedFilename.LastPart(@"\");
                     if (string.IsNullOrEmpty(filename) == false)
                     {
                         var xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
@@ -545,12 +706,12 @@ namespace S1XViewer
                 }
                 else if (productFileNames.Count == 1)
                 {
-                    _selectedFilename = productFileNames[0];
+                    selectedFilename = productFileNames[0];
                 }
 
-                if (String.IsNullOrEmpty(_selectedFilename) == false && selectedDateTime != null)
+                if (String.IsNullOrEmpty(selectedFilename) == false && selectedDateTime != null)
                 {
-                    await LoadHDF5File(productStandard, _selectedFilename, selectedDateTime);
+                    await LoadHDF5File(productStandard, selectedFilename, selectedDateTime);
                 }
             }
             else if (productFileNames.Count > 1)
@@ -560,10 +721,10 @@ namespace S1XViewer
                 selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                 selectDatasetWindow.ShowDialog();
 
-                _selectedFilename = selectDatasetWindow.SelectedFilename;
-                if (String.IsNullOrEmpty(_selectedFilename) == false)
+                selectedFilename = selectDatasetWindow.SelectedFilename;
+                if (String.IsNullOrEmpty(selectedFilename) == false)
                 {
-                    await LoadGMLFile(productStandard, _selectedFilename);
+                    await LoadGMLFile(productStandard, selectedFilename);
                 }
             }
             else if (productFileNames.Count == 1)
@@ -576,12 +737,17 @@ namespace S1XViewer
         ///     Loads the specified ENC file
         /// </summary>
         /// <param name="fileName">fileName</param>
-        private async Task LoadENCFile(string fileName)
+        /// 
+        private async Task LoadENCFile(string fileName, bool reinitGeoLayers = true) 
         {
             List<Layer>? nonEncLayers =
                 myMapView?.Map?.OperationalLayers.ToList().FindAll(tp => !tp.GetType().ToString().Contains("EncLayer"));
-            myMapView?.Map?.OperationalLayers.Clear();
-            myMapView?.GraphicsOverlays?.Clear();
+
+            if (reinitGeoLayers == true)
+            {
+                myMapView?.Map?.OperationalLayers.Clear();
+                myMapView?.GraphicsOverlays?.Clear();
+            }
 
             var myEncExchangeSet = new EncExchangeSet(fileName);
             // Wait for the exchange set to load
@@ -633,7 +799,8 @@ namespace S1XViewer
         /// <param name="productStandard"></param>
         /// <param name="fileName"></param>
         /// <param name="selectedDateTime"></param>
-        private async Task LoadHDF5File(string productStandard, string fileName, DateTime? selectedDateTime)
+        /// <param name="reinitGeoLayers"></param>
+        private async Task LoadHDF5File(string productStandard, string fileName, DateTime? selectedDateTime, bool reinitGeoLayers = true)
         {
             this.mainRibbon.Title = $"Viewing {fileName.LastPart(@"\")}";
             if (selectedDateTime != null)
@@ -642,28 +809,32 @@ namespace S1XViewer
             }
 
             comboboxColorSchemes.IsEnabled = productStandard == "S102";
-            _dataPackages.Clear();
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
 
-            Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
-
-            if (myMapView?.Map?.OperationalLayers.Count > 0)
+            if (reinitGeoLayers == true || productStandard != "S102")
             {
-                myMapView.Map.OperationalLayers.RemoveAt(0);
-            }
+                _dataPackages.Clear();
 
-            myMapView?.Map?.OperationalLayers.Clear();
-            if (myMapView?.GraphicsOverlays?.Count > 0)
-            {
-                myMapView.GraphicsOverlays.RemoveAt(0);
-            }
-            myMapView?.GraphicsOverlays?.Clear();
-            myMapView?.Map?.Tables.Clear();
+                Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
 
-            if (encLayer != null)
-            {
-                myMapView?.Map?.OperationalLayers?.Add(encLayer);
+                while (myMapView?.Map?.OperationalLayers.Count > 0)
+                {
+                    myMapView.Map.OperationalLayers.RemoveAt(0);
+                }
+
+                myMapView?.Map?.OperationalLayers.Clear();
+                if (myMapView?.GraphicsOverlays?.Count > 0)
+                {
+                    myMapView.GraphicsOverlays.RemoveAt(0);
+                }
+                myMapView?.GraphicsOverlays?.Clear();
+                myMapView?.Map?.Tables.Clear();
+
+                if (encLayer != null)
+                {
+                    myMapView?.Map?.OperationalLayers?.Add(encLayer);
+                }
             }
 
             var timerStart = DateTime.Now;
@@ -728,7 +899,7 @@ namespace S1XViewer
                         buttonBackward.Tag = timeframePresentInFile.start.ToUniversalTime();
                         buttonForward.Tag = timeframePresentInFile.end.ToUniversalTime();
                         textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
-                        textBoxTimeValue.Tag = $"{productStandard}_{selectedDateTime}";
+                        textBoxTimeValue.Tag = $"{fileName}#{productStandard}#{selectedDateTime}";
                     }
                 }
 
@@ -817,10 +988,11 @@ namespace S1XViewer
 
             Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
 
-            if (myMapView?.Map?.OperationalLayers.Count > 0)
+            while (myMapView?.Map?.OperationalLayers.Count > 0)
             {
                 myMapView.Map.OperationalLayers.RemoveAt(0);
             }
+
             myMapView?.Map?.OperationalLayers.Clear();
             if (myMapView?.GraphicsOverlays?.Count > 0)
             {
@@ -828,7 +1000,6 @@ namespace S1XViewer
             }
             myMapView?.GraphicsOverlays?.Clear();
             myMapView?.Map?.Tables.Clear();
-            myMapView.Map.RetryLoadAsync();
 
             if (encLayer != null)
             {
@@ -1092,7 +1263,6 @@ namespace S1XViewer
                 if (fullExtent != null)
                 {
                     await myMapView.SetViewpointAsync(new Viewpoint(fullExtent));
-                    _resetViewpoint = false;
                 }
             }
 
@@ -1129,7 +1299,7 @@ namespace S1XViewer
                 {
                     (string type, Feature feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererManager, horizontalCRS);
 
-                    lock (this) 
+                    lock (this)
                     {
                         switch (renderedFeature.type)
                         {
@@ -1182,12 +1352,12 @@ namespace S1XViewer
                     filledPolygonTable.AddFeaturesAsync(filledPolyFeatureList.Value); // no await applied since this speeds up rendering in the UI! 
                 }
             }
- 
+
             var featuresCollection = new FeatureCollection();
 
             if (filledPolygonTables.Count > 0)
             {
-                foreach(FeatureCollectionTable filledPolysTable in filledPolygonTables)
+                foreach (FeatureCollectionTable filledPolysTable in filledPolygonTables)
                 {
                     featuresCollection.Tables.Add(filledPolysTable);
                 }
@@ -1256,13 +1426,14 @@ namespace S1XViewer
                 var idLabelDefinition = LabelDefinition.FromJson(featureJsonString);
 
                 var collectionLayer = new FeatureCollectionLayer(featuresCollection);
+                // Add the layer to the Map's Operational Layers collection
+                myMapView.Map.OperationalLayers.Add(collectionLayer);
                 // When the layer loads, zoom the map view to the extent of the feature collection
                 collectionLayer.Loaded += (s, e) => Dispatcher.Invoke(async () =>
                 {
                     try
                     {
                         List<Envelope> datasetExtents = new List<Envelope>();
-
                         foreach (FeatureLayer layer in collectionLayer.Layers)
                         {
                             if (idLabelDefinition != null)
@@ -1271,16 +1442,17 @@ namespace S1XViewer
                                 layer.LabelsEnabled = true;
                             }
 
-                            if (layer.FullExtent != null)
+                            if (layer.FullExtent != null && layer.FullExtent.MMin != double.NaN && layer.FullExtent.MMax != double.NaN)
                             {
                                 datasetExtents.Add(layer.FullExtent);
                             }
                         }
 
-                        if(_resetViewpoint == true)
+                        if (_resetViewpoint == true && datasetExtents.Count > 0)
                         {
                             var fullExtent = GeometryEngine.CombineExtents(datasetExtents);
                             await myMapView.SetViewpointAsync(new Viewpoint(fullExtent));
+                            _resetViewpoint = false;
                         }
 
                         _syncContext?.Post(new SendOrPostCallback(o =>
@@ -1305,11 +1477,6 @@ namespace S1XViewer
                     }
                     catch (Exception) { }
                 });
-                await collectionLayer.LoadAsync();
-               
-                // Add the layer to the Map's Operational Layers collection
-                myMapView.Map.OperationalLayers.Add(collectionLayer);
-                myMapView.GeoViewTapped += OnMapViewTapped;
             }
         }
 

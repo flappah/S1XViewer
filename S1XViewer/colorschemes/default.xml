@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ColorSchemes>
-    <ColorScheme type="S102" name="default">
+    <ColorScheme type="S102" name="default" recalculate="false">
         <Range>
             <Max inclusive="true">-20.0</Max>
             <Color a="" r="247" g="148" b="58"/>

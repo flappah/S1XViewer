@@ -45,7 +45,7 @@ namespace S1XViewer
         private void buttonOk_Click(object sender, RoutedEventArgs e)
         {
             // save XML to color scheme file
-            MessageBoxResult messageBoxResult = MessageBoxResult.OK;
+            MessageBoxResult messageBoxResult = MessageBoxResult.Yes;
 
             if (_isChanged == true)
             {

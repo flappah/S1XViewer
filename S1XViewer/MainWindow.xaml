@@ -17,34 +17,39 @@
             </Ribbon.HelpPaneContent>
             <Ribbon.QuickAccessToolBar>
                 <RibbonQuickAccessToolBar>
-                    <RibbonButton x:Name="quickAccessFileOpen" SmallImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Click="AppOpen_Click"/>
+                    <RibbonButton x:Name="quickAccessFileOpen" SmallImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Click="buttonFileOpen_Click"/>
                 </RibbonQuickAccessToolBar>
             </Ribbon.QuickAccessToolBar>
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Paomedia-Small-N-Flat-Map.ico" >
-                    <RibbonApplicationMenuItem Header="_Open" x:Name="AppOpen" ImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Click="AppOpen_Click"/>
+                    <RibbonApplicationMenuItem Header="_Open" x:Name="AppOpen" ImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Click="buttonFileOpen_Click"/>
                     <RibbonApplicationMenuItem Header="_Recent Files" x:Name="RecentFilesMenuItem" />
                     <RibbonApplicationMenuItem Header="E_xit" x:Name="AppExit" Click="AppExit_Click" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
             <RibbonTab x:Name="HomeTab" Header="Home">
                 <RibbonGroup x:Name="groupPrimary" Header="Control">
-                    <RibbonButton x:Name="buttonFileOpen" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Label="Open File" Click="AppOpen_Click"/>
-                    <RibbonButton x:Name="buttonResetLayers" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" Label="Reset Layers" Click="ResetLayers_Click"/>
-                    <RibbonButton x:Name="buttonOptions" LargeImageSource="/images/Fa-Team-Fontawesome-FontAwesome-Gear.ico" Label="Options" Click="OptionsMenu_Click"/>
+                    <RibbonButton x:Name="buttonFileOpen" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" Label="Open File" Click="buttonFileOpen_Click"/>
+                    <RibbonButton x:Name="buttonFileAdd" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Square-Plus.ico" Label="Add File" Click="buttonFileAdd_Click"/>
+                    <RibbonButton x:Name="buttonResetView" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Object-Group.ico" Label="Reset View" Click="buttonResetView_Click" />
+                    <RibbonButton x:Name="buttonClearLayers" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" Label="Clear Layers" Click="buttonClearLayers_Click"/>
                 </RibbonGroup>
                 <RibbonGroup x:Name="groupNavigation" Header="Navigate Dataset">
                     <RibbonButton x:Name="buttonBackward" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Left.ico" Label="Previous" IsEnabled="False" Click="buttonBackward_Click" />
                     <RibbonTextBox x:Name="textBoxTimeValue" Margin="0,7,0,0" IsEnabled="False" FontSize="11" />
                     <RibbonButton x:Name="buttonForward" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" Label="Next" IsEnabled="False" Click="buttonForward_Click" />
                 </RibbonGroup>
-                <RibbonGroup x:Name="colorSchemes" Header="Color Schemes">
+                <RibbonGroup x:Name="groupColorSchemes" Header="Color Schemes">
                     <RibbonComboBox x:Name="comboboxColorSchemes" Margin="0,7,0,0">
                         <RibbonGallery SelectedItem="Green" SelectedValuePath="Content" MaxColumnCount="1">
                             <RibbonGalleryCategory x:Name="galeryColorSchemes"/>
-                        </RibbonGallery>                        
+                        </RibbonGallery>
                     </RibbonComboBox>
-                    <RibbonButton x:Name="buttonEditColorScheme" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Square-Plus.ico" Label="Edit" Click="buttonEditColorScheme_Click" />
+                    <RibbonButton x:Name="buttonEditColorScheme" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Pen-to-Square.ico" Label="Edit" Click="buttonEditColorScheme_Click" />
+                    <RibbonButton x:Name="buttonRefresh" LargeImageSource="/images/Pictogrammers-Material-Image-refresh-outline.ico" Label="Refresh" Click="buttonRefresh_Click" IsEnabled="False" />
+                </RibbonGroup>
+                <RibbonGroup x:Name="groupConfig" Header="Config">
+                    <RibbonButton x:Name="buttonOptions" LargeImageSource="/images/Fa-Team-Fontawesome-FontAwesome-Gear.ico" Label="Options" Click="buttonOptions_Click"/>
                 </RibbonGroup>
                 <RibbonGroup x:Name="measuringFunctions" Header="Measure">
                     <esri:MeasureToolbar MapView="{Binding ElementName=myMapView}" Background="White"/>

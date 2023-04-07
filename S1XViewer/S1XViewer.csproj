@@ -22,9 +22,12 @@
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Left.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" />
+    <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Object-Group.ico" />
+    <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Pen-to-Square.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Square-Plus.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Sun.ico" />
+    <None Remove="images\Pictogrammers-Material-Image-refresh-outline.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,11 +60,14 @@
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Left.ico" />
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" />
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Folder-Open.ico" />
+    <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Object-Group.ico" />
+    <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Pen-to-Square.ico" />
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" />
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Square-Plus.ico">
       <CopyToOutputDirectory></CopyToOutputDirectory>
     </Resource>
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Sun.ico" />
+    <Resource Include="images\Pictogrammers-Material-Image-refresh-outline.ico" />
     <Resource Include="Paomedia-Small-N-Flat-Map.ico" />
   </ItemGroup>
 
@@ -69,10 +75,7 @@
     <None Update="colorschemes\default.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="colorschemes\ijmuiden_sample.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="colorschemes\ncp.xml">
+    <None Update="colorschemes\rainbow.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="crs.csv">
