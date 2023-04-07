@@ -489,7 +489,7 @@ namespace S1XViewer
                     buttonForward.IsEnabled = false;
 
                     textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
-                    textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
+                    textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}";
                     await LoadHDF5File(productStandard, selectedFileName, proposedDateTime).ConfigureAwait(true);
 
                     if (proposedDateTime <= firstDateTimeSeries)
@@ -512,8 +512,8 @@ namespace S1XViewer
         private async void buttonForward_Click(object sender, RoutedEventArgs e)
         {
             var lastDateTimeSeries = (DateTime)buttonForward.Tag;
-            var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "_" }, StringSplitOptions.RemoveEmptyEntries);
-            if (textboxTimeValueTagValues?.Length == 2)
+            var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "#" }, StringSplitOptions.RemoveEmptyEntries);
+            if (textboxTimeValueTagValues?.Length == 3)
             {
                 string selectedFileName = textboxTimeValueTagValues[0];
                 string productStandard = textboxTimeValueTagValues[1];
@@ -526,7 +526,7 @@ namespace S1XViewer
                     buttonForward.IsEnabled = false;
 
                     textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
-                    textBoxTimeValue.Tag = $"{productStandard}_{proposedDateTime}";
+                    textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}";
                     await LoadHDF5File(productStandard, selectedFileName, proposedDateTime).ConfigureAwait(true);
 
                     if (proposedDateTime >= lastDateTimeSeries)
@@ -700,7 +700,7 @@ namespace S1XViewer
                             buttonBackward.Tag = beginTime.ToUniversalTime();
                             buttonForward.Tag = endTime.ToUniversalTime();
                             textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
-                            textBoxTimeValue.Tag = $"{productStandard}_{selectedDateTime}";
+                            textBoxTimeValue.Tag = $"{selectedFilename}#{productStandard}#{selectedDateTime}";
                         }
                     }
                 }
