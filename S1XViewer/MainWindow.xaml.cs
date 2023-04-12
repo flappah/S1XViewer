@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -1242,6 +1243,16 @@ namespace S1XViewer
 
                 var clipRaster = new Raster(clipRasterFunction);
                 var rasterLayer = new RasterLayer(clipRaster);
+
+                IEnumerable<Color> colors = new int[250]
+                    .Select((c, i) => i < 150 ? Color.Red : Color.Yellow);
+
+                // Create a colormap renderer.
+                ColormapRenderer colormapRenderer = new ColormapRenderer(colors);
+
+                // Set the colormap renderer on the raster layer.
+                rasterLayer.Renderer = colormapRenderer;
+
                 rasterLayer.Loaded += (s, e) => Dispatcher.Invoke(async () =>
                 {
                     try
@@ -1278,7 +1289,7 @@ namespace S1XViewer
                 myMapView?.Map?.OperationalLayers.Add(rasterLayer);
                 await rasterLayer.LoadAsync();
 
-                await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent);
+                await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15);
             }
         }
 
