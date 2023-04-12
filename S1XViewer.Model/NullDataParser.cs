@@ -22,7 +22,6 @@ namespace S1XViewer.Model
             return new S1xxDataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = xmlDocument,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature [0],
                 InformationFeatures = new IInformationFeature[0]
@@ -39,7 +38,6 @@ namespace S1XViewer.Model
             return new S1xxDataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = xmlDocument,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
@@ -57,7 +55,6 @@ namespace S1XViewer.Model
             return new S1xxDataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = new XmlDocument(),
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
@@ -75,7 +72,6 @@ namespace S1XViewer.Model
             return new S1xxDataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = new XmlDocument(),
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]

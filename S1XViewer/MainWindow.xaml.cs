@@ -58,9 +58,9 @@ namespace S1XViewer
             {
                 var fileNames = RetrieveRecentFiles();
                 int i = 1;
-                foreach (var fileName in fileNames)
+                Application.Current.Dispatcher.Invoke((Action)delegate
                 {
-                    Application.Current.Dispatcher.Invoke((Action)delegate
+                    foreach (var fileName in fileNames)
                     {
                         var newMenuItem = new RibbonMenuItem
                         {
@@ -70,49 +70,44 @@ namespace S1XViewer
                         newMenuItem.Click += AutoOpen_Click;
 
                         RecentFilesMenuItem.Items.Add(newMenuItem);
-                    });
-                }
-            });
-
-            var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
-            var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
-            var optionsStorage = _container.Resolve<IOptionsStorage>();
-
-            Application.Current.Dispatcher.Invoke((Action)delegate
-            {
-                string colorSchemeSelection = optionsStorage.Retrieve("ColorSchemeSelection") ?? string.Empty;
-                colorSchemeSelection = String.IsNullOrEmpty(colorSchemeSelection) ? "default.xml" : colorSchemeSelection;
-
-                foreach (string colorSchemeName in colorSchemeNames)
-                {
-                    var newComboboxItem = new RibbonGalleryItem { Content = colorSchemeName };
-                    if (colorSchemeSelection.Equals(colorSchemeName))
-                    {
-                        newComboboxItem.IsSelected = true;
                     }
-                    newComboboxItem.Selected += ColorSchemeItem_Selected;
-                    galeryColorSchemes.Items.Add(newComboboxItem);
-                }
+
+                    var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
+                    var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
+                    var optionsStorage = _container.Resolve<IOptionsStorage>();
+
+                    string colorSchemeSelection = optionsStorage.Retrieve("ColorSchemeSelection") ?? string.Empty;
+                    colorSchemeSelection = String.IsNullOrEmpty(colorSchemeSelection) ? "default.xml" : colorSchemeSelection;
+
+                    foreach (string colorSchemeName in colorSchemeNames)
+                    {
+                        var newComboboxItem = new RibbonGalleryItem { Content = colorSchemeName };
+                        if (colorSchemeSelection.Equals(colorSchemeName))
+                        {
+                            newComboboxItem.IsSelected = true;
+                        }
+                        newComboboxItem.Selected += ColorSchemeItem_Selected;
+                        galeryColorSchemes.Items.Add(newComboboxItem);
+                    }
+
+                    string basemap = optionsStorage.Retrieve("comboBoxBasemap");
+                    BasemapStyle basemapStyle;
+                    if (string.IsNullOrEmpty(basemap) == true)
+                    {
+                        basemapStyle = BasemapStyle.ArcGISTopographic;
+                    }
+                    else
+                    {
+                        basemapStyle = Enum.Parse<BasemapStyle>(basemap);
+                    }
+                    myMapView.Map = new Map(basemapStyle);
+                    myMapView.GeoViewTapped += MyMapView_GeoViewTapped; ;
+
+                    var mapCenterPoint = new MapPoint(0, 50, SpatialReferences.Wgs84);
+                    myMapView.SetViewpoint(new Viewpoint(mapCenterPoint, 3000000));
+
+                });
             });
-
-            string basemap = optionsStorage.Retrieve("comboBoxBasemap");
-            BasemapStyle basemapStyle;
-            if (string.IsNullOrEmpty(basemap) == true)
-            {
-                basemapStyle = BasemapStyle.ArcGISTopographic;
-            }
-            else
-            {
-                basemapStyle = Enum.Parse<BasemapStyle>(basemap);
-            }
-            myMapView.Map = new Map(basemapStyle);
-            myMapView.GeoViewTapped += OnMapViewTapped;
-
-            var mapCenterPoint = new MapPoint(0, 50, SpatialReferences.Wgs84);
-            myMapView.SetViewpoint(new Viewpoint(mapCenterPoint, 3000000));
-
-            Closing += MainWindow_Closing;
-            Loaded += MainWindow_Loaded;            
         }
 
         /// <summary>
@@ -910,15 +905,11 @@ namespace S1XViewer
                 }), fileName);
 
                 var dataPackage = await dataPackageParser.ParseAsync(fileName, selectedDateTime).ConfigureAwait(false);
-                if (dataPackage != null && dataPackage.GeoFeatures != null && dataPackage.GeoFeatures.Count() > 0)
+                if (dataPackage != null && dataPackage.Type != S1xxTypes.Null)
                 {
-                    // now process data for display in ESRI ArcGIS viewmodel
-                    if (dataPackage.Type == S1xxTypes.Null)
+                    if (dataPackage.GeoFeatures != null && dataPackage.GeoFeatures.Count() > 0)
                     {
-                        MessageBox.Show($"File '{fileName}' currently can't be rendered. No DataParser is able to render the information present in the file!", "Invalid datapackageparser", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
-                    {
+                        // now process data for display in ESRI ArcGIS viewmodel
                         _syncContext?.Post(new SendOrPostCallback(async o =>
                         {
                             if (o != null)
@@ -945,14 +936,18 @@ namespace S1XViewer
 
                         _dataPackages.Add(dataPackage);
                     }
+                    else if (dataPackage is HdfDataPackage hdfDataPackage)
+                    {
+                        // contains raster data
+                    }
                 }
-                else if (dataPackage != null && dataPackage.RawHdfData == null && dataPackage.RawXmlData == null)
+                else if (dataPackage != null && dataPackage.Type == S1xxTypes.Null)
                 {
-                    MessageBox.Show($"No datapackageparser exists for '{fileName}' and datacodingformat '{dataCodingFormat}'. Can't display data!", "No datapackageparser", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"File '{fileName}' currently can't be rendered. No DataParser is able to render the information present in the file!", "Invalid datapackageparser", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBox.Show($"File '{fileName}' currently can't be rendered. No data found for selection!", "No data", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"No datapackageparser exists for '{fileName}' and datacodingformat '{dataCodingFormat}'. Can't display data!", "No datapackageparser", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
@@ -1220,6 +1215,108 @@ namespace S1XViewer
         #region ArcGIS Runtime connections
 
         /// <summary>
+        ///     Create a raster and raster layer for rendering on the map
+        /// </summary>
+        /// <param name="dataPackage"></param>
+        private async void CreateRasterCollection(IS1xxDataPackage dataPackage)
+        {
+            if (dataPackage is S102DataPackage s102DataPackage)
+            {
+                var hillshadeFunction = RasterFunction.FromJson(@"{
+                    ""raster_function"":{""type"":""Hillshade_function""},
+                    ""raster_function_arguments"":
+                    {
+                    ""z_factor"":{""double"":0.0002,""type"":""Raster_function_variable""},
+                    ""slope_type"":{""raster_slope_type"":""none"",""type"":""Raster_function_variable""},
+                    ""azimuth"":{""double"":315,""type"":""Raster_function_variable""},
+                    ""altitude"":{""double"":45,""type"":""Raster_function_variable""},
+                    ""nbits"":{""int"":8,""type"":""Raster_function_variable""}, 
+                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
+                    ""type"":""Raster_function_arguments""
+                    },
+                    ""type"":""Raster_function_template""}");
+
+                var clipFunction = RasterFunction.FromJson(@"{
+                    ""raster_function"":{""type"":""Clip_function""},
+                    ""raster_function_arguments"":
+                    {
+                    ""minx"":{""double"":" + s102DataPackage.minX + @", ""type"":""Raster_function_variable""},
+                    ""miny"":{""double"":" + s102DataPackage.minY + @",""type"":""Raster_function_variable""},
+                    ""maxx"":{""double"":" + s102DataPackage.maxX + @",""type"":""Raster_function_variable""},
+                    ""maxy"":{""double"":" + s102DataPackage.maxY + @",""type"":""Raster_function_variable""},
+                    ""dx"":{""double"":" + s102DataPackage.dX + @",""type"":""Raster_function_variable""},
+                    ""dy"":{""double"":" + s102DataPackage.dY + @",""type"":""Raster_function_variable""},
+                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
+                    ""type"":""Raster_function_arguments""
+                    },
+                    ""type"":""Raster_function_template""}");
+
+                var colorrampFunction = RasterFunction.FromJson(@"{
+                    ""raster_function"":{""type"":""Color_ramp_function""},
+                    ""raster_function_arguments"":
+                    {
+                    ""resizable"":{""bool"":false,""type"":""Raster_function_variable""},
+                    ""color_ramp"":
+                    {
+                        ""color_ramp"":
+                        {
+                        ""ramps"":
+                        [
+                            {""to_color"":[0,255,0],""from_color"":[0,191,191],""num_colors"":3932,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""},
+                            {""to_color"":[255,255,0],""from_color"":[0,255,0],""num_colors"":3932,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""},
+                            {""to_color"":[255,127,0],""from_color"":[255,255,0],""num_colors"":3932,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""},
+                            {""to_color"":[191,127,63],""from_color"":[255,127,0],""num_colors"":3932,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""},
+                            {""to_color"":[20,20,20],""from_color"":[191,127,63],""num_colors"":3935,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""}
+                        ],
+                        ""type"":""Multipart_color_ramp""
+                        },
+                        ""type"":""Raster_function_variable""
+                    },
+                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
+                    ""type"":""Raster_function_arguments""
+                    },
+                    ""type"":""Raster_function_template""}");
+
+                var maskFunction = RasterFunction.FromJson(@"{
+                    ""raster_function"":{""type"":""Mask_function""},
+                    ""raster_function_arguments"":
+                    {
+                    ""nodata_values"":{""double_array"":[" + s102DataPackage.noDataValue + @"],""type"":""Raster_function_variable""},
+                    ""nodata_interpretation"":{""nodata_interpretation"":""all"",""type"":""Raster_function_variable""},
+                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
+                    ""type"":""Raster_function_arguments""
+                    },
+                    ""type"":""Raster_function_template""}");
+
+
+                var rasterFunctions = RasterFunction.FromJson(@"
+                    {
+                    ""raster_function"":{""type"":""Clip_function""},
+                    ""raster_function_arguments"":
+                    {
+                    ""minx"":{""double"":" + s102DataPackage.minX + @", ""type"":""Raster_function_variable""},
+                    ""miny"":{""double"":" + s102DataPackage.minY + @",""type"":""Raster_function_variable""},
+                    ""maxx"":{""double"":" + s102DataPackage.maxX + @",""type"":""Raster_function_variable""},
+                    ""maxy"":{""double"":" + s102DataPackage.maxY + @",""type"":""Raster_function_variable""},
+                    ""dx"":{""double"":" + s102DataPackage.dX + @",""type"":""Raster_function_variable""},
+                    ""dy"":{""double"":" + s102DataPackage.dY + @",""type"":""Raster_function_variable""},
+                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
+                    ""type"":""Raster_function_arguments""
+                    },
+                    ""type"":""Raster_function_template""
+}
+
+                    ");
+
+                //var raster = new Raster()
+                //var rasterLayer = new RasterLayer(raster);
+
+
+
+            }
+        }
+
+        /// <summary>
         ///     Creation a feature collection for rendering on the map
         /// </summary>
         /// <param name="dataPackage">S1xx dataPackage</param>
@@ -1385,8 +1482,16 @@ namespace S1XViewer
 
             if (myMapView != null && myMapView.Map != null)
             {
-                string featureJsonString =
-                    @"{
+                try
+                {
+                    var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
+                    graphicsOverlay.Graphics.AddRange(graphicList);
+                    myMapView.GraphicsOverlays?.Add(graphicsOverlay);
+                }
+                catch (Exception) { }
+
+                // Create a label definition from the JSON string. 
+                var idLabelDefinition = LabelDefinition.FromJson(@"{
                         ""labelExpressionInfo"":{""expression"":""return $feature.FeatureName""},
                         ""labelPlacement"":""esriServerPolygonPlacementAlwaysHorizontal"",
                         ""symbol"":
@@ -1412,18 +1517,7 @@ namespace S1XViewer
                                 ""xoffset"":0,
                                 ""yoffset"":0
                             }
-                    }";
-
-                try
-                {
-                    var graphicsOverlay = new GraphicsOverlay() { Id = "VectorFeatures" };
-                    graphicsOverlay.Graphics.AddRange(graphicList);
-                    myMapView.GraphicsOverlays?.Add(graphicsOverlay);
-                }
-                catch (Exception) { }
-
-                // Create a label definition from the JSON string. 
-                var idLabelDefinition = LabelDefinition.FromJson(featureJsonString);
+                    }");
 
                 var collectionLayer = new FeatureCollectionLayer(featuresCollection);
                 // Add the layer to the Map's Operational Layers collection
@@ -1485,8 +1579,18 @@ namespace S1XViewer
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void OnMapViewTapped(object sender, GeoViewInputEventArgs e)
+        private async void MyMapView_GeoViewTapped(object? sender, GeoViewInputEventArgs e)
         {
+            if (sender is null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
+
+            if (e is null)
+            {
+                throw new ArgumentNullException(nameof(e));
+            }
+
             try
             {
                 // get the tap location in screen units
@@ -1590,7 +1694,7 @@ namespace S1XViewer
                     // add geo features
                     var parentTreeNode = new TreeViewItem
                     {
-                        Header = $"Selected {results.Count} geo-feature{(results.Count == 1 ? "" : "s")}",
+                        Header = $"Selected {results.Count.ToString()} geo-feature{(results.Count == 1 ? "" : "s")}",
                         Tag = "feature_count",
                         IsExpanded = true
                     };
@@ -1598,7 +1702,7 @@ namespace S1XViewer
 
                     foreach (KeyValuePair<string, DataTable> result in results)
                     {
-                        TreeViewItem treeNode = new TreeViewItem();
+                        TreeViewItem treeNode = new();
                         treeNode.MouseUp += TreeviewItem_Click;
                         treeNode.Header = result.Key;
                         treeNode.Tag = result.Value;

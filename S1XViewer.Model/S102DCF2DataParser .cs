@@ -1,4 +1,5 @@
-﻿using HDF5CSharp.DataTypes;
+﻿using HDF5CSharp;
+using HDF5CSharp.DataTypes;
 using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
@@ -61,10 +62,9 @@ namespace S1XViewer.Model
                 throw new ArgumentException($"'{nameof(hdf5FileName)}' cannot be null or empty.", nameof(hdf5FileName));
             }
 
-            var dataPackage = new S1xxDataPackage
+            var dataPackage = new S102DataPackage
             {
                 Type = S1xxTypes.S102,
-                RawXmlData = null,
                 RawHdfData = null
             };
 
@@ -153,27 +153,46 @@ namespace S1XViewer.Model
                             return;
                         }
 
-                        for (int latIdx = 0; latIdx < numPointsLatitude; latIdx++)
+                        dataPackage.minX = gridOriginLongitude;
+                        dataPackage.minY = gridOriginLatitude;
+                        dataPackage.maxX = eastBoundLongitude;
+                        dataPackage.maxY = northBoundLatitude;
+                        dataPackage.dY = gridSpacingLongitudinal;
+                        dataPackage.dX = gridSpacingLatitudinal;
+                        dataPackage.noDataValue = nillValueDepth;
+                        dataPackage.numPointsX = numPointsLongitude;
+                        dataPackage.numPointsY = numPointsLatitude;
+
+                        dataPackage.data = new float[numPointsLatitude, numPointsLongitude];
+                        for (int yIdx = 0; yIdx < numPointsLatitude; yIdx++)
                         {
-                            for (int lonIdx = 0; lonIdx < numPointsLongitude; lonIdx += 2)
+                            for (int xIdx = 0; xIdx < (numPointsLongitude * 2); xIdx += 2)
+                            {
+                                dataPackage.data[yIdx, (int)xIdx / 2] = depthsAndUncertainties[yIdx, xIdx];
+                            }
+                        }
+
+                        for (int yIdx = 0; yIdx < numPointsLatitude; yIdx++)
+                        {
+                            for (int xIdx = 0; xIdx < (numPointsLongitude * 2); xIdx += 2)
                             {
                                 // build up featutes ard wrap 'em in datapackage
-                                float depth = depthsAndUncertainties[latIdx, lonIdx];
-                                float uncertainty = depthsAndUncertainties[latIdx, lonIdx + 1];
+                                float depth = depthsAndUncertainties[yIdx, xIdx];
+                                float uncertainty = depthsAndUncertainties[yIdx, xIdx + 1];
 
                                 if (depth != nillValueDepth)
                                 {
-                                    double longitude = gridOriginLongitude + (((double)lonIdx / 2.0) * gridSpacingLongitudinal);
-                                    double latitude = gridOriginLatitude + ((double)latIdx * gridSpacingLatitudinal);
+                                    double longitude = gridOriginLongitude + (((double)xIdx / 2.0) * gridSpacingLongitudinal);
+                                    double latitude = gridOriginLatitude + ((double)yIdx * gridSpacingLatitudinal);
 
                                     var longitudes = new double[5];
                                     var latitudes = new double[5];
                                     longitudes[0] = longitude;
                                     latitudes[0] = latitude;
-                                    
+
                                     longitudes[1] = longitude;
                                     latitudes[1] = latitude + gridSpacingLatitudinal;
-                                    
+
                                     longitudes[2] = longitude + gridSpacingLongitudinal;
                                     latitudes[2] = latitude + gridSpacingLatitudinal;
 
@@ -188,8 +207,8 @@ namespace S1XViewer.Model
 
                                     var sounding = new Sounding
                                     {
-                                        Id = $"Sid_{lonIdx}_{latIdx}",
-                                        FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"Sid_{lonIdx}_{latIdx}", } },
+                                        Id = $"Sid_{xIdx}_{yIdx}",
+                                        FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"Sid_{xIdx}_{yIdx}", } },
                                         Value = depth,
                                         Geometry = geometry
                                     };
@@ -198,7 +217,7 @@ namespace S1XViewer.Model
                                 }
                             }
 
-                            Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)latIdx));
+                            Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)yIdx));
                         }
 
                         dataPackage.RawHdfData = hdf5S102Root;

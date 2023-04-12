@@ -49,10 +49,9 @@ namespace S1XViewer.Model
 
             if (selectedDateTime == null)
             {
-                return new S1xxDataPackage
+                return new S111DataPackage
                 {
                     Type = S1xxTypes.Null,
-                    RawXmlData = null,
                     RawHdfData = null,
                     GeoFeatures = new IGeoFeature[0],
                     MetaFeatures = new IMetaFeature[0],
@@ -60,10 +59,9 @@ namespace S1XViewer.Model
                 };
             }
 
-            var dataPackage = new S1xxDataPackage
+            var dataPackage = new S111DataPackage
             {
                 Type = S1xxTypes.S111,
-                RawXmlData = null,
                 RawHdfData = null
             };
 
@@ -157,7 +155,7 @@ namespace S1XViewer.Model
 
                     for (int latIdx = 0; latIdx < numPointsLatitude; latIdx++)
                     {
-                        for (int lonIdx = 0; lonIdx < numPointsLongitude; lonIdx += 2)
+                        for (int lonIdx = 0; lonIdx < (numPointsLongitude * 2); lonIdx += 2)
                         {
                             // build up featutes ard wrap 'em in datapackage
                             float speed = speedAndDirectionValues[latIdx, lonIdx];
@@ -218,10 +216,9 @@ namespace S1XViewer.Model
 
             if (selectedDateTime == null)
             {
-                return new S1xxDataPackage
+                return new S111DataPackage
                 {
                     Type = S1xxTypes.Null,
-                    RawXmlData = null,
                     RawHdfData = null,
                     GeoFeatures = new IGeoFeature[0],
                     MetaFeatures = new IMetaFeature[0],
@@ -229,10 +226,9 @@ namespace S1XViewer.Model
                 };
             }
 
-            var dataPackage = new S1xxDataPackage
+            var dataPackage = new S111DataPackage
             {
                 Type = S1xxTypes.S111,
-                RawXmlData = null,
                 RawHdfData = null
             };
 
@@ -369,10 +365,9 @@ namespace S1XViewer.Model
         /// <exception cref="NotImplementedException"></exception>
         public override async Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
         {
-            return new S1xxDataPackage
+            return new S111DataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = null,
                 RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
@@ -388,10 +383,9 @@ namespace S1XViewer.Model
         /// <exception cref="NotImplementedException"></exception>
         public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
         {
-            return new S1xxDataPackage
+            return new S111DataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = null,
                 RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],

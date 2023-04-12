@@ -31,7 +31,7 @@ namespace S1XViewer.Model
         /// <returns>IS1xxDataPackage</returns>
         public async override Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
         {
-            var dataPackage = new S1xxDataPackage
+            var dataPackage = new S127DataPackage
             {
                 Type = S1xxTypes.S127,
                 RawXmlData = xmlDocument
@@ -139,7 +139,7 @@ namespace S1XViewer.Model
         /// <returns>IS1xxDataPackage</returns>
         public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
         {
-            var dataPackage = new S1xxDataPackage
+            var dataPackage = new S127DataPackage
             {
                 Type = S1xxTypes.S127,
                 RawXmlData = xmlDocument
@@ -234,7 +234,7 @@ namespace S1XViewer.Model
         /// <returns></returns>
         public override async Task<IS1xxDataPackage> ParseAsync(string hdf5FileName, DateTime? selectedDateTime)
         {
-            return new S1xxDataPackage
+            return new S127DataPackage
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,
@@ -252,7 +252,7 @@ namespace S1XViewer.Model
         /// <returns></returns>
         public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
         {
-            return new S1xxDataPackage
+            return new S127DataPackage
             {
                 Type = S1xxTypes.Null,
                 RawXmlData = null,

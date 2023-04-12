@@ -53,10 +53,9 @@ namespace S1XViewer.Model
 
             if (selectedDateTime == null)
             {
-                return new S1xxDataPackage
+                return new S111DataPackage
                 {
                     Type = S1xxTypes.Null,
-                    RawXmlData = null,
                     RawHdfData = null,
                     GeoFeatures = new IGeoFeature[0],
                     MetaFeatures = new IMetaFeature[0],
@@ -64,10 +63,9 @@ namespace S1XViewer.Model
                 };
             }
 
-            var dataPackage = new S1xxDataPackage
+            var dataPackage = new S111DataPackage
             {
                 Type = S1xxTypes.S111,
-                RawXmlData = null,
                 RawHdfData = null
             };
 
@@ -108,7 +106,6 @@ namespace S1XViewer.Model
             return new S1xxDataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
                 InformationFeatures = new IInformationFeature[0]
@@ -128,10 +125,9 @@ namespace S1XViewer.Model
             // load HDF file
             //HDF5CSharp.DataTypes.Hdf5Element tree = HDF5CSharp.Hdf5.ReadTreeFileStructure(fileName);
 
-            return new S1xxDataPackage
+            return new S111DataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = null,
                 RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
@@ -147,10 +143,9 @@ namespace S1XViewer.Model
         /// <exception cref="NotImplementedException"></exception>
         public override async Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
         {
-            return new S1xxDataPackage
+            return new S111DataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = null,
                 RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
@@ -166,10 +161,9 @@ namespace S1XViewer.Model
         /// <exception cref="NotImplementedException"></exception>
         public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
         {
-            return new S1xxDataPackage
+            return new S111DataPackage
             {
                 Type = S1xxTypes.Null,
-                RawXmlData = null,
                 RawHdfData = null,
                 GeoFeatures = new IGeoFeature[0],
                 MetaFeatures = new IMetaFeature[0],
