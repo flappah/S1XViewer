@@ -1,5 +1,6 @@
-﻿using HDF5CSharp;
-using HDF5CSharp.DataTypes;
+﻿using HDF5CSharp.DataTypes;
+using Microsoft.Isam.Esent.Interop;
+using OSGeo.GDAL;
 using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
@@ -8,6 +9,7 @@ using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
+using System.Data.Common;
 using System.Xml;
 
 namespace S1XViewer.Model
@@ -31,6 +33,51 @@ namespace S1XViewer.Model
             _datasetReader = datasetReader;
             _geometryBuilderFactory = geometryBuilderFactory;
             _productSupport = productSupport;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataPackage"></param>
+        private void CreateTiff(S102DataPackage dataPackage)
+        {
+            var tempPath = Path.GetTempPath();            
+            GdalConfiguration.ConfigureGdal();
+
+            string tiffFileName = $"{tempPath}{dataPackage.FileName.LastPart(@"\")}.tif";
+
+            try
+            {
+                if (File.Exists(tiffFileName) == true)
+                {
+                    File.Delete(tiffFileName);
+                }
+
+                using (Dataset outImage = Gdal.GetDriverByName("GTiff").Create(tiffFileName, dataPackage.numPointsX, dataPackage.numPointsY, 1, DataType.GDT_Float32, null))
+                {
+                    Band outBand = outImage.GetRasterBand(1);
+                    var outData = new float[dataPackage.numPointsY * dataPackage.numPointsX];
+                    int i = 0;
+                    for (int yIdx = dataPackage.numPointsY - 1; yIdx >= 0; yIdx--)
+                    {
+                        for (int xIdx = 0; xIdx < dataPackage.numPointsX; xIdx++)
+                        {
+                            outData[i++] = dataPackage.Data[yIdx, xIdx];
+                        }
+                    }
+
+                    outBand.WriteRaster(0, 0, dataPackage.numPointsX, dataPackage.numPointsY, outData, dataPackage.numPointsX, dataPackage.numPointsY, 0, 0);
+                    outBand.FlushCache();
+                    outBand.Dispose();
+                    outImage.FlushCache();
+                    outImage.Dispose();
+                }
+            }
+            catch (Exception) { }
+            finally
+            {
+                dataPackage.TiffFileName = tiffFileName;
+            }
         }
 
         public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
@@ -64,6 +111,7 @@ namespace S1XViewer.Model
 
             var dataPackage = new S102DataPackage
             {
+                FileName = hdf5FileName,
                 Type = S1xxTypes.S102,
                 RawHdfData = null
             };
@@ -163,14 +211,16 @@ namespace S1XViewer.Model
                         dataPackage.numPointsX = numPointsLongitude;
                         dataPackage.numPointsY = numPointsLatitude;
 
-                        dataPackage.data = new float[numPointsLatitude, numPointsLongitude];
+                        dataPackage.Data = new float[numPointsLatitude, numPointsLongitude];
                         for (int yIdx = 0; yIdx < numPointsLatitude; yIdx++)
                         {
                             for (int xIdx = 0; xIdx < (numPointsLongitude * 2); xIdx += 2)
                             {
-                                dataPackage.data[yIdx, (int)xIdx / 2] = depthsAndUncertainties[yIdx, xIdx];
+                                dataPackage.Data[yIdx, (int)xIdx / 2] = depthsAndUncertainties[yIdx, xIdx];
                             }
                         }
+
+                        CreateTiff(dataPackage);
 
                         for (int yIdx = 0; yIdx < numPointsLatitude; yIdx++)
                         {

@@ -65,6 +65,7 @@ namespace S1XViewer.Model
 
             var dataPackage = new S111DataPackage
             {
+                FileName = hdf5FileName,
                 Type = S1xxTypes.S111,
                 RawHdfData = null
             };

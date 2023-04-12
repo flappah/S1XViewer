@@ -909,7 +909,7 @@ namespace S1XViewer
                 {
                     if (dataPackage.GeoFeatures != null && dataPackage.GeoFeatures.Count() > 0)
                     {
-                        // now process data for display in ESRI ArcGIS viewmodel
+                        // if datapackage contain features display them using FeatureCollection layer(s)
                         _syncContext?.Post(new SendOrPostCallback(async o =>
                         {
                             if (o != null)
@@ -938,7 +938,14 @@ namespace S1XViewer
                     }
                     else if (dataPackage is HdfDataPackage hdfDataPackage)
                     {
-                        // contains raster data
+                        // contains raster data display them using a RasterLayer
+                        _syncContext?.Post(new SendOrPostCallback(async o =>
+                        {
+                            if (o != null)
+                            {
+                                CreateRasterCollection((IS1xxDataPackage)o);
+                            }
+                        }), dataPackage);
                     }
                 }
                 else if (dataPackage != null && dataPackage.Type == S1xxTypes.Null)
@@ -1031,6 +1038,7 @@ namespace S1XViewer
                 });
 
                 var dataPackage = await dataPackageParser.ParseAsync(xmlDoc).ConfigureAwait(false);
+                dataPackage.FileName = fileName;
                 if (dataPackage.Type == S1xxTypes.Null)
                 {
                     MessageBox.Show($"File '{fileName}' currently can't be rendered. No DataParser is able to render the information present in the file!");
@@ -1222,97 +1230,55 @@ namespace S1XViewer
         {
             if (dataPackage is S102DataPackage s102DataPackage)
             {
-                var hillshadeFunction = RasterFunction.FromJson(@"{
-                    ""raster_function"":{""type"":""Hillshade_function""},
-                    ""raster_function_arguments"":
-                    {
-                    ""z_factor"":{""double"":0.0002,""type"":""Raster_function_variable""},
-                    ""slope_type"":{""raster_slope_type"":""none"",""type"":""Raster_function_variable""},
-                    ""azimuth"":{""double"":315,""type"":""Raster_function_variable""},
-                    ""altitude"":{""double"":45,""type"":""Raster_function_variable""},
-                    ""nbits"":{""int"":8,""type"":""Raster_function_variable""}, 
-                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
-                    ""type"":""Raster_function_arguments""
-                    },
-                    ""type"":""Raster_function_template""}");
+                var clipJsonString = "{\"raster_function\":{\"type\":\"Clip_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"minx\":{\"double\":" + s102DataPackage.minX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"miny\":{\"double\":" + s102DataPackage.minY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxx\":{\"double\":" + s102DataPackage.maxX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxy\":{\"double\":" + s102DataPackage.maxY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dx\":{\"double\":" + s102DataPackage.dX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dy\":{\"double\":" + s102DataPackage.dY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
+                //var nodataJsonString = "{\"raster_function\":{\"type\":\"Mask_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"nodata_values\":{\"double_array\":[" + s102DataPackage.noDataValue.ToString().Replace(",", ".") + "],\"type\":\"Raster_function_variable\"},\r\n    \"nodata_interpretation\":{\"nodata_interpretation\":\"all\",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
 
-                var clipFunction = RasterFunction.FromJson(@"{
-                    ""raster_function"":{""type"":""Clip_function""},
-                    ""raster_function_arguments"":
-                    {
-                    ""minx"":{""double"":" + s102DataPackage.minX + @", ""type"":""Raster_function_variable""},
-                    ""miny"":{""double"":" + s102DataPackage.minY + @",""type"":""Raster_function_variable""},
-                    ""maxx"":{""double"":" + s102DataPackage.maxX + @",""type"":""Raster_function_variable""},
-                    ""maxy"":{""double"":" + s102DataPackage.maxY + @",""type"":""Raster_function_variable""},
-                    ""dx"":{""double"":" + s102DataPackage.dX + @",""type"":""Raster_function_variable""},
-                    ""dy"":{""double"":" + s102DataPackage.dY + @",""type"":""Raster_function_variable""},
-                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
-                    ""type"":""Raster_function_arguments""
-                    },
-                    ""type"":""Raster_function_template""}");
+                var clipRasterFunction = RasterFunction.FromJson(clipJsonString);
+                var arguments = clipRasterFunction?.Arguments;
+                var rasterNames = arguments.GetRasterNames();
 
-                var colorrampFunction = RasterFunction.FromJson(@"{
-                    ""raster_function"":{""type"":""Color_ramp_function""},
-                    ""raster_function_arguments"":
+                var raster = new Raster(s102DataPackage.TiffFileName);
+                arguments.SetRaster(rasterNames[0], raster);
+
+                var clipRaster = new Raster(clipRasterFunction);
+                var rasterLayer = new RasterLayer(clipRaster);
+                rasterLayer.Loaded += (s, e) => Dispatcher.Invoke(async () =>
+                {
+                    try
                     {
-                    ""resizable"":{""bool"":false,""type"":""Raster_function_variable""},
-                    ""color_ramp"":
-                    {
-                        ""color_ramp"":
+                        if (_resetViewpoint == true)
                         {
-                        ""ramps"":
-                        [
-                            {""to_color"":[0,255,0],""from_color"":[0,191,191],""num_colors"":3932,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""},
-                            {""to_color"":[255,255,0],""from_color"":[0,255,0],""num_colors"":3932,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""},
-                            {""to_color"":[255,127,0],""from_color"":[255,255,0],""num_colors"":3932,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""},
-                            {""to_color"":[191,127,63],""from_color"":[255,127,0],""num_colors"":3932,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""},
-                            {""to_color"":[20,20,20],""from_color"":[191,127,63],""num_colors"":3935,""type"":""Algorithmic_color_ramp"",""algorithmic_type"":""hsv""}
-                        ],
-                        ""type"":""Multipart_color_ramp""
-                        },
-                        ""type"":""Raster_function_variable""
-                    },
-                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
-                    ""type"":""Raster_function_arguments""
-                    },
-                    ""type"":""Raster_function_template""}");
+                            await myMapView.SetViewpointAsync(new Viewpoint(rasterLayer.FullExtent));
+                            _resetViewpoint = false;
+                        }
 
-                var maskFunction = RasterFunction.FromJson(@"{
-                    ""raster_function"":{""type"":""Mask_function""},
-                    ""raster_function_arguments"":
-                    {
-                    ""nodata_values"":{""double_array"":[" + s102DataPackage.noDataValue + @"],""type"":""Raster_function_variable""},
-                    ""nodata_interpretation"":{""nodata_interpretation"":""all"",""type"":""Raster_function_variable""},
-                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
-                    ""type"":""Raster_function_arguments""
-                    },
-                    ""type"":""Raster_function_template""}");
+                        _syncContext?.Post(new SendOrPostCallback(o =>
+                        {
+                            labelStatus.Content = labelStatus.Content.ToString()?.Replace(" Now rendering file ..", "");
+                            progressBar.Value = 0;
+                        }), null);
 
+                        BackgroundWorker bgw = new();
+                        bgw.DoWork += delegate
+                        {
+                            Task.Delay(5000).Wait();
+                        };
+                        bgw.RunWorkerCompleted += delegate
+                        {
+                            _syncContext?.Post(new SendOrPostCallback((o) =>
+                            {
+                                labelStatus.Content = "";
+                            }), "");
+                        };
+                        bgw.RunWorkerAsync();
+                    }
+                    catch (Exception) { }
+                });
 
-                var rasterFunctions = RasterFunction.FromJson(@"
-                    {
-                    ""raster_function"":{""type"":""Clip_function""},
-                    ""raster_function_arguments"":
-                    {
-                    ""minx"":{""double"":" + s102DataPackage.minX + @", ""type"":""Raster_function_variable""},
-                    ""miny"":{""double"":" + s102DataPackage.minY + @",""type"":""Raster_function_variable""},
-                    ""maxx"":{""double"":" + s102DataPackage.maxX + @",""type"":""Raster_function_variable""},
-                    ""maxy"":{""double"":" + s102DataPackage.maxY + @",""type"":""Raster_function_variable""},
-                    ""dx"":{""double"":" + s102DataPackage.dX + @",""type"":""Raster_function_variable""},
-                    ""dy"":{""double"":" + s102DataPackage.dY + @",""type"":""Raster_function_variable""},
-                    ""raster"":{""name"":""raster"",""is_raster"":true,""type"":""Raster_function_variable""},
-                    ""type"":""Raster_function_arguments""
-                    },
-                    ""type"":""Raster_function_template""
-}
+                myMapView?.Map?.OperationalLayers.Add(rasterLayer);
+                await rasterLayer.LoadAsync();
 
-                    ");
-
-                //var raster = new Raster()
-                //var rasterLayer = new RasterLayer(raster);
-
-
-
+                await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent);
             }
         }
 

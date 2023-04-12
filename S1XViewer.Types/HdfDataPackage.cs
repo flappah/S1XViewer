@@ -5,6 +5,7 @@ namespace S1XViewer.Types
 {
     public class HdfDataPackage : S1xxDataPackage, IHdfDataPackage
     {
+
         public Hdf5Element? RawHdfData { get; set; }
     }
 }

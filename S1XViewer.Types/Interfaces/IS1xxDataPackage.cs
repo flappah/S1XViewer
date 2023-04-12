@@ -4,6 +4,7 @@ namespace S1XViewer.Types.Interfaces
 {
     public interface IS1xxDataPackage
     {
+        public string FileName { get; set; }
         S1xxTypes Type { get; set; }
         IMetaFeature[] MetaFeatures { get; set; }
         IInformationFeature[] InformationFeatures { get; set; }

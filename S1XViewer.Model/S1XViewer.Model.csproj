@@ -9,6 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.5.0" />
     <PackageReference Include="Esri.ArcGISRuntime" Version="200.0.0" />
+    <PackageReference Include="GDAL" Version="3.6.3" />
+    <PackageReference Include="GDAL.Native" Version="3.6.3" />
     <PackageReference Include="HDF5-CSharp" Version="1.17.0" />
   </ItemGroup>
 

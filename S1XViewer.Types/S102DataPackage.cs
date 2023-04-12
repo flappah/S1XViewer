@@ -13,6 +13,7 @@ namespace S1XViewer.Types
         public double noDataValue { get; set; }
         public int numPointsX { get; set; }
         public int numPointsY { get; set; }
-        public float[,] data { get; set; } = new float[0, 0];
+        public float[,] Data { get; set; } = new float[0, 0];
+        public string TiffFileName { get; set; } = string.Empty;
     }
 }
