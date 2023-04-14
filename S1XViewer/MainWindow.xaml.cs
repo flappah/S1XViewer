@@ -1231,27 +1231,27 @@ namespace S1XViewer
         {
             if (dataPackage is S102DataPackage s102DataPackage)
             {
-                var clipJsonString = "{\"raster_function\":{\"type\":\"Clip_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"minx\":{\"double\":" + s102DataPackage.minX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"miny\":{\"double\":" + s102DataPackage.minY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxx\":{\"double\":" + s102DataPackage.maxX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxy\":{\"double\":" + s102DataPackage.maxY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dx\":{\"double\":" + s102DataPackage.dX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dy\":{\"double\":" + s102DataPackage.dY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
-                //var nodataJsonString = "{\"raster_function\":{\"type\":\"Mask_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"nodata_values\":{\"double_array\":[" + s102DataPackage.noDataValue.ToString().Replace(",", ".") + "],\"type\":\"Raster_function_variable\"},\r\n    \"nodata_interpretation\":{\"nodata_interpretation\":\"all\",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
+                //var clipJsonString = "{\"raster_function\":{\"type\":\"Clip_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"minx\":{\"double\":" + s102DataPackage.minX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"miny\":{\"double\":" + s102DataPackage.minY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxx\":{\"double\":" + s102DataPackage.maxX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxy\":{\"double\":" + s102DataPackage.maxY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dx\":{\"double\":" + s102DataPackage.dX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dy\":{\"double\":" + s102DataPackage.dY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
+                var nodataJsonString = "{\"raster_function\":{\"type\":\"Mask_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"nodata_values\":{\"double_array\":[" + s102DataPackage.noDataValue.ToString().Replace(",", ".") + "],\"type\":\"Raster_function_variable\"},\r\n    \"nodata_interpretation\":{\"nodata_interpretation\":\"all\",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
 
-                var clipRasterFunction = RasterFunction.FromJson(clipJsonString);
-                var arguments = clipRasterFunction?.Arguments;
+                var nodataRasterFunction = RasterFunction.FromJson(nodataJsonString);
+                var arguments = nodataRasterFunction?.Arguments;
                 var rasterNames = arguments.GetRasterNames();
 
                 var raster = new Raster(s102DataPackage.TiffFileName);
                 arguments.SetRaster(rasterNames[0], raster);
 
-                var clipRaster = new Raster(clipRasterFunction);
-                var rasterLayer = new RasterLayer(clipRaster);
+                var nodataRaster = new Raster(nodataRasterFunction);
+                var rasterLayer = new RasterLayer(nodataRaster);
 
-                IEnumerable<Color> colors = new int[250]
-                    .Select((c, i) => i < 150 ? Color.Red : Color.Yellow);
+                //IEnumerable<Color> colors = new int[250]
+                //    .Select((c, i) => i < 150 ? Color.Red : Color.Yellow);
 
-                // Create a colormap renderer.
-                ColormapRenderer colormapRenderer = new ColormapRenderer(colors);
+                //// Create a colormap renderer.
+                //ColormapRenderer colormapRenderer = new ColormapRenderer(colors);
 
-                // Set the colormap renderer on the raster layer.
-                rasterLayer.Renderer = colormapRenderer;
+                //// Set the colormap renderer on the raster layer.
+                //rasterLayer.Renderer = colormapRenderer;
 
                 rasterLayer.Loaded += (s, e) => Dispatcher.Invoke(async () =>
                 {

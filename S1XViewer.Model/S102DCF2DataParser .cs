@@ -63,14 +63,14 @@ namespace S1XViewer.Model
 
                     var mapWidth = dataPackage.maxX - dataPackage.minX;
                     var mapHeight = dataPackage.maxY - dataPackage.minY;
-                    double[] geoTransform = new double[] { dataPackage.minX, mapWidth / dataPackage.dX, 0, dataPackage.minY, (mapHeight / dataPackage.dY) *(-1) };
+                    double[] geoTransform = new double[] { dataPackage.minX, mapWidth / dataPackage.numPointsX, 0, dataPackage.maxY, 0, (mapHeight / dataPackage.numPointsY) * (-1) };
 
                     outImageDs.SetGeoTransform(geoTransform);
 
                     Band outBand = outImageDs.GetRasterBand(1);
                     var outData = new float[dataPackage.numPointsY * dataPackage.numPointsX];
                     int i = 0;
-                    for (int yIdx = 0; yIdx < dataPackage.numPointsY - 1; yIdx++)
+                    for (int yIdx = dataPackage.numPointsY - 1; yIdx >= 0; yIdx--)
                     {
                         for (int xIdx = 0; xIdx < dataPackage.numPointsX; xIdx++)
                         {
@@ -124,6 +124,7 @@ namespace S1XViewer.Model
 
             var dataPackage = new S102DataPackage
             {
+                Id = Guid.NewGuid(),
                 FileName = hdf5FileName,
                 Type = S1xxTypes.S102,
                 RawHdfData = null
@@ -235,53 +236,53 @@ namespace S1XViewer.Model
 
                         CreateTiff(dataPackage);
 
-                        for (int yIdx = 0; yIdx < numPointsLatitude; yIdx++)
-                        {
-                            for (int xIdx = 0; xIdx < (numPointsLongitude * 2); xIdx += 2)
-                            {
-                                // build up featutes ard wrap 'em in datapackage
-                                float depth = depthsAndUncertainties[yIdx, xIdx];
-                                float uncertainty = depthsAndUncertainties[yIdx, xIdx + 1];
+                        //for (int yIdx = 0; yIdx < numPointsLatitude; yIdx++)
+                        //{
+                        //    for (int xIdx = 0; xIdx < (numPointsLongitude * 2); xIdx += 2)
+                        //    {
+                        //        // build up featutes ard wrap 'em in datapackage
+                        //        float depth = depthsAndUncertainties[yIdx, xIdx];
+                        //        float uncertainty = depthsAndUncertainties[yIdx, xIdx + 1];
 
-                                if (depth != nillValueDepth)
-                                {
-                                    double longitude = gridOriginLongitude + (((double)xIdx / 2.0) * gridSpacingLongitudinal);
-                                    double latitude = gridOriginLatitude + ((double)yIdx * gridSpacingLatitudinal);
+                        //        if (depth != nillValueDepth)
+                        //        {
+                        //            double longitude = gridOriginLongitude + (((double)xIdx / 2.0) * gridSpacingLongitudinal);
+                        //            double latitude = gridOriginLatitude + ((double)yIdx * gridSpacingLatitudinal);
 
-                                    var longitudes = new double[5];
-                                    var latitudes = new double[5];
-                                    longitudes[0] = longitude;
-                                    latitudes[0] = latitude;
+                        //            var longitudes = new double[5];
+                        //            var latitudes = new double[5];
+                        //            longitudes[0] = longitude;
+                        //            latitudes[0] = latitude;
 
-                                    longitudes[1] = longitude;
-                                    latitudes[1] = latitude + gridSpacingLatitudinal;
+                        //            longitudes[1] = longitude;
+                        //            latitudes[1] = latitude + gridSpacingLatitudinal;
 
-                                    longitudes[2] = longitude + gridSpacingLongitudinal;
-                                    latitudes[2] = latitude + gridSpacingLatitudinal;
+                        //            longitudes[2] = longitude + gridSpacingLongitudinal;
+                        //            latitudes[2] = latitude + gridSpacingLatitudinal;
 
-                                    longitudes[3] = longitude + gridSpacingLongitudinal;
-                                    latitudes[3] = latitude;
+                        //            longitudes[3] = longitude + gridSpacingLongitudinal;
+                        //            latitudes[3] = latitude;
 
-                                    longitudes[4] = longitude;
-                                    latitudes[4] = latitude;
+                        //            longitudes[4] = longitude;
+                        //            latitudes[4] = latitude;
 
-                                    var geometry =
-                                        _geometryBuilderFactory.Create("Polygon", longitudes, latitudes, depth, (int)horizontalCRS);
+                        //            var geometry =
+                        //                _geometryBuilderFactory.Create("Polygon", longitudes, latitudes, depth, (int)horizontalCRS);
 
-                                    var sounding = new Sounding
-                                    {
-                                        Id = $"Sid_{xIdx}_{yIdx}",
-                                        FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"Sid_{xIdx}_{yIdx}", } },
-                                        Value = depth,
-                                        Geometry = geometry
-                                    };
+                        //            var sounding = new Sounding
+                        //            {
+                        //                Id = $"{dataPackage.Id}_{xIdx}_{yIdx}",
+                        //                FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"X{xIdx}_Y{yIdx}", } },
+                        //                Value = depth,
+                        //                Geometry = geometry
+                        //            };
 
-                                    geoFeatures.Add(sounding);
-                                }
-                            }
+                        //            geoFeatures.Add(sounding);
+                        //        }
+                        //    }
 
-                            Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)yIdx));
-                        }
+                        //    Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)yIdx));
+                        //}
 
                         dataPackage.RawHdfData = hdf5S102Root;
                         if (geoFeatures.Count > 0)

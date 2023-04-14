@@ -5,6 +5,7 @@ namespace S1XViewer.Types
 {
     public class S1xxDataPackage : IS1xxDataPackage
     {
+        public Guid Id { get; set; }
         public string FileName { get; set; }
         public S1xxTypes Type { get; set; }
         public IMetaFeature[] MetaFeatures { get; set; }

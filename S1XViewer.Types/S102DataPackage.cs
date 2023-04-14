@@ -15,5 +15,10 @@ namespace S1XViewer.Types
         public int numPointsY { get; set; }
         public float[,] Data { get; set; } = new float[0, 0];
         public string TiffFileName { get; set; } = string.Empty;
+
+        public S102DataPackage()
+        {
+            Id = Guid.NewGuid();
+        }
     }
 }
