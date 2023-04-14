@@ -1287,9 +1287,9 @@ namespace S1XViewer
                 });
 
                 myMapView?.Map?.OperationalLayers.Add(rasterLayer);
-                await rasterLayer.LoadAsync();
+                await rasterLayer.LoadAsync().ConfigureAwait(true);
 
-                await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15);
+                await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15).ConfigureAwait(false);
             }
         }
 
