@@ -1,6 +1,8 @@
-﻿using HDF5CSharp.DataTypes;
+﻿using Esri.ArcGISRuntime.Geometry;
+using HDF5CSharp.DataTypes;
 using Microsoft.Isam.Esent.Interop;
 using OSGeo.GDAL;
+using OSGeo.OSR;
 using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
@@ -53,12 +55,22 @@ namespace S1XViewer.Model
                     File.Delete(tiffFileName);
                 }
 
-                using (Dataset outImage = Gdal.GetDriverByName("GTiff").Create(tiffFileName, dataPackage.numPointsX, dataPackage.numPointsY, 1, DataType.GDT_Float32, null))
+                using (Dataset outImageDs = Gdal.GetDriverByName("GTiff").Create(tiffFileName, dataPackage.numPointsX, dataPackage.numPointsY, 1, DataType.GDT_Float32, null))
                 {
-                    Band outBand = outImage.GetRasterBand(1);
+                    string wktProj;
+                    Osr.GetWellKnownGeogCSAsWKT("WGS84", out wktProj);
+                    outImageDs.SetProjection(wktProj);
+
+                    var mapWidth = dataPackage.maxX - dataPackage.minX;
+                    var mapHeight = dataPackage.maxY - dataPackage.minY;
+                    double[] geoTransform = new double[] { dataPackage.minX, mapWidth / dataPackage.dX, 0, dataPackage.minY, (mapHeight / dataPackage.dY) *(-1) };
+
+                    outImageDs.SetGeoTransform(geoTransform);
+
+                    Band outBand = outImageDs.GetRasterBand(1);
                     var outData = new float[dataPackage.numPointsY * dataPackage.numPointsX];
                     int i = 0;
-                    for (int yIdx = dataPackage.numPointsY - 1; yIdx >= 0; yIdx--)
+                    for (int yIdx = 0; yIdx < dataPackage.numPointsY - 1; yIdx++)
                     {
                         for (int xIdx = 0; xIdx < dataPackage.numPointsX; xIdx++)
                         {
@@ -67,10 +79,11 @@ namespace S1XViewer.Model
                     }
 
                     outBand.WriteRaster(0, 0, dataPackage.numPointsX, dataPackage.numPointsY, outData, dataPackage.numPointsX, dataPackage.numPointsY, 0, 0);
+
                     outBand.FlushCache();
+                    outImageDs.FlushCache();
                     outBand.Dispose();
-                    outImage.FlushCache();
-                    outImage.Dispose();
+                    outImageDs.Dispose();
                 }
             }
             catch (Exception) { }
