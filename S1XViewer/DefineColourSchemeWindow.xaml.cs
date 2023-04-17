@@ -67,7 +67,7 @@ namespace S1XViewer
 
                 foreach (var item in dataGridColorSchemes.Items)
                 {
-                    if (item is ColorSchemeRangeItem colorSchemeRangeItem)
+                    if (item is ColorRampItem colorSchemeRangeItem)
                         colorSchemeRangeItem.WriteXml(xmlWriter);
                 }
 
@@ -127,20 +127,20 @@ namespace S1XViewer
         {
             if (dataGridColorSchemes.SelectedItems != null && dataGridColorSchemes.SelectedItems.Count > 0)
             {
-                var selectedItem = dataGridColorSchemes.SelectedItems[0] as ColorSchemeRangeItem;
+                var selectedItem = dataGridColorSchemes.SelectedItems[0] as ColorRampItem;
                 if (selectedItem != null)
                 {
-                    var copiedItems = new List<ColorSchemeRangeItem>();
-                    foreach (ColorSchemeRangeItem item in dataGridColorSchemes.Items)
+                    var copiedItems = new List<ColorRampItem>();
+                    foreach (ColorRampItem item in dataGridColorSchemes.Items)
                     {
                         copiedItems.Add(item);
                     }
                     dataGridColorSchemes.Items.Clear();
 
-                    var newItems = new List<ColorSchemeRangeItem>();
+                    var newItems = new List<ColorRampItem>();
                     int i = 0;
                     var selectedId = selectedItem.Id;
-                    foreach (ColorSchemeRangeItem item in copiedItems)
+                    foreach (ColorRampItem item in copiedItems)
                     {
                         if (item.Id == selectedId)
                         {
@@ -173,7 +173,7 @@ namespace S1XViewer
                                 newColor = item.Color;
                             }
 
-                            newItems.Add(new ColorSchemeRangeItem() { Id = i++, Max = newMax, MaxInclusive = newMaxInclusive, Min = newMin, MinInclusive = newMinInclusive, Color = newColor });
+                            newItems.Add(new ColorRampItem() { Id = i++, Max = newMax, MaxInclusive = newMaxInclusive, Min = newMin, MinInclusive = newMinInclusive, Color = newColor });
                         }
 
                         item.Id = i++;
@@ -190,9 +190,9 @@ namespace S1XViewer
             }
             else
             {
-                int highestId = dataGridColorSchemes.Items.Count == 0 ? -1 : ((ColorSchemeRangeItem)dataGridColorSchemes.Items[dataGridColorSchemes.Items.Count - 1]).Id;
-                var newColor = dataGridColorSchemes.Items.Count == 0 ? System.Windows.Media.Color.FromArgb(255, 255, 255, 255) : ((ColorSchemeRangeItem)dataGridColorSchemes.Items[dataGridColorSchemes.Items.Count - 1]).Color;
-                dataGridColorSchemes.Items.Add(new ColorSchemeRangeItem() { Id = highestId + 1, Color = newColor });
+                int highestId = dataGridColorSchemes.Items.Count == 0 ? -1 : ((ColorRampItem)dataGridColorSchemes.Items[dataGridColorSchemes.Items.Count - 1]).Id;
+                var newColor = dataGridColorSchemes.Items.Count == 0 ? System.Windows.Media.Color.FromArgb(255, 255, 255, 255) : ((ColorRampItem)dataGridColorSchemes.Items[dataGridColorSchemes.Items.Count - 1]).Color;
+                dataGridColorSchemes.Items.Add(new ColorRampItem() { Id = highestId + 1, Color = newColor });
             }
 
             _isChanged = true;
@@ -211,12 +211,12 @@ namespace S1XViewer
         {
             if (dataGridColorSchemes.SelectedItems != null && dataGridColorSchemes.SelectedItems.Count > 0)
             {
-                ColorSchemeRangeItem selectedRow = (ColorSchemeRangeItem)dataGridColorSchemes.SelectedItems[0];
+                ColorRampItem selectedRow = (ColorRampItem)dataGridColorSchemes.SelectedItems[0];
 
                 if (selectedRow != null)
                 {
                     int i = 0;
-                    foreach (ColorSchemeRangeItem item in dataGridColorSchemes.Items)
+                    foreach (ColorRampItem item in dataGridColorSchemes.Items)
                     {
                         if (item.Id == selectedRow.Id)
                         {
@@ -227,13 +227,13 @@ namespace S1XViewer
 
                     if (i > 0)
                     {
-                        ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i - 1]).Max = selectedRow.Max;
-                        ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i - 1]).MaxInclusive = selectedRow.MaxInclusive;
+                        ((ColorRampItem)dataGridColorSchemes.Items[i - 1]).Max = selectedRow.Max;
+                        ((ColorRampItem)dataGridColorSchemes.Items[i - 1]).MaxInclusive = selectedRow.MaxInclusive;
                     }
                     else
                     {
-                        ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i + 1]).Min = selectedRow.Min;
-                        ((ColorSchemeRangeItem)dataGridColorSchemes.Items[i - 1]).MinInclusive = selectedRow.MinInclusive;
+                        ((ColorRampItem)dataGridColorSchemes.Items[i + 1]).Min = selectedRow.Min;
+                        ((ColorRampItem)dataGridColorSchemes.Items[i - 1]).MinInclusive = selectedRow.MinInclusive;
                     }
                      
                     dataGridColorSchemes.Items.Remove(selectedRow);
@@ -283,10 +283,10 @@ namespace S1XViewer
                         //Items.Clear();
                         dataGridColorSchemes.Items.Clear();
 
-                        if (FeatureRendererManager.LoadColorScheme(selectedFileName, Standard) == true)
+                        if (FeatureRendererManager.LoadColorRamp(selectedFileName, Standard) == true)
                         {
                             int i = 0;
-                            foreach (ColorSchemeRangeItem colorSchemeItem in FeatureRendererManager.ColorScheme)
+                            foreach (ColorRampItem colorSchemeItem in FeatureRendererManager.ColorRamp)
                             {
                                 colorSchemeItem.Id = i++;
                                 dataGridColorSchemes.Items.Add(colorSchemeItem);

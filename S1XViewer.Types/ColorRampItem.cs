@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 
 namespace S1XViewer.Types
 {
-    public class ColorSchemeRangeItem : IXmlSerializable
+    public class ColorRampItem : IXmlSerializable
     {
         public int Id { get; set; }
         public System.Windows.Media.Color Color { get; set; } 
@@ -63,7 +63,7 @@ namespace S1XViewer.Types
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public ColorSchemeRangeItem Parse(XmlNode? node)
+        public ColorRampItem Parse(XmlNode? node)
         {
             if (node != null)
             {

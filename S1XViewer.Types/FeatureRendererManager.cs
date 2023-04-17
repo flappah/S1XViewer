@@ -1,5 +1,6 @@
 ﻿using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
+using Esri.ArcGISRuntime.Rasters;
 using Esri.ArcGISRuntime.Symbology;
 using S1XViewer.Base;
 using S1XViewer.Types.Interfaces;
@@ -13,7 +14,7 @@ namespace S1XViewer.Types
         private static Dictionary<string, FeatureCollectionTable> _featureCollectionTables = new Dictionary<string, FeatureCollectionTable>();
         private object _lockOnThis = new object();
 
-        public List<ColorSchemeRangeItem> ColorScheme { get; set; } = new List<ColorSchemeRangeItem>();
+        public List<ColorRampItem> ColorRamp { get; set; } = new List<ColorRampItem>();
 
         /// <summary>
         ///     Creates the renderer for features on the map
@@ -64,11 +65,11 @@ namespace S1XViewer.Types
         ///     Returns a list of colorschemes
         /// </summary>
         /// <returns></returns>
-        public string[] RetrieveColorSchemeNames()
+        public string[] RetrieveColorRampNames()
         {
             var fullPath = System.Reflection.Assembly.GetAssembly(GetType())?.Location;
             var directory = Path.GetDirectoryName(fullPath);
-            var files = Directory.GetFiles($@"{directory}\colorschemes");
+            var files = Directory.GetFiles($@"{directory}\colorramps");
             var flattenedFiles = files.Select(t => t.LastPart(@"\")).ToArray();
             Array.Sort(flattenedFiles);
             return flattenedFiles;
@@ -79,34 +80,63 @@ namespace S1XViewer.Types
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="standard"></param>
-        public bool LoadColorScheme(string fileName, string standard)
+        /// <returns></returns>
+        public Colormap? GetColormap(string fileName, string standard)
+        {
+            var colors = new System.Drawing.Color[256];
+            if (LoadColorRamp(fileName, standard))
+            {
+                for (int i = 0; i < 256; i++)
+                {
+                    foreach(var colorRampItem in ColorRamp)
+                    {
+                        if (colorRampItem.Between((double)i))
+                        {
+                            colors[i] = System.Drawing.Color.FromArgb(colorRampItem.Color.A, colorRampItem.Color.R, colorRampItem.Color.G, colorRampItem.Color.B);
+                            break;
+                        }
+                    }
+                }
+
+                return Colormap.Create(colors); ;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="standard"></param>
+        public bool LoadColorRamp(string fileName, string standard)
         {
             var fullPath = System.Reflection.Assembly.GetAssembly(GetType())?.Location;
             var directory = Path.GetDirectoryName(fullPath);
 
-            if (File.Exists($@"{directory}\colorschemes\{fileName}") == false)
+            if (File.Exists($@"{directory}\colorramps\{fileName}") == false)
             {
                 return false;            
             }
             
             var xmlDocument = new XmlDocument();
-            xmlDocument.Load($@"{directory}\colorschemes\{fileName}");
+            xmlDocument.Load($@"{directory}\colorramps\{fileName}");
 
             XmlNodeList? ranges = xmlDocument.DocumentElement?.SelectNodes($"ColorScheme[@type='{standard}']/Range");
             if (ranges != null && ranges.Count > 0)
             {
-                ColorScheme = new List<ColorSchemeRangeItem>();
+                ColorRamp = new List<ColorRampItem>();
                 foreach (XmlNode range in ranges)
                 {
-                    var item = new ColorSchemeRangeItem();
+                    var item = new ColorRampItem();
                     item.Parse(range);
-                    ColorScheme.Add(item);
+                    ColorRamp.Add(item);
                 }
             }
             else
             {
                 // if there are no colorschemes add one black value
-                ColorScheme.Add(new ColorSchemeRangeItem { Color = System.Windows.Media.Colors.Black, Max = 15000.0, Min = -15000.0 });
+                ColorRamp.Add(new ColorRampItem { Color = System.Windows.Media.Colors.Black, Max = 15000.0, Min = -15000.0 });
             }
 
             return true;

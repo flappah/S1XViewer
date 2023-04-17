@@ -32,7 +32,7 @@ namespace S1XViewer.Types.Features
             if (Geometry is Polygon polygon)
             {
                 var color = Color.Black;
-                foreach(ColorSchemeRangeItem schemeItem in featureRendererManager.ColorScheme)
+                foreach(ColorRampItem schemeItem in featureRendererManager.ColorRamp)
                 {
                     if (schemeItem.Between(Value))
                     {

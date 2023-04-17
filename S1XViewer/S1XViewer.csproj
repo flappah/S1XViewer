@@ -74,10 +74,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="colorschemes\default.xml">
+    <None Update="colorramps\default.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="colorschemes\rainbow.xml">
+    <None Update="colorramps\rainbow.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="crs.csv">

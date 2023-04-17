@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
+using System.Windows.Media;
 using System.Xml;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
@@ -74,7 +75,7 @@ namespace S1XViewer
                     }
 
                     var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
-                    var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
+                    var colorSchemeNames = featureRendererManager.RetrieveColorRampNames();
                     var optionsStorage = _container.Resolve<IOptionsStorage>();
 
                     string colorSchemeSelection = optionsStorage.Retrieve("ColorSchemeSelection") ?? string.Empty;
@@ -546,7 +547,7 @@ namespace S1XViewer
             try
             {
                 var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
-                var colorSchemeNames = featureRendererManager.RetrieveColorSchemeNames();
+                var colorSchemeNames = featureRendererManager.RetrieveColorRampNames();
 
                 var colorSchemesForm = new DefineColourSchemeWindow();
                 colorSchemesForm.Owner = Application.Current.MainWindow;
@@ -620,6 +621,13 @@ namespace S1XViewer
                             {
                                 datasetExtents.Add(table.Extent);
                             }
+                        }
+                    }
+                    else if (layer is RasterLayer rasterLayer)
+                    {
+                        if (rasterLayer.FullExtent != null)
+                        {
+                            datasetExtents.Add(rasterLayer.FullExtent);
                         }
                     }
                 }
@@ -1231,6 +1239,8 @@ namespace S1XViewer
         {
             if (dataPackage is S102DataPackage s102DataPackage)
             {
+                var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
+
                 //var clipJsonString = "{\"raster_function\":{\"type\":\"Clip_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"minx\":{\"double\":" + s102DataPackage.minX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"miny\":{\"double\":" + s102DataPackage.minY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxx\":{\"double\":" + s102DataPackage.maxX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxy\":{\"double\":" + s102DataPackage.maxY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dx\":{\"double\":" + s102DataPackage.dX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dy\":{\"double\":" + s102DataPackage.dY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
                 var nodataJsonString = "{\"raster_function\":{\"type\":\"Mask_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"nodata_values\":{\"double_array\":[" + s102DataPackage.noDataValue.ToString().Replace(",", ".") + "],\"type\":\"Raster_function_variable\"},\r\n    \"nodata_interpretation\":{\"nodata_interpretation\":\"all\",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
 
@@ -1243,6 +1253,9 @@ namespace S1XViewer
 
                 var nodataRaster = new Raster(nodataRasterFunction);
                 var rasterLayer = new RasterLayer(nodataRaster);
+
+                Colormap? colormap = featureRendererManager.GetColormap(comboboxColorSchemes.Text, dataPackage.Type.ToString());
+                rasterLayer.Renderer = new ColormapRenderer(colormap);
 
                 //IEnumerable<Color> colors = new int[250]
                 //    .Select((c, i) => i < 150 ? Color.Red : Color.Yellow);
@@ -1353,7 +1366,7 @@ namespace S1XViewer
             featureRendererManager.Clear();
 
             var colorSchemeName = String.IsNullOrEmpty(comboboxColorSchemes.Text) ? "default.xml" : comboboxColorSchemes.Text;
-            featureRendererManager.LoadColorScheme(colorSchemeName, dataPackage.Type.ToString().LastPart("."));
+            featureRendererManager.LoadColorRamp(colorSchemeName, dataPackage.Type.ToString().LastPart("."));
 
             var polygonsTable = featureRendererManager.Create("PolygonFeatures", polyFields, GeometryType.Polygon, horizontalCRS);
             var linesTable = featureRendererManager.Create("LineFeatures", lineFields, GeometryType.Polyline, horizontalCRS);
