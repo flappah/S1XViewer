@@ -15,6 +15,7 @@
     <RepositoryUrl>https://github.com/flappah/S1XViewer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>S1xx IHO viewer</PackageTags>
+    <StartupObject>S1XViewer.App</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -87,6 +88,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="temp\" />
   </ItemGroup>
 
 </Project>

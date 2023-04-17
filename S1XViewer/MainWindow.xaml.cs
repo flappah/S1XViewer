@@ -824,7 +824,7 @@ namespace S1XViewer
 
                 while (myMapView?.Map?.OperationalLayers.Count > 0)
                 {
-                    myMapView.Map.OperationalLayers.RemoveAt(0);
+                    myMapView?.Map?.OperationalLayers.RemoveAt(0);
                 }
 
                 myMapView?.Map?.OperationalLayers.Clear();
@@ -1248,61 +1248,75 @@ namespace S1XViewer
                 var arguments = nodataRasterFunction?.Arguments;
                 var rasterNames = arguments.GetRasterNames();
 
-                var raster = new Raster(s102DataPackage.TiffFileName);
-                arguments.SetRaster(rasterNames[0], raster);
-
-                var nodataRaster = new Raster(nodataRasterFunction);
-                var rasterLayer = new RasterLayer(nodataRaster);
-
-                Colormap? colormap = featureRendererManager.GetColormap(comboboxColorSchemes.Text, dataPackage.Type.ToString());
-                rasterLayer.Renderer = new ColormapRenderer(colormap);
-
-                //IEnumerable<Color> colors = new int[250]
-                //    .Select((c, i) => i < 150 ? Color.Red : Color.Yellow);
-
-                //// Create a colormap renderer.
-                //ColormapRenderer colormapRenderer = new ColormapRenderer(colors);
-
-                //// Set the colormap renderer on the raster layer.
-                //rasterLayer.Renderer = colormapRenderer;
-
-                rasterLayer.Loaded += (s, e) => Dispatcher.Invoke(async () =>
+                try
                 {
-                    try
+                    var raster = new Raster(s102DataPackage.TiffFileName);
+                    arguments.SetRaster(rasterNames[0], raster);
+
+                    var nodataRaster = new Raster(nodataRasterFunction);
+                    var rasterLayer = new RasterLayer(nodataRaster);
+
+                    Colormap? colormap = featureRendererManager.GetColormap(comboboxColorSchemes.Text, dataPackage.Type.ToString());
+                    rasterLayer.Renderer = new ColormapRenderer(colormap);
+
+                    //IEnumerable<Color> colors = new int[250]
+                    //    .Select((c, i) => i < 150 ? Color.Red : Color.Yellow);
+
+                    //// Create a colormap renderer.
+                    //ColormapRenderer colormapRenderer = new ColormapRenderer(colors);
+
+                    //// Set the colormap renderer on the raster layer.
+                    //rasterLayer.Renderer = colormapRenderer;
+
+                    rasterLayer.Loaded += (s, e) => Dispatcher.Invoke(async () =>
                     {
-                        if (_resetViewpoint == true)
+                        try
                         {
-                            await myMapView.SetViewpointAsync(new Viewpoint(rasterLayer.FullExtent));
-                            _resetViewpoint = false;
-                        }
-
-                        _syncContext?.Post(new SendOrPostCallback(o =>
-                        {
-                            labelStatus.Content = labelStatus.Content.ToString()?.Replace(" Now rendering file ..", "");
-                            progressBar.Value = 0;
-                        }), null);
-
-                        BackgroundWorker bgw = new();
-                        bgw.DoWork += delegate
-                        {
-                            Task.Delay(5000).Wait();
-                        };
-                        bgw.RunWorkerCompleted += delegate
-                        {
-                            _syncContext?.Post(new SendOrPostCallback((o) =>
+                            if (_resetViewpoint == true)
                             {
-                                labelStatus.Content = "";
-                            }), "");
-                        };
-                        bgw.RunWorkerAsync();
-                    }
-                    catch (Exception) { }
-                });
+                                await myMapView.SetViewpointAsync(new Viewpoint(rasterLayer.FullExtent));
+                                _resetViewpoint = false;
+                            }
 
-                myMapView?.Map?.OperationalLayers.Add(rasterLayer);
-                await rasterLayer.LoadAsync().ConfigureAwait(true);
+                            _syncContext?.Post(new SendOrPostCallback(o =>
+                            {
+                                labelStatus.Content = labelStatus.Content.ToString()?.Replace(" Now rendering file ..", "");
+                                progressBar.Value = 0;
+                            }), null);
 
-                await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15).ConfigureAwait(false);
+                            BackgroundWorker bgw = new();
+                            bgw.DoWork += delegate
+                            {
+                                Task.Delay(5000).Wait();
+                            };
+                            bgw.RunWorkerCompleted += delegate
+                            {
+                                _syncContext?.Post(new SendOrPostCallback((o) =>
+                                {
+                                    labelStatus.Content = "";
+                                }), "");
+                            };
+                            bgw.RunWorkerAsync();
+                        }
+                        catch (Exception) { }
+                    });
+
+                    myMapView?.Map?.OperationalLayers.Add(rasterLayer);
+                    await rasterLayer.LoadAsync().ConfigureAwait(true);
+
+                    await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15).ConfigureAwait(false);
+                }
+                catch(Exception ex)
+                {
+                    _syncContext?.Post(new SendOrPostCallback((o) =>
+                    {
+                        labelStatus.Content = "";
+                        progressBar.Value = 0;
+
+                    }), "");
+
+                    MessageBox.Show($"Can't read file {s102DataPackage.TiffFileName}.\n{ex.Message}\n{ex.StackTrace}");
+                }
             }
         }
 

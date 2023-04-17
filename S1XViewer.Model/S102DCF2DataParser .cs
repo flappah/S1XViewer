@@ -1,6 +1,4 @@
-﻿using Esri.ArcGISRuntime.Geometry;
-using HDF5CSharp.DataTypes;
-using Microsoft.Isam.Esent.Interop;
+﻿using HDF5CSharp.DataTypes;
 using OSGeo.GDAL;
 using OSGeo.OSR;
 using S1XViewer.Base;
@@ -8,10 +6,9 @@ using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Types;
-using S1XViewer.Types.ComplexTypes;
-using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
-using System.Data.Common;
+using System.Security.Principal;
+using System.Windows;
 using System.Xml;
 
 namespace S1XViewer.Model
@@ -43,19 +40,38 @@ namespace S1XViewer.Model
         /// <param name="dataPackage"></param>
         private void CreateTiff(S102DataPackage dataPackage)
         {
-            var tempPath = Path.GetTempPath();            
+            var tempPath = Path.GetTempPath();
             GdalConfiguration.ConfigureGdal();
 
             string tiffFileName = $"{tempPath}{dataPackage.FileName.LastPart(@"\")}.tif";
 
-            try
+            var directoryInfo = new DirectoryInfo(tempPath);
+            var directorySecurity = directoryInfo.GetAccessControl();
+
+            directorySecurity.SetOwner(WindowsIdentity.GetCurrent().User);
+            directoryInfo.SetAccessControl(directorySecurity);
+            directoryInfo.Attributes = FileAttributes.Normal;
+
+            if (File.Exists(tiffFileName) == true)
             {
-                if (File.Exists(tiffFileName) == true)
+                var fileInfo = new FileInfo(tiffFileName);
+                var fileSecurity = fileInfo.GetAccessControl();
+
+                fileSecurity.SetOwner(WindowsIdentity.GetCurrent().User);
+                fileInfo.SetAccessControl(fileSecurity);
+                fileInfo.IsReadOnly = false;
+                try
                 {
                     File.Delete(tiffFileName);
                 }
+                catch (Exception) { }
+            }
 
-                using (Dataset outImageDs = Gdal.GetDriverByName("GTiff").Create(tiffFileName, dataPackage.numPointsX, dataPackage.numPointsY, 1, DataType.GDT_Float32, null))
+            string line = "";
+            try
+            {
+                Driver driver = Gdal.GetDriverByName("GTiff");
+                using (Dataset outImageDs = driver.Create(tiffFileName, dataPackage.numPointsX, dataPackage.numPointsY, 1, DataType.GDT_Float32, null))
                 {
                     string wktProj;
                     Osr.GetWellKnownGeogCSAsWKT("WGS84", out wktProj);
@@ -84,9 +100,22 @@ namespace S1XViewer.Model
                     outImageDs.FlushCache();
                     outBand.Dispose();
                     outImageDs.Dispose();
+
+                    File.SetAttributes(tiffFileName, FileAttributes.Normal);
                 }
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                var exception = ex;
+                var errorText = string.Empty;
+                while (exception != null)
+                {
+                    errorText += $"\n{exception.Source}\n{exception.Message}\n{exception.StackTrace}";
+                    exception = exception.InnerException; 
+                }
+
+                MessageBox.Show($"({line}) Can't write file {tiffFileName}.{errorText}");
+            }
             finally
             {
                 dataPackage.TiffFileName = tiffFileName;
