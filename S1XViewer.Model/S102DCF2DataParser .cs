@@ -43,7 +43,7 @@ namespace S1XViewer.Model
             var tempPath = Path.GetTempPath();
             GdalConfiguration.ConfigureGdal();
 
-            string tiffFileName = $"{tempPath}{dataPackage.FileName.LastPart(@"\")}.tif";
+            string tiffFileName = $"{tempPath}s1xv_{Guid.NewGuid()}.tif";
 
             var directoryInfo = new DirectoryInfo(tempPath);
             var directorySecurity = directoryInfo.GetAccessControl();
@@ -59,7 +59,8 @@ namespace S1XViewer.Model
 
                 fileSecurity.SetOwner(WindowsIdentity.GetCurrent().User);
                 fileInfo.SetAccessControl(fileSecurity);
-                fileInfo.IsReadOnly = false;
+                fileInfo.IsReadOnly = false;                
+
                 try
                 {
                     File.Delete(tiffFileName);

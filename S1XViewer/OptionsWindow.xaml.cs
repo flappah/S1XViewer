@@ -142,7 +142,7 @@ namespace S1XViewer
         /// </summary>
         private void RestoreOptions()
         {
-            if (_optionsStorage != null && _optionsStorage.Count > 0)
+            if (_optionsStorage != null)
             {
                 _syncContext.Post(o =>
                 {

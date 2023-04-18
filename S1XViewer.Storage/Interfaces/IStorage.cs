@@ -1,14 +1,7 @@
 ﻿namespace S1XViewer.Storage.Interfaces
 {
     public interface IStorage
-    {
-        /// <summary>
-        ///     Returns the number of items in the persistent storage
-        /// </summary>
-        int Count
-        {
-            get;
-        }
+    {       
 
         /// <summary>
         ///     Stores the given key, value to the persistent data store

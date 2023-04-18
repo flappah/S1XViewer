@@ -3,13 +3,13 @@ using S1XViewer.Storage.Interfaces;
 
 namespace S1XViewer.Storage
 {
-    public class RecentFilesStorage : StorageBase, IRecentFilesStorage
+    public class StateStorage : StorageBase, IStateStorage
     {
         /// <summary>
         /// 
         /// </summary>
-        public RecentFilesStorage()
-        {            
+        public StateStorage()
+        {           
         }
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace S1XViewer.Storage
         /// <returns></returns>
         public override bool Store(string key, string value)
         {
-            using (var persistentDictionary = new PersistentDictionary<string, string>(System.IO.Path.GetTempPath() + @"\S1XViewer\RecentFilesStorage"))
+            using (var persistentDictionary = new PersistentDictionary<string, string>(System.IO.Path.GetTempPath() + @"\S1XViewer\StateStorage"))
             {
                 if (persistentDictionary.ContainsKey(key))
                 {
@@ -39,7 +39,7 @@ namespace S1XViewer.Storage
         /// <returns>tuple containing both the status and the result</returns>
         public override string Retrieve(string key)
         {
-            using (var persistentDictionary = new PersistentDictionary<string, string>(System.IO.Path.GetTempPath() + @"\S1XViewer\RecentFilesStorage"))
+            using (var persistentDictionary = new PersistentDictionary<string, string>(System.IO.Path.GetTempPath() + @"\S1XViewer\StateStorage"))
             {
                 if (persistentDictionary.ContainsKey(key))
                 {

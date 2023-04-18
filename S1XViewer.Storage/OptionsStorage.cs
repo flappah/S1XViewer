@@ -11,10 +11,6 @@ namespace S1XViewer.Storage
         /// </summary>
         public OptionsStorage()
         {
-            if (_persistentDictionary == null)
-            {
-                _persistentDictionary = new PersistentDictionary<string, string>(System.IO.Path.GetTempPath() + @"\S1XViewer\OptionsStorage");
-            }
         }
 
         /// <summary>
@@ -25,13 +21,16 @@ namespace S1XViewer.Storage
         /// <returns></returns>
         public override bool Store(string key, string value)
         {
-            if (_persistentDictionary.ContainsKey(key))
+            using (var persistentDictionary = new PersistentDictionary<string, string>(System.IO.Path.GetTempPath() + @"\S1XViewer\OptionsStorage"))
             {
-                _persistentDictionary.Remove(key);
-            }
+                if (persistentDictionary.ContainsKey(key))
+                {
+                    persistentDictionary.Remove(key);
+                }
 
-            _persistentDictionary.Add(key, value);
-            return true;
+                persistentDictionary.Add(key, value);
+                return true;
+            }
         }
 
         /// <summary>
@@ -41,12 +40,15 @@ namespace S1XViewer.Storage
         /// <returns>tuple containing both the status and the result</returns>
         public override string Retrieve(string key)
         {
-            if (_persistentDictionary.ContainsKey(key))
+            using (var persistentDictionary = new PersistentDictionary<string, string>(System.IO.Path.GetTempPath() + @"\S1XViewer\OptionsStorage"))
             {
-                return _persistentDictionary[key];
-            }
+                if (persistentDictionary.ContainsKey(key))
+                {
+                    return persistentDictionary[key];
+                }
 
-            return "";
+                return "";
+            }
         }
     }
 }

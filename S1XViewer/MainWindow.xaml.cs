@@ -6,10 +6,12 @@ using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Rasters;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
+using HDF5CSharp;
 using Microsoft.Win32;
 using S1XViewer.Base;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
@@ -17,16 +19,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
-using System.Windows.Media;
 using System.Xml;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
@@ -139,6 +141,34 @@ namespace S1XViewer
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             _uiInitializing = false;
+
+            var stateStorage = _container.Resolve<IStateStorage>();
+            if (stateStorage != null)
+            {
+                var leftString = stateStorage.Retrieve("WindowPositionLeft");
+                if (double.TryParse(leftString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double left))
+                {
+                    this.Left = left;
+                }
+
+                var topString = stateStorage.Retrieve("WindowPositionTop");
+                if (double.TryParse(topString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double top))
+                {
+                    this.Top = top;
+                }
+
+                var widthString = stateStorage.Retrieve("WindowWidth");
+                if (double.TryParse(widthString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double width))
+                {
+                    this.Width = width;
+                }
+
+                var heightString = stateStorage.Retrieve("WindowHeight");
+                if (double.TryParse(heightString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double height))
+                {
+                    this.Height = height;
+                }
+            }
         }
 
         /// <summary>
@@ -148,6 +178,15 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void MainWindow_Closing(object? sender, CancelEventArgs e)
         {
+            var stateStorage = _container.Resolve<IStateStorage>();
+            if (stateStorage != null)
+            {
+                stateStorage.Store("WindowPositionLeft", this.Left.ToString(new CultureInfo("en-US")));
+                stateStorage.Store("WindowPositionTop", this.Top.ToString(new CultureInfo("en-US")));
+                stateStorage.Store("WindowHeight", this.Height.ToString(new CultureInfo("en-US")));
+                stateStorage.Store("WindowWidth", this.Width.ToString(new CultureInfo("en-US")));
+            }
+
             if (_disposing == false)
             {
                 var featureRendererFactory = _container.Resolve<IFeatureRendererManager>();
@@ -1259,15 +1298,6 @@ namespace S1XViewer
                     Colormap? colormap = featureRendererManager.GetColormap(comboboxColorSchemes.Text, dataPackage.Type.ToString());
                     rasterLayer.Renderer = new ColormapRenderer(colormap);
 
-                    //IEnumerable<Color> colors = new int[250]
-                    //    .Select((c, i) => i < 150 ? Color.Red : Color.Yellow);
-
-                    //// Create a colormap renderer.
-                    //ColormapRenderer colormapRenderer = new ColormapRenderer(colors);
-
-                    //// Set the colormap renderer on the raster layer.
-                    //rasterLayer.Renderer = colormapRenderer;
-
                     rasterLayer.Loaded += (s, e) => Dispatcher.Invoke(async () =>
                     {
                         try
@@ -1305,6 +1335,9 @@ namespace S1XViewer
                     await rasterLayer.LoadAsync().ConfigureAwait(true);
 
                     await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15).ConfigureAwait(false);
+
+                    nodataRaster = null;
+                    raster = null;
                 }
                 catch(Exception ex)
                 {

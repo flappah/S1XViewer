@@ -10,9 +10,9 @@
     <PackageReference Include="Autofac" Version="6.5.0" />
     <PackageReference Include="GDAL" Version="3.6.3" />
     <PackageReference Include="GDAL.Native" Version="3.6.3" />
-    <PackageReference Include="Microsoft.Database.Collections.Generic" Version="2.0.3" />
-    <PackageReference Include="Microsoft.Database.Isam" Version="2.0.3" />
-    <PackageReference Include="Microsoft.Database.ManagedEsent" Version="2.0.3" />
+    <PackageReference Include="Microsoft.Database.Collections.Generic" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Database.Isam" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Database.ManagedEsent" Version="2.0.4" />
   </ItemGroup>
 
   <ItemGroup>
