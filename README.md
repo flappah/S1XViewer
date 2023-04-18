@@ -30,3 +30,8 @@ Next are three S111 screenshots. The first is a datacoding format = 2 file, the 
 Finally there's an S102 screenshot. It's a datacoding format = 2 sample.
 
 ![s102_dcf2_sample](https://user-images.githubusercontent.com/14106566/226903436-92f05742-029d-455f-b6b8-089a72434b53.png)
+
+The viewer currently has limited support for multiple layers. It does however support simultaneously viewing multiple S102 files on top of an S57 ENC. The following screenshot show just that.
+
+![NLHO_S102_over_ENC](https://user-images.githubusercontent.com/14106566/232773044-0fb0e829-9919-4d0b-86c0-290aeb9d7d88.png)
+
