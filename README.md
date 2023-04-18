@@ -1,5 +1,5 @@
 # S1XViewer
-A viewer for Windows .NET 6.0 for viewing S1xx files, currently supporting S102 (DCF2), S111 (DCF2, DCF3, DCF8), S122, S123, S127 and S128 GML formats. Support for S102, S104 and S111 (DCF1, DCF4) is in development. This S1XViewer supersedes the [S1xxViewer](https://github.com/flappah/s1xxviewer). 
+A viewer for Windows .NET 6.0 for viewing S1xx files, currently supporting S102 (DCF2), S111 (DCF2, DCF3, DCF8), S122, S123 and S128 GML formats. Support for S102, S104 and S111 (DCF1, DCF4) is in development. This S1XViewer supersedes the [S1xxViewer](https://github.com/flappah/s1xxviewer). 
 
 The viewer has different parsers and renderers for IHO's S102 (DCF2), S111 (DCF2, DCF3, DCF8), S122, S123, S127 and S128 GML files. For presentation it uses the ESRI ArcGIS Runtime and currently is using the developer license only.
 
