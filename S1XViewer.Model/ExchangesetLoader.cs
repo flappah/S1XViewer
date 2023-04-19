@@ -63,7 +63,7 @@ namespace S1XViewer.Model
                 foreach (XmlNode node in datasetDicoveryNodes)
                 {
                     XmlNode metaDataNode;
-                    if (node.FirstChild.Name.Contains("DatasetDiscoveryMetadata"))
+                    if (node.FirstChild?.Name.Contains("DatasetDiscoveryMetadata") == true)
                     {
                         metaDataNode = node.FirstChild;
                     }
@@ -76,7 +76,7 @@ namespace S1XViewer.Model
                     var fileNameNode = metaDataNode.SelectSingleNode("S100XC:fileName", nsmgr);
                     if (fileNameNode != null)
                     {
-                        fileName = fileNameNode.InnerText;
+                        fileName = fileNameNode.InnerText.Replace("file:/", "");
                     }
 
                     string productFileName;
