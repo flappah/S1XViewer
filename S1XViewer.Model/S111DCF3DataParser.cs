@@ -132,7 +132,7 @@ namespace S1XViewer.Model
                         var geoFeatures = new List<IGeoFeature>();
                         await Task.Run(() =>
                         {
-                            // build up featutes and wrap 'em in datapackage
+                            // build up features and wrap 'em in datapackage
                             for (int i = 0; i < surfaceCurrentInfos.Length; i++)
                             {
                                 var direction = surfaceCurrentInfos[i].direction;

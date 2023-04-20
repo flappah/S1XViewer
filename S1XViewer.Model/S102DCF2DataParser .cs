@@ -250,10 +250,10 @@ namespace S1XViewer.Model
                             return;
                         }
 
-                        float[,] depthsAndUncertainties =
+                        var depthsDataset =
                               _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude * 2);
 
-                        if (depthsAndUncertainties == null || depthsAndUncertainties.Length == 0)
+                        if (depthsDataset.members.Length == 0)
                         {
                             return;
                         }
@@ -273,7 +273,7 @@ namespace S1XViewer.Model
                         {
                             for (int xIdx = 0; xIdx < (numPointsLongitude * 2); xIdx += 2)
                             {
-                                dataPackage.Data[yIdx, (int)xIdx / 2] = depthsAndUncertainties[yIdx, xIdx];
+                                dataPackage.Data[yIdx, (int)xIdx / 2] = depthsDataset.values[yIdx, xIdx];
                             }
                         }
 

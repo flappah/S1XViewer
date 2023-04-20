@@ -10,6 +10,7 @@ using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
 using System.Globalization;
 using System.Xml;
+using Windows.Media.Capture;
 
 namespace S1XViewer.Model
 {
@@ -104,18 +105,24 @@ namespace S1XViewer.Model
 
             double nillValueSpeed = -9999.0;
             double nillValueDirection = -9999.0;
-            var featureMetaInfoElements = _datasetReader.Read<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
-            if (featureMetaInfoElements != null)
+            var featureMetaInfoElements = _datasetReader.ReadCompound<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
+            if (featureMetaInfoElements.members.Length > 0)
             {
-                foreach(SurfaceCurrentInformationInstance featureMetaInfoElement in featureMetaInfoElements)
+                foreach (var featureMetainfoElementValue in  featureMetaInfoElements.values) 
                 {
-                    if (featureMetaInfoElement.code == "surfaceCurrentSpeed")
+                    if (featureMetainfoElementValue.code.Equals("surfaceCurrentSpeed"))
                     {
-                        double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueSpeed);
+                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedFillValue))
+                        {
+                            nillValueSpeed = speedFillValue;
+                        }
                     }
-                    else if (featureMetaInfoElement.code == "surfaceCurrentDirection")
+                    else if (featureMetainfoElementValue.code.Equals("surfaceCurrentDirection") || featureMetainfoElementValue.code.Equals("sufaceCurrentDirection"))
                     {
-                        double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueDirection);
+                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedDirectionValue))
+                        {
+                            nillValueDirection += speedDirectionValue;
+                        }
                     }
                 }
             }
@@ -158,10 +165,10 @@ namespace S1XViewer.Model
                         return;
                     }
 
-                    float[,] speedAndDirectionValues =
+                    var currentDataset =
                           _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude * 2);
 
-                    if (speedAndDirectionValues == null || speedAndDirectionValues.Length == 0)
+                    if (currentDataset.members.Length == 0)
                     {
                         return;
                     }
@@ -171,8 +178,18 @@ namespace S1XViewer.Model
                         for (int lonIdx = 0; lonIdx < (numPointsLongitude * 2); lonIdx += 2)
                         {
                             // build up featutes ard wrap 'em in datapackage
-                            float speed = speedAndDirectionValues[latIdx, lonIdx];
-                            float direction = speedAndDirectionValues[latIdx, lonIdx + 1];
+                            float speed;
+                            float direction;
+                            if (currentDataset.members[0].Equals("surfaceCurrentDirection"))
+                            {
+                                direction = currentDataset.values[latIdx, lonIdx];
+                                speed = currentDataset.values[latIdx, lonIdx + 1];
+                            }
+                            else
+                            {
+                                speed = currentDataset.values[latIdx, lonIdx];
+                                direction = currentDataset.values[latIdx, latIdx + 1];
+                            }
 
                             if (speed != nillValueSpeed && direction != nillValueDirection)
                             {
@@ -279,18 +296,24 @@ namespace S1XViewer.Model
 
             double nillValueSpeed = -9999.0;
             double nillValueDirection = -9999.0;
-            var featureMetaInfoElements = _datasetReader.Read<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
-            if (featureMetaInfoElements != null)
+            var featureMetaInfoElements = _datasetReader.ReadCompound<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
+            if (featureMetaInfoElements.members.Length > 0)
             {
-                foreach (SurfaceCurrentInformationInstance featureMetaInfoElement in featureMetaInfoElements)
+                foreach (var featureMetainfoElementValue in featureMetaInfoElements.values)
                 {
-                    if (featureMetaInfoElement.code == "surfaceCurrentSpeed")
+                    if (featureMetainfoElementValue.code.Equals("surfaceCurrentSpeed"))
                     {
-                        double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueSpeed);
+                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedFillValue))
+                        {
+                            nillValueSpeed = speedFillValue;
+                        }
                     }
-                    else if (featureMetaInfoElement.code == "surfaceCurrentDirection")
+                    else if (featureMetainfoElementValue.code.Equals("surfaceCurrentDirection") || featureMetainfoElementValue.code.Equals("sufaceCurrentDirection"))
                     {
-                        double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueDirection);
+                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedDirectionValue))
+                        {
+                            nillValueDirection += speedDirectionValue;
+                        }
                     }
                 }
             }
@@ -326,10 +349,10 @@ namespace S1XViewer.Model
                     return dataPackage;
                 }
 
-                float[,] speedAndDirectionValues =
+                var currentDataset =
                       _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude * 2);
 
-                if (speedAndDirectionValues == null || speedAndDirectionValues.Length == 0)
+                if (currentDataset.members.Length == 0)
                 {
                     return dataPackage;
                 }
@@ -339,8 +362,18 @@ namespace S1XViewer.Model
                     for (int lonIdx = 0; lonIdx < numPointsLongitude; lonIdx += 2)
                     {
                         // build up featutes ard wrap 'em in datapackage
-                        float speed = speedAndDirectionValues[latIdx, lonIdx];
-                        float direction = speedAndDirectionValues[latIdx, lonIdx + 1];
+                        float speed;
+                        float direction;
+                        if (currentDataset.members[0].Equals("surfaceCurrentDirection"))
+                        {
+                            direction = currentDataset.values[latIdx, lonIdx];
+                            speed = currentDataset.values[latIdx, lonIdx + 1];
+                        }
+                        else
+                        {
+                            speed = currentDataset.values[latIdx, lonIdx];
+                            direction = currentDataset.values[latIdx, latIdx + 1];
+                        }
 
                         if (speed != nillValueSpeed && direction != nillValueDirection)
                         {
