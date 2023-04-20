@@ -714,7 +714,14 @@ namespace S1XViewer
                         var xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
                         xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
 
-                        var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='{filename}']", xmlNSMgr);
+                        var producerCodeNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata/S100XC:producerCode", xmlNSMgr);
+                        var producerCode = string.Empty;
+                        if (producerCodeNode != null)
+                        {
+                            producerCode = producerCodeNode.InnerText.PadRight(4, char.Parse("0"));
+                        }
+
+                        var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file:/{producerCode}/{filename}']", xmlNSMgr);
                         if (datasetDiscoveryMetadataNode != null && datasetDiscoveryMetadataNode.ChildNodes.Count > 0)
                         {
                             DateTime beginTime = DateTime.Now;
@@ -904,9 +911,9 @@ namespace S1XViewer
                     }), p); 
                 });
 
+                // if there's no selected timeframe, retrieve timeframe from HDF5 file and ask user to select a valid date
                 if (selectedDateTime == null)
                 {
-                    // if there's no selected timeframe, retrieve timeframe from HDF5 file and ask user to select a valid date
                     (DateTime start, DateTime end) timeframePresentInFile = await productSupport.RetrieveTimeFrameFromHdfDatasetAsync(fileName);
 
                     if (timeframePresentInFile.start != DateTime.MinValue &&

@@ -1,4 +1,5 @@
-﻿using S1XViewer.Base.Interfaces;
+﻿using S1XViewer.Base;
+using S1XViewer.Base.Interfaces;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Types;
 using System.Collections.Generic;
@@ -76,7 +77,7 @@ namespace S1XViewer.Model
                     var fileNameNode = metaDataNode.SelectSingleNode("S100XC:fileName", nsmgr);
                     if (fileNameNode != null)
                     {
-                        fileName = fileNameNode.InnerText.Replace("file:/", "");
+                        fileName = fileNameNode.InnerText.Replace("file:/", "").LastPart("/");
                     }
 
                     string productFileName;
@@ -90,7 +91,7 @@ namespace S1XViewer.Model
                         var producerCodeNode = metaDataNode.SelectSingleNode("S100XC:producerCode", nsmgr);
                         if (producerCodeNode != null)
                         {
-                            productFileName = $@"DATASET_FILES\{producerCodeNode.InnerText.PadRight(4, char.Parse("0"))}\{fileName}";
+                            productFileName = $@"{productStandard}\DATASET_FILES\{producerCodeNode.InnerText.PadRight(4, char.Parse("0"))}\{fileName}";
                         }
                         else
                         {
