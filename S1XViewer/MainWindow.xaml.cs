@@ -917,7 +917,7 @@ namespace S1XViewer
                 });
 
                 // if there's no selected timeframe, retrieve timeframe from HDF5 file and ask user to select a valid date
-                if (selectedDateTime == null)
+                if (selectedDateTime == null && $"{productStandard}/{dataCodingFormat}".In("S111/4") == false)
                 {
                     (DateTime start, DateTime end) timeframePresentInFile = await productSupport.RetrieveTimeFrameFromHdfDatasetAsync(fileName);
 
