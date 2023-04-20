@@ -3,6 +3,7 @@ using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
@@ -18,6 +19,7 @@ namespace S1XViewer.Model
 
         private readonly IDatasetReader _datasetReader;
         private readonly IGeometryBuilderFactory _geometryBuilderFactory;
+        private readonly IOptionsStorage _optionsStorage;
 
         /// <summary>
         ///     Empty constructor used for injection purposes
@@ -25,11 +27,13 @@ namespace S1XViewer.Model
         /// <param name="datasetReader"></param>
         /// <param name="geometryBuilderFactory"></param>
         /// <param name="productSupport"></param>
-        public S111DCF3DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport)
+        /// <param name="optionsStorage"<
+        public S111DCF3DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport, IOptionsStorage optionsStorage)
         {
             _datasetReader = datasetReader;
             _geometryBuilderFactory = geometryBuilderFactory;
             _productSupport = productSupport;
+            _optionsStorage = optionsStorage;
         }
 
         /// <summary>
@@ -64,6 +68,15 @@ namespace S1XViewer.Model
                 Type = S1xxTypes.S111,
                 RawHdfData = null
             };
+
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            {
+                invertLatLon = false;
+            }
+            string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
+            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.DefaultCRS = defaultCRSString;
 
             Progress?.Invoke(50);
 

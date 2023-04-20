@@ -692,7 +692,7 @@ namespace S1XViewer
             var exchangeSetLoader = _container.Resolve<IExchangesetLoader>();
             var xmlDocument = exchangeSetLoader.Load(fullFileName);
             (var productStandard, var productFileNames) = exchangeSetLoader.Parse(xmlDocument);
-
+             
             string selectedFilename = string.Empty;
             productStandard = productStandard?.Replace("-", "").ToUpper() ?? string.Empty;
             if (productStandard.In("S102", "S104", "S111") == true)

@@ -1,8 +1,6 @@
 ﻿using Esri.ArcGISRuntime.Geometry;
 using S1XViewer.Base;
 using S1XViewer.Model.Interfaces;
-using S1XViewer.Storage.Interfaces;
-using System;
 using System.Globalization;
 using System.Xml;
 
@@ -13,10 +11,8 @@ namespace S1XViewer.Model.Geometry
         /// <summary>
         ///     For injection purposes
         /// </summary>
-        /// <param name="optionsStorage"></param>
-        public EnvelopeBuilder(IOptionsStorage optionsStorage)
+        public EnvelopeBuilder()
         {
-            _optionsStorage = optionsStorage;
         }
 
         /// <summary>
@@ -38,22 +34,15 @@ namespace S1XViewer.Model.Geometry
                 throw new ArgumentNullException(nameof(y));
             }
 
-            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
-            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
-            {
-                invertLatLon = false;
-            }
-
             if (srs != -1)
             {
                 _spatialReferenceSystem = srs;
             }
             else
             {
-                string defaultCRS = _optionsStorage.Retrieve("comboBoxCRS");
-                if (string.IsNullOrEmpty(defaultCRS) == false)
+                if (string.IsNullOrEmpty(DefaultCRS) == false)
                 {
-                    if (int.TryParse(defaultCRS, out int defaultCRSValue))
+                    if (int.TryParse(DefaultCRS, out int defaultCRSValue))
                     {
                         _spatialReferenceSystem = defaultCRSValue; // if no srsNode is found assume default reference systema
                     }
@@ -62,10 +51,14 @@ namespace S1XViewer.Model.Geometry
                         _spatialReferenceSystem = 4326; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
                     }
                 }
+                else
+                {
+                    _spatialReferenceSystem = 4326;// since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                }
             }
 
             Envelope createdEnvelope;
-            if (invertLatLon)
+            if (InvertLatLon)
             {
                 createdEnvelope =
                     new Envelope(y[0], x[0], y[1], x[1], SpatialReference.Create(_spatialReferenceSystem));
@@ -89,7 +82,6 @@ namespace S1XViewer.Model.Geometry
         /// <exception cref="ArgumentNullException"></exception>
         public override Esri.ArcGISRuntime.Geometry.Geometry FromPositions(double[] x, double[] y, double z, int srs = -1)
         {
-
             if (x is null || x.Length == 0)
             {
                 throw new ArgumentNullException(nameof(x));
@@ -101,11 +93,6 @@ namespace S1XViewer.Model.Geometry
             }
 
             var mappointList = new List<MapPoint>();
-            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
-            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
-            {
-                invertLatLon = false;
-            }
 
             if (srs != -1)
             {
@@ -113,10 +100,9 @@ namespace S1XViewer.Model.Geometry
             }
             else
             {
-                string defaultCRS = _optionsStorage.Retrieve("comboBoxCRS");
-                if (string.IsNullOrEmpty(defaultCRS) == false)
+                if (string.IsNullOrEmpty(DefaultCRS) == false)
                 {
-                    if (int.TryParse(defaultCRS, out int defaultCRSValue))
+                    if (int.TryParse(DefaultCRS, out int defaultCRSValue))
                     {
                         _spatialReferenceSystem = defaultCRSValue; // if no srsNode is found assume default reference systema
                     }
@@ -125,9 +111,13 @@ namespace S1XViewer.Model.Geometry
                         _spatialReferenceSystem = 4326; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
                     }
                 }
+                else
+                {
+                    _spatialReferenceSystem = 4326;// since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                }
             }
 
-            if (invertLatLon)
+            if (InvertLatLon)
             {
                 for (int i = 0; i < x.Length; i++)
                 {
@@ -151,33 +141,42 @@ namespace S1XViewer.Model.Geometry
         /// <param name="node">node containing a basic geometry</param>
         /// <param name="mgr">namespace manager</param>
         /// <returns>ESRI Arc GIS geometry</returns>
-        public override Esri.ArcGISRuntime.Geometry.Geometry FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override Esri.ArcGISRuntime.Geometry.Geometry? FromXml(XmlNode node, XmlNamespaceManager mgr)
         {
-            if (node != null && node.HasChildNodes)
+            if (node is null || node.HasChildNodes == false)
             {
-                XmlNode srsNode = null;
-                if (node?.Attributes?.Count > 0 && node.Attributes.Contains("srsName") == true)
-                {
-                    srsNode = node;
-                }
-                else if (node?.FirstChild?.Attributes?.Count > 0 && node.FirstChild.Attributes.Contains("srsName") == true)
-                {
-                    srsNode = node.FirstChild;
-                }
+                throw new ArgumentNullException(nameof(node));
+            }
 
-                if (srsNode != null)
-                {
-                    if (!int.TryParse(srsNode.Attributes.Find("srsName")?.Value.ToString().LastPart(char.Parse(":")), out int refSystem))
-                    {
-                        refSystem = 0;
-                    }
-                    _spatialReferenceSystem = refSystem;
-                }
+            if (mgr is null)
+            {
+                throw new ArgumentNullException(nameof(mgr));
+            }
 
-                if (_spatialReferenceSystem == 0)
+            XmlNode? srsNode = null;
+            if (node?.Attributes?.Count > 0 && node.Attributes.Contains("srsName") == true)
+            {
+                srsNode = node;
+            }
+            else if (node?.FirstChild?.Attributes?.Count > 0 && node.FirstChild.Attributes.Contains("srsName") == true)
+            {
+                srsNode = node.FirstChild;
+            }
+
+            if (srsNode != null)
+            {
+                if (!int.TryParse(srsNode.Attributes.Find("srsName")?.Value.ToString().LastPart(char.Parse(":")), out int refSystem))
                 {
-                    string defaultCRS = _optionsStorage.Retrieve("comboBoxCRS");
-                    if (int.TryParse(defaultCRS, out int defaultCRSValue))
+                    refSystem = 0;
+                }
+                _spatialReferenceSystem = refSystem;
+            }
+
+            if (_spatialReferenceSystem == 0)
+            {
+                if (string.IsNullOrEmpty(DefaultCRS) == false)
+                {
+                    if (int.TryParse(DefaultCRS, out int defaultCRSValue))
                     {
                         _spatialReferenceSystem = defaultCRSValue; // if no srsNode is found assume default reference systema
                     }
@@ -186,53 +185,51 @@ namespace S1XViewer.Model.Geometry
                         _spatialReferenceSystem = 4326; // since most S1xx standards assume WGS84 is default, use this is the uber default CRS
                     }
                 }
-
-                string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
-                if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+                else
                 {
-                    invertLatLon = false;
+                    _spatialReferenceSystem = 4326;// since most S1xx standards assume WGS84 is default, use this is the uber default CRS
+                }
+            }
+
+            if (node.ChildNodes[0].ChildNodes.Count == 2)
+            {
+                var lowerLeft = node.ChildNodes[0].ChildNodes[0].InnerText;
+                var upperRight = node.ChildNodes[0].ChildNodes[1].InnerText;
+
+                var llPos = lowerLeft.Replace(@"\t", " ").Replace(@"\n", " ").Split(new[] { " ", "," }, StringSplitOptions.RemoveEmptyEntries);
+                var urPos = upperRight.Replace(@"\t", " ").Replace(@"\n", " ").Split(new[] { " ", "," }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (!double.TryParse(llPos[0], NumberStyles.Float, new CultureInfo("en-US"), out double llX))
+                {
+                    llX = 0.0;
+                }
+                if (!double.TryParse(llPos[1], NumberStyles.Float, new CultureInfo("en-US"), out double llY))
+                {
+                    llY = 0.0;
                 }
 
-                if (node.ChildNodes[0].ChildNodes.Count == 2)
+                if (!double.TryParse(urPos[0], NumberStyles.Float, new CultureInfo("en-US"), out double urX))
                 {
-                    var lowerLeft = node.ChildNodes[0].ChildNodes[0].InnerText;
-                    var upperRight = node.ChildNodes[0].ChildNodes[1].InnerText;
-
-                    var llPos = lowerLeft.Replace(@"\t", " ").Replace(@"\n", " ").Split(new[] { " ", "," }, StringSplitOptions.RemoveEmptyEntries);
-                    var urPos = upperRight.Replace(@"\t", " ").Replace(@"\n", " ").Split(new[] { " ", "," }, StringSplitOptions.RemoveEmptyEntries);
-
-                    if (!double.TryParse(llPos[0], NumberStyles.Float, new CultureInfo("en-US"), out double llX))
-                    {
-                        llX = 0.0;
-                    }
-                    if (!double.TryParse(llPos[1], NumberStyles.Float, new CultureInfo("en-US"), out double llY))
-                    {
-                        llY = 0.0;
-                    }
-
-                    if (!double.TryParse(urPos[0], NumberStyles.Float, new CultureInfo("en-US"), out double urX))
-                    {
-                        urX = 0.0;
-                    }
-                    if (!double.TryParse(urPos[1], NumberStyles.Float, new CultureInfo("en-US"), out double urY))
-                    {
-                        urY = 0.0;
-                    }
-
-                    Esri.ArcGISRuntime.Geometry.Envelope createdEnvelope;
-                    if (invertLatLon)
-                    {
-                        createdEnvelope =
-                            new Esri.ArcGISRuntime.Geometry.Envelope(llY, llX, urY, urX, SpatialReference.Create(_spatialReferenceSystem));
-                    }
-                    else
-                    {
-                        createdEnvelope =
-                            new Esri.ArcGISRuntime.Geometry.Envelope(llX, llY, urX, urY, SpatialReference.Create(_spatialReferenceSystem));
-                    }
-
-                    return createdEnvelope;
+                    urX = 0.0;
                 }
+                if (!double.TryParse(urPos[1], NumberStyles.Float, new CultureInfo("en-US"), out double urY))
+                {
+                    urY = 0.0;
+                }
+
+                Esri.ArcGISRuntime.Geometry.Envelope createdEnvelope;
+                if (InvertLatLon)
+                {
+                    createdEnvelope =
+                        new Esri.ArcGISRuntime.Geometry.Envelope(llY, llX, urY, urX, SpatialReference.Create(_spatialReferenceSystem));
+                }
+                else
+                {
+                    createdEnvelope =
+                        new Esri.ArcGISRuntime.Geometry.Envelope(llX, llY, urX, urY, SpatialReference.Create(_spatialReferenceSystem));
+                }
+
+                return createdEnvelope;
             }
 
             return null;

@@ -3,6 +3,7 @@ using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
@@ -19,6 +20,7 @@ namespace S1XViewer.Model
 
         private readonly IDatasetReader _datasetReader;
         private readonly IGeometryBuilderFactory _geometryBuilderFactory;
+        private readonly IOptionsStorage _optionsStorage;
 
         /// <summary>
         ///     Empty constructor used for injection purposes
@@ -26,11 +28,13 @@ namespace S1XViewer.Model
         /// <param name="datasetReader"></param>
         /// <param name="geometryBuilderFactory"></param>
         /// <param name="productSupport"></param>
-        public S111DCF2DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport)
+        /// <param name="optionsStorage"></param>
+        public S111DCF2DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport, IOptionsStorage optionsStorage)
         {
             _datasetReader = datasetReader;
             _geometryBuilderFactory = geometryBuilderFactory;
             _productSupport = productSupport;
+            _optionsStorage = optionsStorage;
         }
 
         /// <summary>
@@ -65,6 +69,15 @@ namespace S1XViewer.Model
                 Type = S1xxTypes.S111,
                 RawHdfData = null
             };
+
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            {
+                invertLatLon = false;
+            }
+            string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
+            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.DefaultCRS = defaultCRSString;
 
             Progress?.Invoke(50);
 
@@ -247,6 +260,15 @@ namespace S1XViewer.Model
             var southBoundLatitude = southBoundLatitudeAttribute?.Value<double>(0f) ?? 0f;
             var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
             var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0f) ?? 0f;
+
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            {
+                invertLatLon = false;
+            }
+            string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
+            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.DefaultCRS = defaultCRSString;
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 

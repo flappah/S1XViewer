@@ -11,6 +11,6 @@ namespace S1XViewer.Types
         public IMetaFeature[] MetaFeatures { get; set; }
         public IInformationFeature[] InformationFeatures { get; set; }
         public IGeoFeature[] GeoFeatures { get; set; }
-        public Geometry BoundingBox { get; set; }
+        public Geometry? BoundingBox { get; set; }
     }
 }

@@ -7,6 +7,8 @@ namespace S1XViewer.Model.Geometry
     public class GeometryBuilderFactory : IGeometryBuilderFactory
     {
         public IGeometryBuilder[] Builders { get; set; }
+        public bool InvertLatLon { get; set; } = false;
+        public string DefaultCRS { get; set; } = string.Empty;
        
         /// <summary>
         ///     Creates an ESRI geometry based on the provided XML
@@ -14,7 +16,7 @@ namespace S1XViewer.Model.Geometry
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public Esri.ArcGISRuntime.Geometry.Geometry Create(XmlNode node, XmlNamespaceManager mgr)
+        public Esri.ArcGISRuntime.Geometry.Geometry? Create(XmlNode node, XmlNamespaceManager mgr)
         {
             string geometryTypeString;
 
@@ -32,6 +34,8 @@ namespace S1XViewer.Model.Geometry
 
             if (locatedBuilder != null)
             {
+                locatedBuilder.InvertLatLon = InvertLatLon;
+                locatedBuilder.DefaultCRS = DefaultCRS;
                 return locatedBuilder.FromXml(node, mgr);
             }
 
@@ -46,13 +50,15 @@ namespace S1XViewer.Model.Geometry
         /// <param name="y"></param>
         /// <param name="srs">horizontal crs</param>
         /// <returns></returns>
-        public Esri.ArcGISRuntime.Geometry.Geometry Create(string geometryTypeString, double[] x, double[] y, int srs = -1)
+        public Esri.ArcGISRuntime.Geometry.Geometry? Create(string geometryTypeString, double[] x, double[] y, int srs = -1)
         {
             var locatedBuilder =
                 Builders.ToList().Find(tp => tp.GetType().ToString().Contains($"{geometryTypeString}Builder"));
 
             if (locatedBuilder != null)
             {
+                locatedBuilder.InvertLatLon = InvertLatLon;
+                locatedBuilder.DefaultCRS = DefaultCRS;
                 return locatedBuilder.FromPositions(x, y, srs);
             }
 
@@ -68,13 +74,15 @@ namespace S1XViewer.Model.Geometry
         /// <param name="z"></param>
         /// <param name="srs"></param>
         /// <returns></returns>
-        public Esri.ArcGISRuntime.Geometry.Geometry Create(string geometryTypeString, double[] x, double[] y, double z, int srs = -1)
+        public Esri.ArcGISRuntime.Geometry.Geometry? Create(string geometryTypeString, double[] x, double[] y, double z, int srs = -1)
         {
             var locatedBuilder =
                  Builders.ToList().Find(tp => tp.GetType().ToString().Contains($"{geometryTypeString}Builder"));
 
             if (locatedBuilder != null)
             {
+                locatedBuilder.InvertLatLon = InvertLatLon;
+                locatedBuilder.DefaultCRS = DefaultCRS;
                 return locatedBuilder.FromPositions(x, y, z, srs);
             }
 

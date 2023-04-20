@@ -2,7 +2,9 @@
 using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
+using S1XViewer.Model.Geometry;
 using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
@@ -19,17 +21,21 @@ namespace S1XViewer.Model
 
         private readonly IDatasetReader _datasetReader;
         private readonly IGeometryBuilderFactory _geometryBuilderFactory;
+        private readonly IOptionsStorage _optionsStorage;
 
         /// <summary>
         ///     Empty constructor used for injection purposes
         /// </summary>
         /// <param name="datasetReader"></param>
         /// <param name="geometryBuilderFactory"></param>
-        public S111DCF8DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport)
+        /// <param name="productSupport"></param>
+        /// <param name="optionsStorage"></param>
+        public S111DCF8DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport, IOptionsStorage optionsStorage)
         {
             _datasetReader = datasetReader;
             _geometryBuilderFactory = geometryBuilderFactory;
             _productSupport = productSupport;
+            _optionsStorage = optionsStorage;
         }
 
         /// <summary>
@@ -65,6 +71,15 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            {
+                invertLatLon = false;
+            }
+            string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
+            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.DefaultCRS = defaultCRSString;
+
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
@@ -78,7 +93,7 @@ namespace S1XViewer.Model
             var southBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("southBoundLatitude");
             var southBoundLatitude = southBoundLatitudeAttribute?.Value<double>(0.0) ?? 0.0;
             var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
-            var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0.0) ?? 0.0;           
+            var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0.0) ?? 0.0;
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int) horizontalCRS);
 
@@ -112,7 +127,7 @@ namespace S1XViewer.Model
                         throw new Exception("Insufficient number of position values!");
                     }
 
-                    var geoFeatures = new List<IGeoFeature>();
+                    IGeoFeature[] geoFeatures = new IGeoFeature[numberOfStations];
                     await Task.Run(() =>
                     {
                         int stationNumber = 0;
@@ -168,17 +183,17 @@ namespace S1XViewer.Model
                                             Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
                                             Geometry = geometry
                                         };
-                                        geoFeatures.Add(currentNonGravitationalInstance);
+                                        geoFeatures[stationNumber] = currentNonGravitationalInstance;
                                     }
                                 }
 
                                 stationNumber++;
                             }
                         }
-                    }).ConfigureAwait(false);
+                    });
 
                     dataPackage.RawHdfData = hdf5S111Root;
-                    if (geoFeatures.Count > 0)
+                    if (geoFeatures.Length > 0)
                     {
                         dataPackage.GeoFeatures = geoFeatures.ToArray();
                         dataPackage.MetaFeatures = new IMetaFeature[0];

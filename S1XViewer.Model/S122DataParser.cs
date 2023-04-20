@@ -1,4 +1,5 @@
 ﻿using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
 using System.Xml;
@@ -12,14 +13,19 @@ namespace S1XViewer.Model
 
         private readonly IGeometryBuilderFactory _geometryBuilderFactory;
         private readonly IFeatureFactory _featureFactory;
+        private readonly IOptionsStorage _optionsStorage;
 
         /// <summary>
-        ///     For autofac initialization
+        ///     For autofac init
         /// </summary>
-        public S122DataParser(IGeometryBuilderFactory geometryBuilderFactory, IFeatureFactory featureFactory)
+        /// <param name="geometryBuilderFactory"></param>
+        /// <param name="featureFactory"></param>
+        /// <param name="optionsStorage"></param>
+        public S122DataParser(IGeometryBuilderFactory geometryBuilderFactory, IFeatureFactory featureFactory, IOptionsStorage optionsStorage)
         {
             _geometryBuilderFactory = geometryBuilderFactory;
             _featureFactory = featureFactory;
+            _optionsStorage = optionsStorage;
         }                
 
         /// <summary>
@@ -40,6 +46,15 @@ namespace S1XViewer.Model
             nsmgr.AddNamespace("S122", "http://www.iho.int/S122/gml/1.0");
             nsmgr.AddNamespace("s100", "http://www.iho.int/s100gml/1.0");
             nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
+
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            {
+                invertLatLon = false;
+            }
+            string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
+            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.DefaultCRS = defaultCRSString;
 
             // retrieve boundingbox
             var boundingBoxNodes = xmlDocument.GetElementsByTagName("gml:boundedBy");
