@@ -23,7 +23,7 @@ namespace S1XViewer.HDF
         /// <returns></returns>
         public IEnumerable<T> Read<T>(string fileName, string name)
         {
-            var fileId = Hdf5.OpenFile(fileName);
+            var fileId = Hdf5.OpenFile(fileName, true);
             if (fileId != -1)
             {
                 try

@@ -55,7 +55,7 @@ namespace S1XViewer.Model
             else
             {
                 var horizontalDatumValueAttribute = hdf5S111Root.Attributes.Find("horizontalDatumValue"); // S111 v1.1
-                var horizontalDatumValue = horizontalDatumValueAttribute?.Value<int>() ?? 0;
+                var horizontalDatumValue = horizontalDatumValueAttribute?.Value<Int32>() ?? 0;
 
                 if (horizontalDatumValue > 0)
                 {

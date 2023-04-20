@@ -6,12 +6,10 @@ using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Rasters;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
-using HDF5CSharp;
 using Microsoft.Win32;
 using S1XViewer.Base;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
-using S1XViewer.Storage;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
@@ -22,7 +20,6 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -390,7 +387,15 @@ namespace S1XViewer
                     string productStandard;
                     if (selectedFilename.Contains(@"\"))
                     {
-                        productStandard = selectedFilename.LastPart(@"\").Substring(0, 3);
+                        var fileName = selectedFilename.LastPart(@"\");
+                        if (fileName.Substring(0, 1) == "S")
+                        {
+                            productStandard = fileName.Substring(1, 3);
+                        }
+                        else
+                        {
+                            productStandard = fileName.Substring(0, 3);
+                        }
                     }
                     else
                     {

@@ -130,7 +130,6 @@ namespace S1XViewer.Model
             if (minGroup != null)
             {
                 var geoFeatures = new List<IGeoFeature>();
-
                 await Task.Run(() =>
                 {
                     //we've found the relevant group. Use this group to create features on by calculating its position

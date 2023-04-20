@@ -70,6 +70,14 @@ namespace S1XViewer.HDF
                         return (T)(object)floatValue;
                     }
                 }
+                else if (typeof(T).ToString().ToUpper().Contains("INT64") || typeof(T).ToString().ToUpper().Contains("LONG"))
+                {
+                    return (T)(object)Convert.ToInt64(value.ToString());
+                }
+                else if (typeof(T).ToString().ToUpper().Contains("INT32") || typeof(T).ToString().ToUpper().Contains("INT"))
+                {
+                    return (T)(object)Convert.ToInt32(value.ToString());
+                }
 
                 return (T)value;
             }
