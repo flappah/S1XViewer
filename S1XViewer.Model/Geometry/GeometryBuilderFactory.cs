@@ -7,7 +7,7 @@ namespace S1XViewer.Model.Geometry
     public class GeometryBuilderFactory : IGeometryBuilderFactory
     {
         public IGeometryBuilder[] Builders { get; set; }
-        public bool InvertLatLon { get; set; } = false;
+        public bool InvertLonLat { get; set; } = false;
         public string DefaultCRS { get; set; } = string.Empty;
        
         /// <summary>
@@ -34,7 +34,7 @@ namespace S1XViewer.Model.Geometry
 
             if (locatedBuilder != null)
             {
-                locatedBuilder.InvertLatLon = InvertLatLon;
+                locatedBuilder.InvertLonLat = InvertLonLat;
                 locatedBuilder.DefaultCRS = DefaultCRS;
                 return locatedBuilder.FromXml(node, mgr);
             }
@@ -57,7 +57,7 @@ namespace S1XViewer.Model.Geometry
 
             if (locatedBuilder != null)
             {
-                locatedBuilder.InvertLatLon = InvertLatLon;
+                locatedBuilder.InvertLonLat = InvertLonLat;
                 locatedBuilder.DefaultCRS = DefaultCRS;
                 return locatedBuilder.FromPositions(x, y, srs);
             }
@@ -81,7 +81,7 @@ namespace S1XViewer.Model.Geometry
 
             if (locatedBuilder != null)
             {
-                locatedBuilder.InvertLatLon = InvertLatLon;
+                locatedBuilder.InvertLonLat = InvertLonLat;
                 locatedBuilder.DefaultCRS = DefaultCRS;
                 return locatedBuilder.FromPositions(x, y, z, srs);
             }

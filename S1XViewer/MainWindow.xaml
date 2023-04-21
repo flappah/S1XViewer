@@ -9,8 +9,8 @@
         Title="IHO S1xx standard Viewer" 
         Height="1000" Width="1280" 
         Icon="/Paomedia-Small-N-Flat-Map.ico"
-        Closing="MainWindow_Closing"
-        Loaded="MainWindow_Loaded">
+        WindowStartupLocation="CenterOwner"        
+        Closing="MainWindow_Closing">
     
     <Window.Resources>
         <local:MapViewModel x:Key="MapViewModel" />

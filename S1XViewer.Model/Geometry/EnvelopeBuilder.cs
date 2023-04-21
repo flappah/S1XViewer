@@ -58,7 +58,7 @@ namespace S1XViewer.Model.Geometry
             }
 
             Envelope createdEnvelope;
-            if (InvertLatLon)
+            if (InvertLonLat)
             {
                 createdEnvelope =
                     new Envelope(y[0], x[0], y[1], x[1], SpatialReference.Create(_spatialReferenceSystem));
@@ -117,7 +117,7 @@ namespace S1XViewer.Model.Geometry
                 }
             }
 
-            if (InvertLatLon)
+            if (InvertLonLat)
             {
                 for (int i = 0; i < x.Length; i++)
                 {
@@ -218,7 +218,7 @@ namespace S1XViewer.Model.Geometry
                 }
 
                 Esri.ArcGISRuntime.Geometry.Envelope createdEnvelope;
-                if (InvertLatLon)
+                if (InvertLonLat)
                 {
                     createdEnvelope =
                         new Esri.ArcGISRuntime.Geometry.Envelope(llY, llX, urY, urX, SpatialReference.Create(_spatialReferenceSystem));

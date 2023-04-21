@@ -7,7 +7,7 @@ namespace S1XViewer.Model.Geometry
     {
         protected static int _spatialReferenceSystem;
 
-        public bool InvertLatLon { get; set; } = false;
+        public bool InvertLonLat { get; set; } = false;
         public string DefaultCRS { get; set; } = string.Empty;
 
         public abstract Esri.ArcGISRuntime.Geometry.Geometry? FromXml(XmlNode node, XmlNamespaceManager mgr);

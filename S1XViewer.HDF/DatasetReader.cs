@@ -38,6 +38,38 @@ namespace S1XViewer.HDF
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public IEnumerable<string> ReadStrings(string fileName, string name)
+        {
+            var mmf = MemoryMappedFile.CreateFromFile(fileName, FileMode.Open);
+            var accessor = mmf.CreateViewAccessor();
+            var file = H5File.Open(accessor);
+
+            if (file != null)
+            {
+                try
+                {
+                    var dataset = file.Dataset(name);
+                    var data = dataset.ReadString();
+                    return data == null ? new string[0] : data;
+                }
+                catch { }
+                finally
+                {
+                    accessor.Dispose();
+                    file.Dispose();
+                    mmf.Dispose();
+                }
+            }
+
+            return new string[0];
+        }
+
+        /// <summary>
         ///     to read 
         /// </summary>
         /// <param name="fileName"></param>
@@ -82,7 +114,6 @@ namespace S1XViewer.HDF
 
             return (new string[0], new T[0]);
         }
-
 
         /// <summary>
         ///     to read 

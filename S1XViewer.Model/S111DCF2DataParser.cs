@@ -71,19 +71,39 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
-            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
-            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            string invertLonLatString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
+            if (!bool.TryParse(invertLonLatString, out bool invertLonLat))
             {
-                invertLatLon = false;
+                invertLonLat = false;
+                dataPackage.InvertLonLat = invertLonLat;
             }
             string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
-            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.InvertLonLat = invertLonLat;
             _geometryBuilderFactory.DefaultCRS = defaultCRSString;
 
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
+
+            // retrieve relevant time-frame from SurfaceCurrents collection
+            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
+            if (featureElement == null)
+            {
+                return dataPackage;
+            }
+
+            // check position ordering lon/lat vs lat/lon
+            var axisNameElement = featureElement.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent/axisNames"));
+            if (axisNameElement != null)
+            {
+                var axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
+                if (axisNamesStrings != null && axisNamesStrings.Length == 2)
+                {
+                    invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                    dataPackage.InvertLonLat = invertLonLat;
+                }
+            }
 
             // retrieve boundingbox
             var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
@@ -103,10 +123,11 @@ namespace S1XViewer.Model
                 return dataPackage;
             }
 
+            // retrieve values for undefined datacells
             double nillValueSpeed = -9999.0;
             double nillValueDirection = -9999.0;
             var featureMetaInfoElements = _datasetReader.ReadCompound<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
-            if (featureMetaInfoElements.members.Length > 0)
+            if (featureMetaInfoElements.values.Length > 0)
             {
                 foreach (var featureMetainfoElementValue in  featureMetaInfoElements.values) 
                 {
@@ -127,12 +148,7 @@ namespace S1XViewer.Model
                 }
             }
 
-            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
-            if (featureElement == null)
-            {
-                return dataPackage;
-            }
-
+            // retrieve relevant data specified by datetime
             Hdf5Element? minGroup = _productSupport.FindGroupByDateTime(featureElement.Children, selectedDateTime);
             if (minGroup != null)
             {
@@ -277,13 +293,13 @@ namespace S1XViewer.Model
             var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
             var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0f) ?? 0f;
 
-            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
+            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
             if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
             {
                 invertLatLon = false;
             }
             string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
-            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.InvertLonLat = invertLatLon;
             _geometryBuilderFactory.DefaultCRS = defaultCRSString;
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);

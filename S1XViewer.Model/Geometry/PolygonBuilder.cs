@@ -73,7 +73,7 @@ namespace S1XViewer.Model.Geometry
                 }
             }
 
-            if (InvertLatLon)
+            if (InvertLonLat)
             {
                 for (int i = 0; i < x.Length; i++)
                 {
@@ -199,7 +199,7 @@ namespace S1XViewer.Model.Geometry
 
                                 for (int i = 0; i < latitudes.Length; i += 2)
                                 {
-                                    if (InvertLatLon)
+                                    if (InvertLonLat)
                                     {
                                         exteriorMapPoints.Add(new MapPoint(longitudes[i + 1], latitudes[i], spatialReferenceSystem));
                                     }
@@ -261,7 +261,7 @@ namespace S1XViewer.Model.Geometry
 
                                 for (int i = 0; i < latitudes.Length; i += 2)
                                 {
-                                    if (InvertLatLon)
+                                    if (InvertLonLat)
                                     {
                                         interiorMapPoints.Add(new MapPoint(longitudes[i + 1], latitudes[i], spatialReferenceSystem));
                                     }

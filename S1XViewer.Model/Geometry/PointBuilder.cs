@@ -58,7 +58,7 @@ namespace S1XViewer.Model.Geometry
                 }
             }
 
-            if (InvertLatLon)
+            if (InvertLonLat)
             {
                 return new MapPoint(y[0], x[0], SpatialReference.Create(_spatialReferenceSystem));
             }
@@ -111,7 +111,7 @@ namespace S1XViewer.Model.Geometry
                 }
             }
 
-            if (InvertLatLon)
+            if (InvertLonLat)
             {
                 return new MapPoint(y[0], x[0], z, SpatialReference.Create(_spatialReferenceSystem));
             }
@@ -192,7 +192,7 @@ namespace S1XViewer.Model.Geometry
                     y = 0.0;
                 }
 
-                if (InvertLatLon)
+                if (InvertLonLat)
                 {
                     return new MapPoint(y, x, SpatialReference.Create(_spatialReferenceSystem));
                 }

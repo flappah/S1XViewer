@@ -48,9 +48,47 @@ namespace S1XViewer
         /// </summary>
         public MainWindow()
         {
+            _container = AutofacInitializer.Initialize();
+            var stateStorage = _container.Resolve<IStateStorage>();
+            if (stateStorage != null)
+            {
+                var leftString = stateStorage.Retrieve("WindowPositionLeft");
+                if (double.TryParse(leftString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double left))
+                {
+                    if (left < System.Windows.SystemParameters.VirtualScreenLeft)
+                    {
+                        left = System.Windows.SystemParameters.VirtualScreenLeft;
+                    }
+
+                    this.Left = left;
+                }
+
+                var topString = stateStorage.Retrieve("WindowPositionTop");
+                if (double.TryParse(topString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double top))
+                {
+                    if (top < System.Windows.SystemParameters.VirtualScreenTop)
+                    {
+                        top = System.Windows.SystemParameters.VirtualScreenTop;
+                    }
+
+                    this.Top = top;
+                }
+
+                var widthString = stateStorage.Retrieve("WindowWidth");
+                if (double.TryParse(widthString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double width))
+                {
+                    this.Width = width;
+                }
+
+                var heightString = stateStorage.Retrieve("WindowHeight");
+                if (double.TryParse(heightString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double height))
+                {
+                    this.Height = height;
+                }
+            }
+
             InitializeComponent();
 
-            _container = AutofacInitializer.Initialize();
             _syncContext = SynchronizationContext.Current;
 
             this.Title += " v" + Assembly.GetExecutingAssembly().GetName()?.Version?.ToString() ?? "";
@@ -126,44 +164,6 @@ namespace S1XViewer
                     var optionsStorage = _container.Resolve<IOptionsStorage>();
                     var colorSchemeSelection = String.IsNullOrEmpty(selectedItem.Content?.ToString()) ? "default.xml" : selectedItem.Content?.ToString();
                     optionsStorage.Store("ColorSchemeSelection", colorSchemeSelection);
-                }
-            }
-        }
-
-        /// <summary>
-        ///  
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            _uiInitializing = false;
-
-            var stateStorage = _container.Resolve<IStateStorage>();
-            if (stateStorage != null)
-            {
-                var leftString = stateStorage.Retrieve("WindowPositionLeft");
-                if (double.TryParse(leftString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double left))
-                {
-                    this.Left = left;
-                }
-
-                var topString = stateStorage.Retrieve("WindowPositionTop");
-                if (double.TryParse(topString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double top))
-                {
-                    this.Top = top;
-                }
-
-                var widthString = stateStorage.Retrieve("WindowWidth");
-                if (double.TryParse(widthString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double width))
-                {
-                    this.Width = width;
-                }
-
-                var heightString = stateStorage.Retrieve("WindowHeight");
-                if (double.TryParse(heightString, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double height))
-                {
-                    this.Height = height;
                 }
             }
         }
@@ -310,7 +310,15 @@ namespace S1XViewer
                     string productStandard;
                     if (selectedFilename.Contains(@"\"))
                     {
-                        productStandard = selectedFilename.LastPart(@"\").Substring(0, 3);
+                        var fileName = selectedFilename.LastPart(@"\");
+                        if (fileName.Substring(0, 1) == "S")
+                        {
+                            productStandard = fileName.Substring(1, 3);
+                        }
+                        else
+                        {
+                            productStandard = fileName.Substring(0, 3);
+                        }
                     }
                     else
                     {

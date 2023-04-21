@@ -5,7 +5,7 @@ namespace S1XViewer.Model.Interfaces
     public interface IGeometryBuilderFactory
     {
         IGeometryBuilder[] Builders { get; set; }
-        bool InvertLatLon { get; set; }
+        bool InvertLonLat { get; set; }
         string DefaultCRS { get; set; }
 
         Esri.ArcGISRuntime.Geometry.Geometry? Create(XmlNode node, XmlNamespaceManager mgr);

@@ -44,13 +44,13 @@ namespace S1XViewer.Model
             nsmgr.AddNamespace("s100", "http://www.iho.int/s100gml/1.0");
             nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
 
-            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
-            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            string invertLonLatString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
+            if (!bool.TryParse(invertLonLatString, out bool invertLonLat))
             {
-                invertLatLon = false;
+                invertLonLat = false;
             }
             string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
-            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.InvertLonLat = invertLonLat;
             _geometryBuilderFactory.DefaultCRS = defaultCRSString;
 
             // retrieve boundingbox

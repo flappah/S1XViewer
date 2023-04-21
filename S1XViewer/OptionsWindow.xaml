@@ -25,7 +25,7 @@
                     </ItemsPanelTemplate>
                 </ComboBox.ItemsPanel>
             </ComboBox>
-            <CheckBox x:Name="checkBoxInvertLatLon" Content="Invert Lat/Lon positions during rendering" HorizontalAlignment="Left" Margin="25,90,0,0" VerticalAlignment="Top" Height="22" Width="527" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" IsEnabled="False"/>
+            <CheckBox x:Name="checkBoxInvertLonLat" Content="Invert Lon/Lat position ordering during rendering" HorizontalAlignment="Left" Margin="25,90,0,0" VerticalAlignment="Top" Height="22" Width="527" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked" IsEnabled="False"/>
             <ComboBox x:Name="comboBoxBasemap" HorizontalAlignment="Left" Margin="140,144,0,0" VerticalAlignment="Top" Width="432" SelectionChanged="comboBoxBasemap_SelectionChanged"/>
             <Label x:Name="label1" Content="Base map" HorizontalAlignment="Left" Margin="20,140,0,0" VerticalAlignment="Top"/>
             <Label x:Name="label2" Content="Restart application to have changes in effect!" HorizontalAlignment="Left" Margin="356,315,0,0" Width="212" FontSize="10" Height="23" VerticalAlignment="Top" Visibility="Hidden" />

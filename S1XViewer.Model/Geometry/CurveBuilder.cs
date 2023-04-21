@@ -119,7 +119,7 @@ namespace S1XViewer.Model.Geometry
                                     y = 0.0;
                                 }
 
-                                if (InvertLatLon)
+                                if (InvertLonLat)
                                 {
                                     curveMapPoints.Add(new MapPoint(y, x, SpatialReference.Create(_spatialReferenceSystem)));
                                 }

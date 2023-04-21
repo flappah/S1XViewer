@@ -40,7 +40,7 @@ namespace S1XViewer
                 RestoreOptions();
 
                 comboBoxCRS.IsEnabled = true;
-                checkBoxInvertLatLon.IsEnabled = true;
+                checkBoxInvertLonLat.IsEnabled = true;
             }
         }
 
@@ -147,7 +147,7 @@ namespace S1XViewer
                 _syncContext.Post(o =>
                 {
                     var optionsStorage = (IOptionsStorage)o;
-                    checkBoxInvertLatLon.IsChecked = _optionsStorage.Retrieve("checkBoxInvertLatLon") == "true";
+                    checkBoxInvertLonLat.IsChecked = _optionsStorage.Retrieve("checkBoxInvertLonLat") == "true";
 
                     string selectedcomboBoxCRS = _optionsStorage.Retrieve("comboBoxCRS");
                     comboBoxCRS.SelectedItem = selectedcomboBoxCRS;

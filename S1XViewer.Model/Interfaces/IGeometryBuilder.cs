@@ -4,7 +4,7 @@ namespace S1XViewer.Model.Interfaces
 {
     public interface IGeometryBuilder
     {
-        bool InvertLatLon { get; set; } 
+        bool InvertLonLat { get; set; } 
         string DefaultCRS { get; set; } 
 
         Esri.ArcGISRuntime.Geometry.Geometry? FromXml(XmlNode node, XmlNamespaceManager mgr);

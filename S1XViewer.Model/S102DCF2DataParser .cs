@@ -8,6 +8,7 @@ using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
+using System.Globalization;
 using System.Security.Principal;
 using System.Windows;
 using System.Xml;
@@ -164,13 +165,14 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
-            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
-            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            string invertLonLatString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
+            if (!bool.TryParse(invertLonLatString, out bool invertLonLat))
             {
-                invertLatLon = false;
+                invertLonLat = false;
+                dataPackage.InvertLonLat = invertLonLat;
             }
             string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
-            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.InvertLonLat = invertLonLat;
             _geometryBuilderFactory.DefaultCRS = defaultCRSString;
 
             Progress?.Invoke(50);
@@ -178,6 +180,24 @@ namespace S1XViewer.Model
             Hdf5Element hdf5S102Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S102Root, hdf5FileName);
 
+            Hdf5Element? featureElement = hdf5S102Root.Children.Find(elm => elm.Name.Equals("/BathymetryCoverage"));
+            if (featureElement == null)
+            {
+                return dataPackage;
+            }
+
+            // check position ordering lon/lat vs lat/lon
+            var axisNameElement = featureElement.Children.Find(elm => elm.Name.Equals("/BathymetryCoverage/axisNames"));
+            if (axisNameElement != null)
+            {
+                var axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
+                if (axisNamesStrings != null && axisNamesStrings.Length == 2)
+                {
+                    invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                    dataPackage.InvertLonLat = invertLonLat;
+                }
+            }
+            
             // retrieve boundingbox
             var eastBoundLongitudeAttribute = hdf5S102Root.Attributes.Find("eastBoundLongitude");
             var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<double>(0f) ?? 0.0;
@@ -190,30 +210,32 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
-            Hdf5Element? featureElement = hdf5S102Root.Children.Find(elm => elm.Name.Equals("/BathymetryCoverage"));
-            if (featureElement == null)
-            {
-                return dataPackage;
-            }
-
+            // retrieve values for undefined datacells
             double nillValueDepth = 1000000;
             double nillValueUncertainty = 1000000;
-            //var featureMetaInfoElements = _datasetReader.Read<BathymetryCoverageInformationInstance>(hdf5FileName, "/Group_F/BathymetryCoverage");
-            //if (featureMetaInfoElements != null)
-            //{
-            //    foreach (var featureMetaInfoElement in featureMetaInfoElements)
-            //    {
-            //        if (featureMetaInfoElement.code == "depth")
-            //        {
-            //            double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueDepth);
-            //        }
-            //        else if (featureMetaInfoElement.code == "uncertainty")
-            //        {
-            //            double.TryParse(featureMetaInfoElement.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out nillValueUncertainty);
-            //        }
-            //    }
-            //}
-            
+            var featureMetaInfoElements = _datasetReader.ReadCompound<BathymetryCoverageInformationInstance>(hdf5FileName, "/Group_F/BathymetryCoverage");
+            if (featureMetaInfoElements.values.Length > 0)
+            {
+                foreach (var featureMetainfoElementValue in featureMetaInfoElements.values)
+                {
+                    if (featureMetainfoElementValue.code.Equals("depth"))
+                    {
+                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float depthValue))
+                        {
+                            nillValueDepth = depthValue;
+                        }
+                    }
+                    else if (featureMetainfoElementValue.code.Equals("uncertainty"))
+                    {
+                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float uncertaintyValue))
+                        {
+                            nillValueUncertainty += uncertaintyValue;
+                        }
+                    }
+                }
+            }
+
+            // first element is relevant group of data
             var selectedBathymetryCoverageElement = featureElement.Children[0];
             if (selectedBathymetryCoverageElement != null)
             {
@@ -273,59 +295,18 @@ namespace S1XViewer.Model
                         {
                             for (int xIdx = 0; xIdx < (numPointsLongitude * 2); xIdx += 2)
                             {
-                                dataPackage.Data[yIdx, (int)xIdx / 2] = depthsDataset.values[yIdx, xIdx];
+                                if (invertLonLat)
+                                {
+                                    dataPackage.Data[xIdx, (int)yIdx / 2] = depthsDataset.values[xIdx, yIdx];
+                                }
+                                else
+                                {
+                                    dataPackage.Data[yIdx, (int)xIdx / 2] = depthsDataset.values[yIdx, xIdx];
+                                }
                             }
                         }
 
                         CreateTiff(dataPackage);
-
-                        //for (int yIdx = 0; yIdx < numPointsLatitude; yIdx++)
-                        //{
-                        //    for (int xIdx = 0; xIdx < (numPointsLongitude * 2); xIdx += 2)
-                        //    {
-                        //        // build up featutes ard wrap 'em in datapackage
-                        //        float depth = depthsAndUncertainties[yIdx, xIdx];
-                        //        float uncertainty = depthsAndUncertainties[yIdx, xIdx + 1];
-
-                        //        if (depth != nillValueDepth)
-                        //        {
-                        //            double longitude = gridOriginLongitude + (((double)xIdx / 2.0) * gridSpacingLongitudinal);
-                        //            double latitude = gridOriginLatitude + ((double)yIdx * gridSpacingLatitudinal);
-
-                        //            var longitudes = new double[5];
-                        //            var latitudes = new double[5];
-                        //            longitudes[0] = longitude;
-                        //            latitudes[0] = latitude;
-
-                        //            longitudes[1] = longitude;
-                        //            latitudes[1] = latitude + gridSpacingLatitudinal;
-
-                        //            longitudes[2] = longitude + gridSpacingLongitudinal;
-                        //            latitudes[2] = latitude + gridSpacingLatitudinal;
-
-                        //            longitudes[3] = longitude + gridSpacingLongitudinal;
-                        //            latitudes[3] = latitude;
-
-                        //            longitudes[4] = longitude;
-                        //            latitudes[4] = latitude;
-
-                        //            var geometry =
-                        //                _geometryBuilderFactory.Create("Polygon", longitudes, latitudes, depth, (int)horizontalCRS);
-
-                        //            var sounding = new Sounding
-                        //            {
-                        //                Id = $"{dataPackage.Id}_{xIdx}_{yIdx}",
-                        //                FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"X{xIdx}_Y{yIdx}", } },
-                        //                Value = depth,
-                        //                Geometry = geometry
-                        //            };
-
-                        //            geoFeatures.Add(sounding);
-                        //        }
-                        //    }
-
-                        //    Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)yIdx));
-                        //}
 
                         dataPackage.RawHdfData = hdf5S102Root;
                         if (geoFeatures.Count > 0)

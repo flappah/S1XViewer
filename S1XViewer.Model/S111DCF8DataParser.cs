@@ -71,19 +71,39 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
-            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLatLon");
-            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
+            string invertLonLatString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
+            if (!bool.TryParse(invertLonLatString, out bool invertLonLat))
             {
-                invertLatLon = false;
+                invertLonLat = false;
+                dataPackage.InvertLonLat = invertLonLat;
             }
             string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
-            _geometryBuilderFactory.InvertLatLon = invertLatLon;
+            _geometryBuilderFactory.InvertLonLat = invertLonLat;
             _geometryBuilderFactory.DefaultCRS = defaultCRSString;
 
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
+
+            // retrieve relevant time-frame from SurfaceCurrents collection
+            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
+            if (featureElement == null)
+            {
+                return dataPackage;
+            }
+
+            // check position ordering lon/lat vs lat/lon
+            var axisNameElement = featureElement.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent/axisNames"));
+            if (axisNameElement != null)
+            {
+                var axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
+                if (axisNamesStrings != null && axisNamesStrings.Length == 2)
+                {
+                    invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                    dataPackage.InvertLonLat = invertLonLat;
+                }
+            }
 
             // retrieve boundingbox
             var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
@@ -96,13 +116,6 @@ namespace S1XViewer.Model
             var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0.0) ?? 0.0;
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int) horizontalCRS);
-
-            // retrieve relevant time-frame from SurfaceCurrents collection
-            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
-            if (featureElement == null)
-            {
-                return dataPackage;
-            }
 
             var selectedSurfaceFeatureElement = _productSupport.FindFeatureByDateTime(featureElement.Children, selectedDateTime);
             if (selectedSurfaceFeatureElement != null)
