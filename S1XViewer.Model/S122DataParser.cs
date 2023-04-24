@@ -64,7 +64,11 @@ namespace S1XViewer.Model
             var srsNode = xmlDocument.DocumentElement.SelectSingleNode("//*[@srsName]");
             if (srsNode != null)
             {
-                defaultCRSString = srsNode.Attributes["srsName"].InnerText.Replace("EPSG:", "");
+                defaultCRSString = srsNode.Attributes["srsName"].InnerText;
+                if (defaultCRSString.Contains(":"))
+                {
+                    defaultCRSString = defaultCRSString.LastPart(":");
+                }
             }
             else
             {
