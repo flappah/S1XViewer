@@ -1,6 +1,6 @@
-﻿using Esri.ArcGISRuntime.Geometry;
-using Microsoft.Isam.Esent.Interop;
+﻿using S1XViewer.Base;
 using S1XViewer.Model.Interfaces;
+using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types.Interfaces;
 using System.Xml;
 
@@ -8,14 +8,46 @@ namespace S1XViewer.Model
 {
     public abstract class DataParserBase : IDataParser
     {
+        protected IOptionsStorage _optionsStorage;
+
         public abstract event IDataParser.ProgressFunction? Progress;
-       
+
+        /// <summary>
+        ///     Retrieves the srsName attribute from somewhere in the Xmldocument and makes sure it is a numerical value
+        /// </summary>
+        /// <param name="node">start node to look in</param>
+        /// <returns>string representing the coordinate reference system</returns>
+        protected string GetSrsName(XmlNode node)
+        {
+            string defaultCRSString;
+            var srsNode = node.SelectSingleNode("//*[@srsName]");
+            if (srsNode != null)
+            {
+                defaultCRSString = srsNode.Attributes["srsName"].InnerText;
+                if (defaultCRSString.Contains(":"))
+                {
+                    defaultCRSString = defaultCRSString.LastPart(":");
+                }
+            }
+            else
+            {
+                defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
+            }
+
+            if (String.IsNullOrEmpty(defaultCRSString) == true || defaultCRSString.IsNumeric() == false)
+            {
+                defaultCRSString = "4326"; // wgs84 is default
+            }
+
+            return defaultCRSString;
+        }
+
         /// <summary>
         ///     Parses specified XMLDocument. Async version
         /// </summary>
         /// <param name="xmlDocument">XmlDocument</param>
         /// <returns>IS1xxDataPackage</returns>
-        public abstract Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument);
+        public abstract Task<IS1xxDataPackage> ParseAsync(System.Xml.XmlDocument xmlDocument);
 
         /// <summary>
         ///     Parses specified HDF5 file. Async version
@@ -31,7 +63,7 @@ namespace S1XViewer.Model
         /// <param name="xmlDocument">XmlDocument</param>
         /// <returns>IS1xxDataPackage</returns>
 
-        public abstract IS1xxDataPackage Parse(XmlDocument xmlDocument);
+        public abstract IS1xxDataPackage Parse(System.Xml.XmlDocument xmlDocument);
 
         /// <summary>
         ///     Parses specified HDF5 file

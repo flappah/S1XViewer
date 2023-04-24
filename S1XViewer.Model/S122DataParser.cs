@@ -60,26 +60,7 @@ namespace S1XViewer.Model
             }
             _geometryBuilderFactory.InvertLonLat = invertLonLat;
 
-            string defaultCRSString;
-            var srsNode = xmlDocument.DocumentElement.SelectSingleNode("//*[@srsName]");
-            if (srsNode != null)
-            {
-                defaultCRSString = srsNode.Attributes["srsName"].InnerText;
-                if (defaultCRSString.Contains(":"))
-                {
-                    defaultCRSString = defaultCRSString.LastPart(":");
-                }
-            }
-            else
-            {
-                defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
-            }
-
-            if (String.IsNullOrEmpty(defaultCRSString) == true || defaultCRSString.IsNumeric() == false)
-            {
-                defaultCRSString = "4326"; // wgs84 is default
-            }
-
+            var defaultCRSString = GetSrsName(xmlDocument.DocumentElement);
             _geometryBuilderFactory.DefaultCRS = defaultCRSString;
             dataPackage.DefaultCRS = int.Parse(defaultCRSString);
 
