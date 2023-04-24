@@ -19,7 +19,7 @@ namespace S1XViewer.Model
         /// <returns></returns>
         protected long RetrieveHorizontalCRS(Hdf5Element hdf5S111Root, string hdf5FileName)
         {
-            long horizontalCRS;
+            long horizontalCRS = -1;
             var horizontalCRSAttribute = hdf5S111Root.Attributes.Find("horizontalCRS"); // S111 v1.2
             if (horizontalCRSAttribute != null)
             {
@@ -62,10 +62,6 @@ namespace S1XViewer.Model
                     var epochAttribute = hdf5S111Root.Attributes.Find("epoch");
                     var epoch = epochAttribute?.Value<string>() ?? string.Empty;
                     horizontalCRS = CorrectCRSWithEpoch(horizontalDatumValue, epoch);
-                }
-                else
-                {
-                    horizontalCRS = 4326; //base WGS84
                 }
             }
 

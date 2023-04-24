@@ -1,4 +1,5 @@
-﻿using S1XViewer.Model.Interfaces;
+﻿using S1XViewer.Base;
+using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
@@ -32,6 +33,11 @@ namespace S1XViewer.Model
         /// <returns>IS1xxDataPackage</returns>
         public async override Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
         {
+            if (xmlDocument is null || xmlDocument.DocumentElement == null)
+            {
+                throw new ArgumentNullException(nameof(xmlDocument));
+            }
+
             var dataPackage = new S127DataPackage
             {
                 Type = S1xxTypes.S127,
@@ -49,9 +55,26 @@ namespace S1XViewer.Model
             {
                 invertLonLat = false;
             }
-            string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
             _geometryBuilderFactory.InvertLonLat = invertLonLat;
+
+            string defaultCRSString;
+            var srsNode = xmlDocument.DocumentElement.SelectSingleNode("//*[@srsName]");
+            if (srsNode != null)
+            {
+                defaultCRSString = srsNode.Attributes["srsName"].InnerText.Replace("EPSG:", "");
+            }
+            else
+            {
+                defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
+            }
+
+            if (String.IsNullOrEmpty(defaultCRSString) == true || defaultCRSString.IsNumeric() == false)
+            {
+                defaultCRSString = "4326"; // wgs84 is default
+            }
+
             _geometryBuilderFactory.DefaultCRS = defaultCRSString;
+            dataPackage.DefaultCRS = int.Parse(defaultCRSString);
 
             // retrieve boundingbox
             var boundingBoxNodes = xmlDocument.GetElementsByTagName("gml:boundedBy");

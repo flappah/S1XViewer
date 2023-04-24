@@ -1296,6 +1296,11 @@ namespace S1XViewer
         /// <param name="dataPackage"></param>
         private async void CreateRasterCollection(IS1xxDataPackage dataPackage)
         {
+            if (myMapView == null || myMapView.Map == null)
+            {
+                return;
+            }
+
             if (dataPackage is S102DataPackage s102DataPackage)
             {
                 var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
@@ -1304,13 +1309,27 @@ namespace S1XViewer
                 var nodataJsonString = "{\"raster_function\":{\"type\":\"Mask_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"nodata_values\":{\"double_array\":[" + s102DataPackage.noDataValue.ToString().Replace(",", ".") + "],\"type\":\"Raster_function_variable\"},\r\n    \"nodata_interpretation\":{\"nodata_interpretation\":\"all\",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
 
                 var nodataRasterFunction = RasterFunction.FromJson(nodataJsonString);
+                if (nodataRasterFunction == null)
+                {
+                    return;
+                }
+
                 var arguments = nodataRasterFunction?.Arguments;
-                var rasterNames = arguments.GetRasterNames();
+                if (arguments == null)
+                {
+                    return;
+                }
+
+                var rasterNames = arguments?.GetRasterNames();
+                if (rasterNames == null || rasterNames.Count == 0)
+                {
+                    return;
+                }
 
                 try
                 {
                     var raster = new Raster(s102DataPackage.TiffFileName);
-                    arguments.SetRaster(rasterNames[0], raster);
+                    arguments?.SetRaster(rasterNames[0], raster);
 
                     var nodataRaster = new Raster(nodataRasterFunction);
                     var rasterLayer = new RasterLayer(nodataRaster);
@@ -1322,7 +1341,7 @@ namespace S1XViewer
                     {
                         try
                         {
-                            if (_resetViewpoint == true)
+                            if (_resetViewpoint == true && rasterLayer.FullExtent != null)
                             {
                                 await myMapView.SetViewpointAsync(new Viewpoint(rasterLayer.FullExtent));
                                 _resetViewpoint = false;
@@ -1354,7 +1373,10 @@ namespace S1XViewer
                     myMapView?.Map?.OperationalLayers.Add(rasterLayer);
                     await rasterLayer.LoadAsync().ConfigureAwait(true);
 
-                    await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15).ConfigureAwait(false);
+                    if (rasterLayer.FullExtent != null)
+                    {
+                        await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15).ConfigureAwait(false);
+                    }
 
                     nodataRaster = null;
                     raster = null;
@@ -1632,10 +1654,10 @@ namespace S1XViewer
         }
 
         /// <summary>
-        ///     If the mapview is tapped
+        ///     If the mapview is tapped handle results from the selected feature / object
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">sender</param>
+        /// <param name="e">e</param>
         private async void MyMapView_GeoViewTapped(object? sender, GeoViewInputEventArgs e)
         {
             if (sender is null)
@@ -1646,6 +1668,11 @@ namespace S1XViewer
             if (e is null)
             {
                 throw new ArgumentNullException(nameof(e));
+            }
+
+            if (myMapView == null || myMapView.Map == null || myMapView.Map.OperationalLayers == null)
+            {
+                return;
             }
 
             try
@@ -1663,11 +1690,10 @@ namespace S1XViewer
                 var results = new Dictionary<string, DataTable>();
                 foreach (Layer operationalLayer in myMapView.Map.OperationalLayers)
                 {
-                    var collectionLayer = operationalLayer as FeatureCollectionLayer;
-                    if (collectionLayer != null)
+                    if (operationalLayer is FeatureCollectionLayer featureCollectionLayer)
                     {
                         IdentifyLayerResult groupLayerResult =
-                            await myMapView.IdentifyLayerAsync(collectionLayer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+                            await myMapView.IdentifyLayerAsync(featureCollectionLayer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
 
                         if (groupLayerResult.SublayerResults.Count > 0)
                         {
@@ -1675,7 +1701,7 @@ namespace S1XViewer
                             foreach (IdentifyLayerResult subLayerResult in groupLayerResult.SublayerResults)
                             {
                                 // clear featureselection in all layers
-                                collectionLayer?.Layers.ToList().ForEach(l => l.ClearSelection());
+                                featureCollectionLayer?.Layers.ToList().ForEach(l => l.ClearSelection());
 
                                 // Iterate each geoelement in the child layer result set.
                                 foreach (GeoElement idElement in subLayerResult.GeoElements)
@@ -1714,6 +1740,66 @@ namespace S1XViewer
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+                
+                    if (operationalLayer is RasterLayer rasterLayer)
+                    {
+                         IdentifyLayerResult groupLayerResult =
+                            await myMapView.IdentifyLayerAsync(rasterLayer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+
+                        if (groupLayerResult.GeoElements.Any())
+                        {
+                            var dataTable = new DataTable($"Results_{this.GetHashCode()}");
+                            dataTable.Columns.AddRange(new DataColumn[]
+                            {
+                                new DataColumn
+                                {
+                                    DataType = System.Type.GetType("System.String"),
+                                    ColumnName = "Name"
+                                },
+                                 new DataColumn
+                                {
+                                    DataType = System.Type.GetType("System.String"),
+                                    ColumnName = "Value"
+                                }
+                            });
+
+                            int keyNumber = 0;
+                            foreach (GeoElement geoElement in groupLayerResult.GeoElements)
+                            {
+                                DataRow row = dataTable.NewRow();
+                                row["Name"] = "Geometry";
+                                row["Value"] = geoElement.Geometry;
+
+                                foreach (var attribute in geoElement.Attributes)
+                                {
+                                    row = dataTable.NewRow();
+                                    row["Name"] = attribute.Key;
+                                    row["Value"] = attribute.Value;
+                                    dataTable.Rows.Add(row);
+                                }
+
+                                string key;
+                                if (geoElement.Geometry != null)
+                                {
+                                    Geometry wgs84Geometry = GeometryEngine.Project(geoElement.Geometry, SpatialReference.Create(4326));
+                                    key = wgs84Geometry.ToString() ?? $"point_{++keyNumber}";
+                                }
+                                else
+                                {
+                                    key = $"point_{++keyNumber}";
+                                }
+
+                                if (results.ContainsKey(key))
+                                {
+                                    int i = 0;
+                                    while (results.ContainsKey($"{key} ({++i})")) ;
+                                    key = $"{key} ({i})";
+                                }
+
+                                results.Add(key, dataTable);
                             }
                         }
                     }

@@ -2,6 +2,7 @@
 using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
+using S1XViewer.Model.Geometry;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
@@ -71,20 +72,28 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
-            string invertLonLatString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
-            if (!bool.TryParse(invertLonLatString, out bool invertLonLat))
-            {
-                invertLonLat = false;
-                dataPackage.InvertLonLat = invertLonLat;
-            }
-            string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
-            _geometryBuilderFactory.InvertLonLat = invertLonLat;
-            _geometryBuilderFactory.DefaultCRS = defaultCRSString;
-
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
+            if (horizontalCRS <= 0)
+            {
+                string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
+                if (long.TryParse(defaultCRSString, out horizontalCRS) == false)
+                {
+                    horizontalCRS = 4326; // wgs84
+                }
+            }
+            dataPackage.DefaultCRS = (int)horizontalCRS;
+            _geometryBuilderFactory.DefaultCRS = horizontalCRS.ToString();
+
+            string invertLonLatString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
+            if (bool.TryParse(invertLonLatString, out bool invertLonLat) == false)
+            {
+                invertLonLat = false;
+            }
+            dataPackage.InvertLonLat = invertLonLat;
+            _geometryBuilderFactory.InvertLonLat = invertLonLat;
 
             // retrieve relevant time-frame from SurfaceCurrents collection
             Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));

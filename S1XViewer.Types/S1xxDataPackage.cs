@@ -7,7 +7,7 @@ namespace S1XViewer.Types
     {
         public Guid Id { get; set; }
         public bool InvertLonLat { get; set; } = false;
-        public string DefaultCRS { get; set; } = string.Empty;
+        public int DefaultCRS { get; set; } = 4326;
         public string FileName { get; set; } = string.Empty;
         public S1xxTypes Type { get; set; }
         public IMetaFeature[] MetaFeatures { get; set; } = Array.Empty<IMetaFeature>();

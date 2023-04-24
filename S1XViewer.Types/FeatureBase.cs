@@ -1,6 +1,5 @@
 ﻿using S1XViewer.Base;
 using S1XViewer.Types.Interfaces;
-using System;
 using System.Data;
 using System.Reflection;
 using System.Xml;
