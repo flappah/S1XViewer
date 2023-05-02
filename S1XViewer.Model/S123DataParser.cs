@@ -129,20 +129,23 @@ namespace S1XViewer.Model
             });
 
             // Populate links between features
-            Parallel.ForEach(informationFeatures, (informationFeature) =>
+            //Parallel.ForEach(informationFeatures, (informationFeature) =>
+            foreach(var informationFeature in informationFeatures) 
             {
                 ResolveLinks(informationFeature.Links, informationFeatures, metaFeatures, geoFeatures);
-            });
+            }
 
-            Parallel.ForEach(metaFeatures, (metaFeature) =>
+            //Parallel.ForEach(metaFeatures, (metaFeature) =>
+            foreach(var metaFeature in metaFeatures) 
             {
                 ResolveLinks(metaFeature.Links, informationFeatures, metaFeatures, geoFeatures);
-            });
+            }
 
-            Parallel.ForEach(geoFeatures, (geoFeature) =>
+            //Parallel.ForEach(geoFeatures, (geoFeature) =>
+            foreach(var geoFeature in geoFeatures)
             {
                 ResolveLinks(geoFeature.Links, informationFeatures, metaFeatures, geoFeatures);
-            });
+            }
 
             dataPackage.GeoFeatures = geoFeatures.ToArray();
             dataPackage.MetaFeatures = metaFeatures.ToArray();
