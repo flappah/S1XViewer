@@ -39,6 +39,10 @@
                     <RibbonButton x:Name="buttonResetView" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Object-Group.ico" Label="Reset View" Click="buttonResetView_Click" />
                     <RibbonButton x:Name="buttonClearLayers" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Rectangle-Xmark.ico" Label="Clear Layers" Click="buttonClearLayers_Click"/>
                 </RibbonGroup>
+                <RibbonGroup x:Name="find" Header="Find">
+                    <RibbonTextBox x:Name="textBoxFindValue" Margin="0,7,0,0" IsEnabled="False" FontSize="11" />
+                    <RibbonButton x:Name="buttonFindFeature" IsEnabled="False" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Lightbulb.ico" Label="Find Feature" Click="buttonFindFeature_Click"/>
+                </RibbonGroup>
                 <RibbonGroup x:Name="groupNavigation" Header="Navigate Dataset">
                     <RibbonButton x:Name="buttonBackward" LargeImageSource="/images/Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Left.ico" Label="Previous" IsEnabled="False" Click="buttonBackward_Click" />
                     <RibbonTextBox x:Name="textBoxTimeValue" Margin="0,7,0,0" IsEnabled="False" FontSize="11" />

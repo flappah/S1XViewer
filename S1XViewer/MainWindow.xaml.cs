@@ -733,6 +733,60 @@ namespace S1XViewer
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void buttonFindFeature_Click(object sender, RoutedEventArgs e)
+        {
+            QueryParameters? queryParameters = null;
+            if ((textBoxFindValue.Text.Length == 20 && textBoxFindValue.Text.Substring(0, 3) == "NL_"))
+            {
+                queryParameters = new QueryParameters()
+                {
+                    WhereClause = $"FeatureId='{textBoxFindValue.Text}'"
+                };
+            }
+            else
+            {
+                queryParameters = new QueryParameters()
+                {
+                    WhereClause = $"UPPER(FeatureName) LIKE '%{textBoxFindValue.Text.ToUpper()}%'"
+                };
+            }
+
+            foreach (Layer operationalLayer in myMapView.Map.OperationalLayers)
+            {
+                if (operationalLayer is FeatureCollectionLayer featureCollectionLayer)
+                {
+                    foreach (var table in featureCollectionLayer.FeatureCollection.Tables)
+                    {
+                        var featureQueryResult = await table.QueryFeaturesAsync(queryParameters);
+                        if (featureQueryResult.Count() > 0)
+                        {
+                            var feature = featureQueryResult.First();
+
+                            featureCollectionLayer?.Layers.ToList().ForEach(l => l.ClearSelection());
+
+                            foreach (var layer in featureCollectionLayer?.Layers)
+                            {
+                                if (feature.Geometry is MapPoint && layer.Name.Equals("PointFeatures"))
+                                {
+                                    layer.SelectFeature(feature);
+                                }
+                                else if ((feature.Geometry is MapPoint) == false && layer.Name.Equals("PointFeatures") == false)
+                                {
+                                    layer.SelectFeature(feature);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region UI logic
@@ -1673,6 +1727,9 @@ namespace S1XViewer
                         {
                             labelStatus.Content = labelStatus.Content.ToString()?.Replace(" Now rendering file ..", "");
                             progressBar.Value = 0;
+
+                            textBoxFindValue.IsEnabled = true;
+                            buttonFindFeature.IsEnabled = true;
                         }), null);
 
                         BackgroundWorker bgw = new();
