@@ -505,12 +505,53 @@ namespace S1XViewer
         /// </summary>
         /// <param name="snder"></param>
         /// <param name="e"></param>
-        public void TreeviewItem_Click(object sender, RoutedEventArgs e)
+        public async void TreeviewItem_Click(object sender, RoutedEventArgs e)
         {
             var itemDataTable = ((TreeViewItem)sender).Tag as DataTable;
             if (itemDataTable != null)
             {
                 dataGridFeatureProperties.ItemsSource = itemDataTable.AsDataView();
+
+                foreach (DataRow row in itemDataTable.Rows)
+                {
+                    if (row != null && row.ItemArray.Length > 0 && row.ItemArray[0].ToString() == "Id")
+                    {
+                        foreach (Layer operationalLayer in myMapView.Map.OperationalLayers)
+                        {
+                            if (operationalLayer is FeatureCollectionLayer featureCollectionLayer)
+                            {
+                                var queryParameters = new QueryParameters()
+                                {
+                                    WhereClause = $"FeatureId='{row.ItemArray[1].ToString()}'"
+                                };
+
+                                foreach (var table in featureCollectionLayer.FeatureCollection.Tables)
+                                {
+                                    var featureQueryResult = await table.QueryFeaturesAsync(queryParameters);
+                                    if (featureQueryResult.Count() > 0)
+                                    {
+                                        var feature = featureQueryResult.First();
+                                        
+                                        featureCollectionLayer?.Layers.ToList().ForEach(l => l.ClearSelection());
+                                        
+                                        foreach(var layer in featureCollectionLayer?.Layers)
+                                        {
+                                            if (feature.Geometry is MapPoint && layer.Name.Equals("PointFeatures"))
+                                            {
+                                                layer.SelectFeature(feature);
+                                            }
+                                            else if ((feature.Geometry is MapPoint) == false && layer.Name.Equals("PointFeatures") == false)
+                                            {
+                                                layer.SelectFeature(feature);
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -1681,7 +1722,7 @@ namespace S1XViewer
                 System.Windows.Point tapScreenPoint = e.Position;
 
                 // Specify identify properties.
-                double pixelTolerance = 1.0;
+                double pixelTolerance = 0.1;
                 bool returnPopupsOnly = false;
                 int maxResults = 5;
 
