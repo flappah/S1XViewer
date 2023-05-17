@@ -740,6 +740,11 @@ namespace S1XViewer
         /// <param name="e"></param>
         private async void buttonFindFeature_Click(object sender, RoutedEventArgs e)
         {
+            if (textBoxFindValue.Text == null || textBoxFindValue.Text.Length == 0)
+            {
+                return;
+            }
+
             QueryParameters? queryParameters = null;
             if ((textBoxFindValue.Text.Length == 20 && textBoxFindValue.Text.Substring(0, 3) == "NL_"))
             {
