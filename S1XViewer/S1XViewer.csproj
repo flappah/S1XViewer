@@ -7,8 +7,8 @@
     <UseWPF>true</UseWPF>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <Title>IHO S1xx Standards Viewer</Title>
-    <AssemblyVersion>2.0.4.0</AssemblyVersion>
-    <FileVersion>2.0.4.0</FileVersion>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
     <Copyright>Netherlands Hydrofgraphic Office</Copyright>
     <PackageIcon>Paomedia-Small-N-Flat-Map.ico</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -86,6 +86,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="crs.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="images\TIDEHT01.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Paomedia-Small-N-Flat-Map.ico">

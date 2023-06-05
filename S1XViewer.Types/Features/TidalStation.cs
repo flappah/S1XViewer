@@ -1,19 +1,22 @@
 ﻿using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Symbology;
+using Esri.ArcGISRuntime.UI;
 using S1XViewer.Base;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
+using System.IO;
+using System.Windows.Media;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
-    public class TidalStreamFloodEbb : GeoFeatureBase, ITidalStreamFloodEbb, IVectorFeature
+    public class TidalStation : GeoFeatureBase, IS104Feature, ITidalStation
     {
-        public string[] CategoryOfTidalStream { get; set; } = new string[0];
-        public Orientation Orientation { get; set; }
-        public Speed Speed { get; set; }
+        public Dictionary<DateTime, float> TidalHeights { get; set; } = new Dictionary<DateTime, float>();
+        public Dictionary<DateTime, short> TidalTrends { get; set; } = new Dictionary<DateTime, short>(); 
+        public short SelectedIndex { get; set; }
 
         /// <summary>
         ///     Renders an ARCGIS feature
@@ -34,85 +37,21 @@ namespace S1XViewer.Types.Features
             {
                 if (mapPoint != null)
                 {
-                    (double Lat, double Lon) secondPoint = (mapPoint.Y, mapPoint.X);
-                    double width = 0.75;
-                    System.Drawing.Color color = System.Drawing.Color.Black;
-
-                    switch (Speed.SpeedMaximum)
-                    {
-                        case <= 0.5:
-                            secondPoint = Destination((mapPoint.Y, mapPoint.X), 150, Orientation.OrientationValue);
-                            width = 1.5;
-                            color = System.Drawing.Color.FromArgb(118, 82, 226);
-                            break;
-
-                        case > 0.5 and <= 1.0:
-                            secondPoint = Destination((mapPoint.Y, mapPoint.X), 250, Orientation.OrientationValue);
-                            width = 2.5;
-                            color = System.Drawing.Color.FromArgb(72, 152, 211);
-                            break;
-
-                        case > 1.0 and <= 2.0:
-                            secondPoint = Destination((mapPoint.Y, mapPoint.X), 300, Orientation.OrientationValue);
-                            width = 3.0;
-                            color = System.Drawing.Color.FromArgb(97, 203, 229);
-                            break;
-
-                        case > 2.0 and <= 3.0:
-                            secondPoint = Destination((mapPoint.Y, mapPoint.X), 400, Orientation.OrientationValue);
-                            width = 3.5;
-                            color = System.Drawing.Color.FromArgb(109, 188, 69);
-                            break;
-
-                        case > 3.0 and <= 5.0:
-                            secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 4.0;
-                            color = System.Drawing.Color.FromArgb(180, 220, 0);
-                            break;
-
-                        case > 5.0 and <= 7.0:
-                            secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 5.0;
-                            color = System.Drawing.Color.FromArgb(205, 193, 0);
-                            break;
-
-                        case > 7.0 and <= 10.0:
-                            secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 5.0;
-                            color = System.Drawing.Color.FromArgb(248, 167, 24);
-                            break;
-
-                        case > 10.0 and <= 13.0:
-                            secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 5.0;
-                            color = System.Drawing.Color.FromArgb(247, 162, 157);
-                            break;
-
-                        case > 13.0:
-                            secondPoint = Destination((mapPoint.Y, mapPoint.X), 500, Orientation.OrientationValue);
-                            width = 7.5;
-                            color = System.Drawing.Color.FromArgb(255, 30, 30);
-                            break;
-                    }
-
-                    var lineGeometry = new Polyline(new List<MapPoint> { mapPoint, new MapPoint(secondPoint.Lon, secondPoint.Lat) });
-
-                    var symbol = new SimpleLineSymbol();
-                    symbol.MarkerStyle = SimpleLineSymbolMarkerStyle.Arrow;
-                    symbol.Color = color;
-                    symbol.Width = width;
+                    var fullfilename = Path.Combine(AppContext.BaseDirectory, @"images\TIDEHT01.png");
+                    var symbolUri = new Uri($"file://{fullfilename}");
+                    var symbol = new PictureMarkerSymbol(symbolUri) { Width = 34, Height = 13 };
 
                     var graphic = new Esri.ArcGISRuntime.UI.Graphic();
-                    graphic.Geometry = lineGeometry;
+                    graphic.Geometry = mapPoint;
                     graphic.Symbol = symbol;
 
                     FeatureCollectionTable featureTable = featureRendererManager.Get("VectorFeatures");
-                    Feature vectorFeature = featureTable.CreateFeature();
-                    vectorFeature.SetAttributeValue(idField, Id);
-                    vectorFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
-                    vectorFeature.Geometry = Geometry;
+                    Feature pointFeature = featureTable.CreateFeature();
+                    pointFeature.SetAttributeValue(idField, Id);
+                    pointFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
+                    pointFeature.Geometry = Geometry;
 
-                    return ("VectorFeatures", vectorFeature, graphic);
+                    return ("VectorFeatures", pointFeature, graphic);
                 }
             }
 
@@ -123,10 +62,9 @@ namespace S1XViewer.Types.Features
         /// 
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public override IFeature DeepClone()
         {
-            return new TidalStreamFloodEbb
+            return new TidalStation
             {
                 FeatureName = FeatureName == null
                     ? new[] { new FeatureName() }
@@ -145,11 +83,9 @@ namespace S1XViewer.Types.Features
                     ? new TextContent[0]
                     : Array.ConvertAll(TextContent, t => t.DeepClone() as ITextContent),
                 Geometry = Geometry,
-                CategoryOfTidalStream = CategoryOfTidalStream == null
-                    ? new string[0]
-                    : Array.ConvertAll(CategoryOfTidalStream, s => s),
-                Orientation = Orientation == null ? null : Orientation.DeepClone() as Orientation,
-                Speed = Speed == null ? null : Speed.DeepClone() as Speed,
+                TidalHeights = TidalHeights,
+                TidalTrends = TidalTrends,
+                SelectedIndex = SelectedIndex,
                 Links = Links == null
                     ? new Link[0]
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
@@ -162,7 +98,6 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
         {
             if (node == null)
@@ -236,33 +171,7 @@ namespace S1XViewer.Types.Features
                 TextContent = textContents.ToArray();
             }
 
-            var categoryOfTidalStreamNodes = node.FirstChild.SelectNodes("categoryOfTidalStream", mgr);
-            if (categoryOfTidalStreamNodes != null && categoryOfTidalStreamNodes.Count > 0)
-            {
-                var tidalStreamCategories = new List<string>();
-                foreach (XmlNode categoryOfTidalStreamNode in categoryOfTidalStreamNodes)
-                {
-                    if (categoryOfTidalStreamNode != null && categoryOfTidalStreamNode.HasChildNodes)
-                    {
-                        tidalStreamCategories.Add(categoryOfTidalStreamNode.FirstChild.InnerText);
-                    }
-                }
-                CategoryOfTidalStream = tidalStreamCategories.ToArray();
-            }
-
-            var orientationNode = node.FirstChild.SelectSingleNode("orientation", mgr);
-            if (orientationNode != null && orientationNode.HasChildNodes)
-            {
-                Orientation = new Orientation();
-                Orientation.FromXml(orientationNode, mgr);
-            }
-
-            var speedNode = node.FirstChild.SelectSingleNode("speed", mgr);
-            if (speedNode != null && speedNode.HasChildNodes)
-            {
-                Speed = new Speed();
-                Speed.FromXml(speedNode, mgr);
-            }
+            // implement reading height and trend values from XML!
 
             var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)

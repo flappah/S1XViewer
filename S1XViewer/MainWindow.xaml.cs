@@ -42,6 +42,7 @@ namespace S1XViewer
         private bool _resetViewpoint = true;
         private bool _disposing = false;
         private bool _uiInitializing = true;
+        private FeatureToolWindow? _featureToolWindow = null;
 
         /// <summary>
         ///     Basic initialization
@@ -140,7 +141,8 @@ namespace S1XViewer
                         basemapStyle = Enum.Parse<BasemapStyle>(basemap);
                     }
                     myMapView.Map = new Map(basemapStyle);
-                    myMapView.GeoViewTapped += MyMapView_GeoViewTapped; ;
+                    myMapView.GeoViewTapped += MyMapView_GeoViewTapped;
+                    myMapView.MouseMove += MyMapView_MouseMove;
 
                     var mapCenterPoint = new MapPoint(0, 50, SpatialReferences.Wgs84);
                     myMapView.SetViewpoint(new Viewpoint(mapCenterPoint, 3000000));
@@ -1753,6 +1755,171 @@ namespace S1XViewer
                     }
                     catch (Exception) { }
                 });
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private async void MyMapView_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (sender is null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
+
+            if (e is null)
+            {
+                throw new ArgumentNullException(nameof(e));
+            }
+
+            if (myMapView == null || myMapView.Map == null || myMapView.Map.OperationalLayers == null)
+            {
+                return;
+            }
+
+            System.Windows.Point tapScreenPoint = e.GetPosition(myMapView);
+
+            // Specify identify properties.
+            double pixelTolerance = 0.1;
+            bool returnPopupsOnly = false;
+            int maxResults = 5;
+
+            // Identify a  group layer using MapView, passing in the layer, the tap point, tolerance, types to return, and max results.
+
+            var results = new Dictionary<string, DataTable>();
+            foreach (Layer operationalLayer in myMapView.Map.OperationalLayers)
+            {
+                if (operationalLayer is FeatureCollectionLayer featureCollectionLayer)
+                {
+                    IdentifyLayerResult groupLayerResult =
+                        await myMapView.IdentifyLayerAsync(featureCollectionLayer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+
+                    if (groupLayerResult.SublayerResults.Count > 0)
+                    {
+                        // Iterate each set of child layer results.
+                        foreach (IdentifyLayerResult subLayerResult in groupLayerResult.SublayerResults)
+                        {
+                            // clear featureselection in all layers
+                            featureCollectionLayer?.Layers.ToList().ForEach(l => l.ClearSelection());
+
+                            // Iterate each geoelement in the child layer result set.
+                            foreach (GeoElement idElement in subLayerResult.GeoElements)
+                            {
+                                // cast the result GeoElement to Feature
+                                Feature idFeature = idElement as Feature;
+
+                                // select this feature in the feature layer
+                                var layer = subLayerResult.LayerContent as FeatureLayer;
+                                if (layer != null && idFeature != null)
+                                {
+                                    layer.SelectFeature(idFeature);
+                                }
+
+                                if (idElement != null && idElement.Attributes.ContainsKey("FeatureId"))
+                                {
+                                    if (String.IsNullOrEmpty(idElement.Attributes["FeatureId"]?.ToString()) == false)
+                                    {
+                                        IFeature feature = FindFeature(idElement.Attributes["FeatureId"].ToString());
+                                        if (feature != null)
+                                        {
+                                            DataTable featureAttributesDataTable = feature.GetData();
+                                            string key = (feature is IGeoFeature geoFeature ?
+                                                $"{geoFeature.GetType().ToString().LastPart(".")} ({geoFeature.FeatureName.First()?.Name})" :
+                                                feature.Id.ToString()) ?? $"No named feature with Id '{feature.Id}'";
+
+                                            if (results.ContainsKey(key))
+                                            {
+                                                int i = 0;
+                                                while (results.ContainsKey($"{key} ({++i})")) ;
+                                                key = $"{key} ({i})";
+                                            }
+
+                                            results.Add(key, featureAttributesDataTable);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (operationalLayer is RasterLayer rasterLayer)
+                {
+                    IdentifyLayerResult groupLayerResult =
+                       await myMapView.IdentifyLayerAsync(rasterLayer, tapScreenPoint, pixelTolerance, returnPopupsOnly, maxResults);
+
+                    if (groupLayerResult.GeoElements.Any())
+                    {
+                        var dataTable = new DataTable($"Results_{this.GetHashCode()}");
+                        dataTable.Columns.AddRange(new DataColumn[]
+                        {
+                                new DataColumn
+                                {
+                                    DataType = System.Type.GetType("System.String"),
+                                    ColumnName = "Name"
+                                },
+                                 new DataColumn
+                                {
+                                    DataType = System.Type.GetType("System.String"),
+                                    ColumnName = "Value"
+                                }
+                        });
+
+                        int keyNumber = 0;
+                        foreach (GeoElement geoElement in groupLayerResult.GeoElements)
+                        {
+                            DataRow row = dataTable.NewRow();
+                            row["Name"] = "Geometry";
+                            row["Value"] = geoElement.Geometry;
+
+                            foreach (var attribute in geoElement.Attributes)
+                            {
+                                row = dataTable.NewRow();
+                                row["Name"] = attribute.Key;
+                                row["Value"] = attribute.Value;
+                                dataTable.Rows.Add(row);
+                            }
+
+                            string key;
+                            if (geoElement.Geometry != null)
+                            {
+                                Geometry wgs84Geometry = GeometryEngine.Project(geoElement.Geometry, SpatialReference.Create(4326));
+                                key = wgs84Geometry.ToString() ?? $"point_{++keyNumber}";
+                            }
+                            else
+                            {
+                                key = $"point_{++keyNumber}";
+                            }
+
+                            if (results.ContainsKey(key))
+                            {
+                                int i = 0;
+                                while (results.ContainsKey($"{key} ({++i})")) ;
+                                key = $"{key} ({i})";
+                            }
+
+                            results.Add(key, dataTable);
+                        }
+                    }
+                }
+            }
+
+            if (_featureToolWindow != null)
+            {
+                _featureToolWindow.Close();
+                _featureToolWindow = null;
+            }
+
+            if (results != null && results.Count > 0)
+            {
+                _featureToolWindow = new FeatureToolWindow();
+                _featureToolWindow.Left = e.GetPosition(this).X + 110.0;
+                _featureToolWindow.Top = e.GetPosition(this).Y + 140.0;
+                _featureToolWindow.Show();
             }
         }
 

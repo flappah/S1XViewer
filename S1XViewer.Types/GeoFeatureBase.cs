@@ -40,6 +40,11 @@ namespace S1XViewer.Types
         /// <returns></returns>
         public virtual (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS)
         {
+            if (featureRendererManager is null)
+            {
+                throw new ArgumentNullException(nameof(featureRendererManager));
+            }
+
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
 

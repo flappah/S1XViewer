@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace S1XViewer.Model
 {
-    public class S104SDCF3DataParser : HdfDataParserBase, IS104SDCF3DataParser
+    public class S104DCF7DataParser : HdfDataParserBase, IS104DCF7DataParser
     {
         public override event IDataParser.ProgressFunction? Progress;
 
