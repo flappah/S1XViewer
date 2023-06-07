@@ -11,7 +11,7 @@ namespace S1XViewer.Types.Interfaces
         ISourceIndication SourceIndication { get; set; }
         ITextContent[] TextContent { get; set; }
 
-        Geometry Geometry { get; set; }
+        Geometry? Geometry { get; set; }
 
         (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS);
     }

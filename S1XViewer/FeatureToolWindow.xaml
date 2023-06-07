@@ -5,8 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:S1XViewer"
         mc:Ignorable="d"
-        Title="FeatureToolWindow" Height="100" Width="100" ResizeMode="NoResize" ShowInTaskbar="False" WindowStyle="None">
-    <Grid>
-        
-    </Grid>
+        Title="FeatureToolWindow" Height="120" Width="100" ResizeMode="NoResize" ShowInTaskbar="False" WindowStyle="None" Loaded="Window_Loaded">
+    <Border BorderBrush="Black" BorderThickness="1 1 1 1" FlowDirection="LeftToRight" >
+        <StackPanel >
+            <Label x:Name="labelFeatureName" Content="Booby Island" FontFamily="Arial" FontSize="10" HorizontalAlignment="Center" Width="Auto" Margin="0,0,0,0"/>
+            <Border BorderBrush="Black" BorderThickness="0 0.5 0 0"/>
+            <Label x:Name="labelProperty1" Content="03Aug2016 1512" FontFamily="Arial" FontSize="10" HorizontalAlignment="Center" Width="Auto" Margin="0,0,0,0"/>
+            <Border BorderBrush="Black" BorderThickness="0 0.5 0 0"/>
+            <Label x:Name="labelProperty2" Content="1.93m" Foreground="Gray" FontWeight="Bold" FontFamily="Arial" FontSize="16" HorizontalAlignment="Center" Width="Auto" Margin="0,0,0,0"/>
+            <Label x:Name="labelProperty3" Content="Increasing" FontFamily="Arial" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Top" Width="Auto" Margin="0,0,0,0"/>
+            <Label x:Name="labelLink" Foreground="Blue" FontFamily="Arial" FontSize="8" HorizontalAlignment="Center" VerticalAlignment="Top" MouseDown="labelLink_MouseDown">
+                <TextBlock TextDecorations="Underline" Text="Tide Prediction"/>
+            </Label>
+        </StackPanel>
+    </Border>
 </Window>

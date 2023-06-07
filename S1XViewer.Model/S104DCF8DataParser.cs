@@ -165,6 +165,9 @@ namespace S1XViewer.Model
                                 var timeRecordIntervalAttribute = groupHdf5Group.Attributes.Find("timeRecordInterval");
                                 var timeRecordInterval = timeRecordIntervalAttribute?.Value<long>(0) ?? 0;
 
+                                Int32 index = -1;
+                                var heights = new Dictionary<DateTime, float>();
+                                var trends = new Dictionary<DateTime, short>();
                                 if (timeRecordInterval > 0)
                                 {
                                     var waterLevelInfos =
@@ -172,8 +175,8 @@ namespace S1XViewer.Model
 
                                     if (waterLevelInfos != null)
                                     {
-                                        // build up features ard wrap 'em in a datapackage
-                                        var index = ((TimeSpan)(selectedDateTime - startDateTime)).TotalSeconds / timeRecordInterval;
+                                        // build up features ard wrap 'em in a data package
+                                        index = (Int32)(((TimeSpan)(selectedDateTime - startDateTime)).TotalSeconds / timeRecordInterval);
                                         /*  
                                          * with varying group sizes indexes can sometimes fall outside the boundary because different 
                                          * reference tidal stations have timeseries of different length wrapped inside 1 package. 
@@ -188,32 +191,65 @@ namespace S1XViewer.Model
                                             index = waterLevelInfos.Length - 1;
                                         }
 
-                                        var heights = new Dictionary<DateTime, float>();
-                                        var trends = new Dictionary<DateTime, short>();
                                         short i = 0;
-                                        foreach(var waterlevelInfo in waterLevelInfos)
+                                        foreach (WaterLevelInstance waterlevelInfo in waterLevelInfos)
                                         {
                                             heights.Add(startDateTime.AddSeconds(timeRecordInterval * i), waterlevelInfo.height);
                                             trends.Add(startDateTime.AddSeconds(timeRecordInterval * i), waterlevelInfo.trend);
                                             i++;
                                         }
+                                    }
+                                }
+                                else
+                                {
+                                    var waterLevelWithTimeInfos =
+                                        _datasetReader.ReadCompound<WaterLevelWithTimeInstance>(hdf5FileName, groupHdf5Group.Children[0].Name).values.ToArray();
 
-                                        Esri.ArcGISRuntime.Geometry.Geometry geometry =
-                                            _geometryBuilderFactory.Create("Point", new double[] { positionValues[stationNumber].longitude }, new double[] { positionValues[stationNumber].latitude }, (int)horizontalCRS);
-
-                                        var tidalStationInstance = new TidalStation()
+                                    if (waterLevelWithTimeInfos != null)
+                                    {   
+                                        short i = 0;
+                                        DateTime previousDateTime = DateTime.MinValue;
+                                        foreach (WaterLevelWithTimeInstance waterlevelWithTimeInfo in waterLevelWithTimeInfos)
                                         {
-                                            Id = groupHdf5Group.Name,
-                                            FeatureName = new FeatureName[] { new FeatureName { DisplayName = featureName } },
-                                            TidalHeights = heights,
-                                            TidalTrends = trends,
-                                            SelectedIndex = (short) index,
-                                            Geometry = geometry
-                                        };
-                                        geoFeatures[stationNumber] = tidalStationInstance;
+                                            if (DateTime.TryParseExact(waterlevelWithTimeInfo.waterLevelTime, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateTime))
+                                            {
+                                                heights.Add(parsedDateTime, waterlevelWithTimeInfo.waterLevelHeight);
+                                                trends.Add(parsedDateTime, waterlevelWithTimeInfo.waterLevelTrend);
+
+                                                if (((DateTime)selectedDateTime).Between(previousDateTime, parsedDateTime))
+                                                {
+                                                    index = i;
+                                                }
+
+                                                previousDateTime = parsedDateTime;
+                                                i++;
+                                            }
+                                        }
                                     }
                                 }
 
+                                Esri.ArcGISRuntime.Geometry.Geometry geometry =
+                                    _geometryBuilderFactory.Create("Point", new double[] { positionValues[stationNumber].longitude }, new double[] { positionValues[stationNumber].latitude }, (int)horizontalCRS);
+
+                                var tidalStationInstance = new TidalStation()
+                                {
+                                    Id = groupHdf5Group.Name,
+                                    FeatureName = new FeatureName[] { new FeatureName { DisplayName = featureName } },
+                                    TidalHeights = heights,
+                                    TidalTrends = trends,
+                                    SelectedIndex = (short)index,
+                                    SelectedDateTime = heights.ElementAt(index).Key.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")),
+                                    SelectedHeight = heights.ElementAt(index).Value.ToString(new CultureInfo("en-US")) + " m",
+                                    SelectedTrend = trends.ElementAt(index).Value switch
+                                    {
+                                        1 => "decreasing",
+                                        2 => "increasing",
+                                        3 => "steady",
+                                        _ => "unknown"
+                                    },
+                                    Geometry = geometry
+                                };
+                                geoFeatures[stationNumber] = tidalStationInstance;
                                 stationNumber++;
                             }
                         }

@@ -1,13 +1,11 @@
 ﻿using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Symbology;
-using Esri.ArcGISRuntime.UI;
 using S1XViewer.Base;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
 using System.IO;
-using System.Windows.Media;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
@@ -17,6 +15,18 @@ namespace S1XViewer.Types.Features
         public Dictionary<DateTime, float> TidalHeights { get; set; } = new Dictionary<DateTime, float>();
         public Dictionary<DateTime, short> TidalTrends { get; set; } = new Dictionary<DateTime, short>(); 
         public short SelectedIndex { get; set; }
+        public string SelectedDateTime { get; set; }
+        public string SelectedHeight { get; set; }
+        public string SelectedTrend { get; set; }
+
+        /// <summary>
+        ///     
+        /// </summary>
+        public TidalStation()
+        {
+            FeatureToolWindow = true; // feature supports tool window
+            FeatureToolWindowTemplate = "labelFeatureName=FeatureName.DisplayName,labelProperty1=SelectedDateTime,labelProperty2=SelectedHeight,labelProperty3=SelectedTrend";
+        }
 
         /// <summary>
         ///     Renders an ARCGIS feature

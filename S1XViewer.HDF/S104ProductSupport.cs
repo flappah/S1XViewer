@@ -168,9 +168,64 @@ namespace S1XViewer.HDF
             return -1;
         }
 
-        public override Task<(DateTime start, DateTime end)> RetrieveTimeFrameFromHdfDatasetAsync(string hdf5FileName)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <returns></returns>
+        public override async Task<(DateTime start, DateTime end)> RetrieveTimeFrameFromHdfDatasetAsync(string hdf5FileName)
         {
-            throw new NotImplementedException();
+            Hdf5Element hdf5S111Root = await RetrieveHdf5FileAsync(hdf5FileName).ConfigureAwait(false);
+            if (hdf5S111Root == null || hdf5S111Root.Children.Count == 0 || hdf5S111Root.Children[1].Children.Count == 0)
+            {
+                return (DateTime.MinValue, DateTime.MinValue);
+            }
+
+            DateTime min = DateTime.MaxValue;
+            DateTime max = DateTime.MinValue;
+            foreach (var waterLevelFeature in hdf5S111Root.Children[1].Children)
+            {
+                if (waterLevelFeature != null)
+                {
+                    var dateTimeOfFirstRecordAttribute = waterLevelFeature.Attributes.Find("dateTimeOfFirstRecord");
+                    string dateTimeOfFirstRecordString = dateTimeOfFirstRecordAttribute?.Value<string>("") ?? "";
+
+                    DateTime? dateTimeOfFirstRecord = null;
+                    if (dateTimeOfFirstRecordString != string.Empty)
+                    {
+                        dateTimeOfFirstRecord =
+                            DateTime.ParseExact(dateTimeOfFirstRecordString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
+                    }
+
+                    var dateTimeOfLastRecordAttribute = waterLevelFeature.Attributes.Find("dateTimeOfLastRecord");
+                    string dateTimeOfLastRecordString = dateTimeOfLastRecordAttribute?.Value<string>(string.Empty) ?? string.Empty;
+
+                    DateTime? dateTimeOfLastRecord = null;
+                    if (dateTimeOfLastRecordString != string.Empty)
+                    {
+                        dateTimeOfLastRecord =
+                            DateTime.ParseExact(dateTimeOfLastRecordString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
+                    }
+
+                    if (dateTimeOfFirstRecord < min)
+                    {
+                        min = (DateTime)dateTimeOfFirstRecord;
+                    }
+
+                    if (dateTimeOfLastRecord > max)
+                    {
+                        max = (DateTime)dateTimeOfLastRecord;
+                    }
+                }
+            }
+
+            if (min != DateTime.MaxValue && max != DateTime.MinValue)
+            {
+                return (min, max);
+            }
+
+
+            return (DateTime.MinValue, DateTime.MinValue);
         }
     }
 }

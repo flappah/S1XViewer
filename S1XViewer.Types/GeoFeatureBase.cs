@@ -12,7 +12,7 @@ namespace S1XViewer.Types
         public ISourceIndication SourceIndication { get; set; }
         public ITextContent[] TextContent { get; set; }
 
-        public Geometry Geometry { get; set; }
+        public Geometry? Geometry { get; set; }
 
 
         /// <summary>

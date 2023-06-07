@@ -8,6 +8,9 @@ namespace S1XViewer.Types
 {
     public abstract class FeatureBase : IFeature
     {
+        public bool FeatureToolWindow { get; set; } = false;
+        public string FeatureToolWindowTemplate { get; set; } = string.Empty;
+         
         public IFeatureObjectIdentifier FeatureObjectIdentifier { get; set; }
         public string Id { get; set; }
         public ILink[] Links { get; set; }

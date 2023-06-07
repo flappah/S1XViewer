@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Data;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -8,6 +6,18 @@ namespace S1XViewer.Base
 {
     public static class Extensions
     {
+        /// <summary>
+        ///     Returns true if the specified date is between the start- and end values
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public static bool Between(this DateTime item, DateTime start, DateTime end)
+        {
+            return item >= start && item <= end;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -89,6 +99,28 @@ namespace S1XViewer.Base
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        public static (bool result, object value) ContainsKey(this DataRowCollection item, string fieldName)
+        {
+            if (item.Count > 0)
+            {
+                foreach (DataRow row in item)
+                {
+                    if (row.ItemArray[0].Equals(fieldName) == true)
+                    {
+                        return (true, row.ItemArray[1] ?? "");
+                    }
+                }
+            }
+
+            return (false, "");
         }
 
         /// <summary>
