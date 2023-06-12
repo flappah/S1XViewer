@@ -216,9 +216,9 @@ namespace S1XViewer.Model
                                                     speed = surfaceCurrentWithTimeInstance.speed;
                                                     break;
                                                 }
-                                            }
 
-                                            previousDateTime = parsedDateTime;
+                                                previousDateTime = parsedDateTime;
+                                            }
                                         }                                        
                                     }
                                 }
