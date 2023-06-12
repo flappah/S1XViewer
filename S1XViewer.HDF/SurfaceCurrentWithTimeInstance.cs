@@ -12,7 +12,7 @@ namespace S1XViewer.HDF
         public float direction;
 
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 25)]
-        [Hdf5EntryName("waterLevelTime")]
+        [Hdf5EntryName("surfaceCurrentTime")]
         public string surfaceCurrentTime;
 
         /// <summary>
