@@ -2,8 +2,8 @@
 {
     public interface ITidalStation : IGeoFeature
     {
-        Dictionary<DateTime, float> TidalHeights { get; set; } 
-        Dictionary<DateTime, short> TidalTrends { get; set; } 
+        Dictionary<string, string> TidalHeights { get; set; } 
+        Dictionary<string, string> TidalTrends { get; set; } 
         short SelectedIndex { get; set; }
         string SelectedDateTime { get; set; }
         string SelectedHeight { get; set; }

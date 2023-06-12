@@ -3,6 +3,7 @@ using S1XViewer.Types.Interfaces;
 using System.Data;
 using System.Reflection;
 using System.Xml;
+using Windows.Media.Audio;
 
 namespace S1XViewer.Types
 {
@@ -107,6 +108,23 @@ namespace S1XViewer.Types
                                 results.Rows.Add(row);
                             }
                         }
+                    }
+                }
+                else if (propertyInfo.PropertyType.IsDictionary())
+                {
+                    var values = GetPropertyValue(propertyInfo, propertyInfo.Name) as Dictionary<string, string>;
+                    if (values != null && values.Count > 0)
+                    {
+                        var listOfStrings = new List<string>();
+                        foreach (var value in values)
+                        {
+                            listOfStrings.Add($"{value.Key}={value.Value}");
+                        }
+
+                        var row = results.NewRow();
+                        row["Name"] = $"{propertyInfo.Name}";
+                        row["Value"] = listOfStrings.Join(",");
+                        results.Rows.Add(row);
                     }
                 }
                 else

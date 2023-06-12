@@ -166,8 +166,8 @@ namespace S1XViewer.Model
                                 var timeRecordInterval = timeRecordIntervalAttribute?.Value<long>(0) ?? 0;
 
                                 Int32 index = -1;
-                                var heights = new Dictionary<DateTime, float>();
-                                var trends = new Dictionary<DateTime, short>();
+                                var heights = new Dictionary<string, string>();
+                                var trends = new Dictionary<string, string>();
                                 if (timeRecordInterval > 0)
                                 {
                                     var waterLevelInfos =
@@ -194,8 +194,8 @@ namespace S1XViewer.Model
                                         short i = 0;
                                         foreach (WaterLevelInstance waterlevelInfo in waterLevelInfos)
                                         {
-                                            heights.Add(startDateTime.AddSeconds(timeRecordInterval * i), waterlevelInfo.height);
-                                            trends.Add(startDateTime.AddSeconds(timeRecordInterval * i), waterlevelInfo.trend);
+                                            heights.Add(startDateTime.AddSeconds(timeRecordInterval * i).ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), waterlevelInfo.height.ToString().Replace(",", "."));
+                                            trends.Add(startDateTime.AddSeconds(timeRecordInterval * i).ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), waterlevelInfo.trend.ToString());
                                             i++;
                                         }
                                     }
@@ -213,8 +213,8 @@ namespace S1XViewer.Model
                                         {
                                             if (DateTime.TryParseExact(waterlevelWithTimeInfo.waterLevelTime, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateTime))
                                             {
-                                                heights.Add(parsedDateTime, waterlevelWithTimeInfo.waterLevelHeight);
-                                                trends.Add(parsedDateTime, waterlevelWithTimeInfo.waterLevelTrend);
+                                                heights.Add(parsedDateTime.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), waterlevelWithTimeInfo.waterLevelHeight.ToString().Replace(",", "."));
+                                                trends.Add(parsedDateTime.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), waterlevelWithTimeInfo.waterLevelTrend.ToString());
 
                                                 if (((DateTime)selectedDateTime).Between(previousDateTime, parsedDateTime))
                                                 {
@@ -238,13 +238,13 @@ namespace S1XViewer.Model
                                     TidalHeights = heights,
                                     TidalTrends = trends,
                                     SelectedIndex = (short)index,
-                                    SelectedDateTime = heights.ElementAt(index).Key.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")),
-                                    SelectedHeight = heights.ElementAt(index).Value.ToString(new CultureInfo("en-US")) + " m",
+                                    SelectedDateTime = heights.ElementAt(index).Key,
+                                    SelectedHeight = heights.ElementAt(index).Value + " m",
                                     SelectedTrend = trends.ElementAt(index).Value switch
                                     {
-                                        1 => "decreasing",
-                                        2 => "increasing",
-                                        3 => "steady",
+                                        "1" => "decreasing",
+                                        "2" => "increasing",
+                                        "3" => "steady",
                                         _ => "unknown"
                                     },
                                     Geometry = geometry

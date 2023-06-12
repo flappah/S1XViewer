@@ -12,8 +12,8 @@ namespace S1XViewer.Types.Features
 {
     public class TidalStation : GeoFeatureBase, IS104Feature, ITidalStation
     {
-        public Dictionary<DateTime, float> TidalHeights { get; set; } = new Dictionary<DateTime, float>();
-        public Dictionary<DateTime, short> TidalTrends { get; set; } = new Dictionary<DateTime, short>(); 
+        public Dictionary<string, string> TidalHeights { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> TidalTrends { get; set; } = new Dictionary<string, string>(); 
         public short SelectedIndex { get; set; }
         public string SelectedDateTime { get; set; }
         public string SelectedHeight { get; set; }

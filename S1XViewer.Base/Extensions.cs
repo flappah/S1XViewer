@@ -133,6 +133,29 @@ namespace S1XViewer.Base
             return (int.TryParse(item, out _) || double.TryParse(item, out _));
         }
 
+        private static Type[] dictionaryInterfaces =
+        {
+          typeof(IDictionary<,>),
+          typeof(System.Collections.IDictionary),
+          typeof(IReadOnlyDictionary<,>),
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsDictionary(this Type type)
+        {
+            return dictionaryInterfaces
+             .Any(dictInterface =>
+                 dictInterface == type || // 1
+                 (type.IsGenericType && dictInterface == type.GetGenericTypeDefinition()) || // 2
+                 type.GetInterfaces().Any(typeInterface => // 3
+                                          typeInterface == dictInterface ||
+                                          (typeInterface.IsGenericType && dictInterface == typeInterface.GetGenericTypeDefinition())));
+        }
+
         /// <summary>
         /// 
         /// </summary>

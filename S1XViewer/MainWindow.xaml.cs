@@ -1945,8 +1945,8 @@ namespace S1XViewer
                             _featureToolWindow = new FeatureToolWindow();
                             _featureToolWindow.TemplateFields = results.First().Value.Rows.ContainsKey("FeatureToolWindowTemplate").value.ToString() ?? "";
                             _featureToolWindow.FieldCollection = results.First().Value.Rows;
-                            _featureToolWindow.Left = tapScreenPoint.X + 110.0;
-                            _featureToolWindow.Top = tapScreenPoint.Y + 270.0;
+                            _featureToolWindow.Left = tapScreenPoint.X + this.Left - 50.0;
+                            _featureToolWindow.Top = tapScreenPoint.Y + this.Top + 100.0;
                             _featureToolWindow.Show();
                         }
                     }
