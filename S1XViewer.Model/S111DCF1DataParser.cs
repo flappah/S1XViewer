@@ -210,6 +210,7 @@ namespace S1XViewer.Model
                         dataPackage.InformationFeatures = new IInformationFeature[0];
                     }
                 }
+            }
 
             Progress?.Invoke(100);
             return dataPackage;
