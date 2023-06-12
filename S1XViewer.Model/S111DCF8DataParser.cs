@@ -148,6 +148,21 @@ namespace S1XViewer.Model
                         throw new Exception("Insufficient number of position values!");
                     }
 
+                    short numGroups = 0;
+                    foreach (Hdf5Element? groupHdf5Group in selectedSurfaceFeatureElement.Children)
+                    {
+                        if (groupHdf5Group.Name.Contains("Group_"))
+                        {
+                            numGroups++;
+                        }
+                    }
+
+                    /// Checks if data is by accident stored in DCF1 format instead of DCF8 format
+                    if (numGroups != numberOfStations)
+                    {
+                        throw new Exception("Wrong format of data! It requires an S111DCF1DataParser!");
+                    }
+
                     IGeoFeature[] geoFeatures = new IGeoFeature[numberOfStations];
                     await Task.Run(() =>
                     {

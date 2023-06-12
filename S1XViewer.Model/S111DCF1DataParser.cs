@@ -11,6 +11,7 @@ using S1XViewer.Types.Interfaces;
 using System;
 using System.Globalization;
 using System.Xml;
+using Windows.UI.Notifications;
 using WinRT;
 
 namespace S1XViewer.Model
@@ -147,6 +148,21 @@ namespace S1XViewer.Model
                     if (numberOfStations != positionValues.Count())
                     {
                         throw new Exception("Insufficient number of position values!");
+                    }
+
+                    short numGroups = 0;
+                    foreach (Hdf5Element? groupHdf5Group in selectedSurfaceFeatureElement.Children)
+                    {
+                        if (groupHdf5Group.Name.Contains("Group_"))
+                        {
+                            numGroups++;
+                        }
+                    }
+
+                    /// Checks if data is by accident stored in DCF8 format instead of DCF1 format
+                    if (numGroups == numberOfStations)
+                    {
+                        throw new Exception("Wrong format of data! It requires an S111DCF8DataParser!");
                     }
 
                     IGeoFeature[] geoFeatures = new IGeoFeature[numberOfStations];

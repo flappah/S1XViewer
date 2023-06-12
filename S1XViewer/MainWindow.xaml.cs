@@ -1007,7 +1007,7 @@ namespace S1XViewer
                 }
             }
 
-            var timerStart = DateTime.Now;
+            DateTime? timerStart = DateTime.Now;
             try
             {
                 SaveRecentFile(fileName);
@@ -1079,7 +1079,7 @@ namespace S1XViewer
 
                 }), fileName);
 
-                var dataPackage = await dataPackageParser.ParseAsync(fileName, selectedDateTime).ConfigureAwait(false);
+                IS1xxDataPackage? dataPackage = await dataPackageParser.ParseAsync(fileName, selectedDateTime).ConfigureAwait(false);
                 if (dataPackage != null && dataPackage.Type != S1xxTypes.Null)
                 {
                     if (dataPackage.GeoFeatures != null && dataPackage.GeoFeatures.Count() > 0)
@@ -1135,18 +1135,31 @@ namespace S1XViewer
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                _syncContext?.Post(new SendOrPostCallback(txt =>
+                {
+                    labelStatus.Content = "";
+                    progressBar.Value = 0;
+
+                }), fileName);
+
+                timerStart = null;
             }
             finally
             {
-                var elapsedTime = (DateTime.Now - timerStart).ToString();
+                string elapsedTime = string.Empty;
+                if (timerStart != null)
+                {
+                    (DateTime.Now - timerStart).ToString(); 
+                }
+
                 _syncContext?.Post(new SendOrPostCallback(o =>
                 {
-                    if (o != null)
+                    if (string.IsNullOrEmpty(elapsedTime) == false)
                     {
-                        labelStatus.Content = $"Load time: {o ?? ""} seconds. Now rendering file ..";
+                        labelStatus.Content = $"Load time: {o} seconds. Now rendering file ..";
                     }
                 }), elapsedTime);
-
             }
         }
 
