@@ -149,74 +149,67 @@ namespace S1XViewer.Model
                         throw new Exception("Insufficient number of position values!");
                     }
 
-                    var timeIntervalAttribute = selectedSurfaceFeatureElement.Attributes.Find("timeRecordInterval");
-                    var timeInterval = timeIntervalAttribute?.Value<long>(0) ?? 0;
-
-                    if (timeInterval > 0)
+                    IGeoFeature[] geoFeatures = new IGeoFeature[numberOfStations];
+                    await Task.Run(() =>
                     {
-                        IGeoFeature[] geoFeatures = new IGeoFeature[numberOfStations];
-                        await Task.Run(() =>
+                        TimeSpan minTimeSpan = TimeSpan.MaxValue;
+                        Hdf5Element? selectedHdf5Group = null;
+                        foreach (Hdf5Element? groupHdf5Group in selectedSurfaceFeatureElement.Children)
                         {
-                            TimeSpan minTimeSpan = TimeSpan.MaxValue;
-                            Hdf5Element? selectedHdf5Group = null;
-                            foreach (Hdf5Element? groupHdf5Group in selectedSurfaceFeatureElement.Children)
+                            if (groupHdf5Group.Name.Contains("Group_"))
                             {
-                                if (groupHdf5Group.Name.Contains("Group_"))
-                                {
-                                    var timePointAttribute = groupHdf5Group.Attributes.Find("timePoint");
-                                    string timePointString = timePointAttribute?.Value<string>("") ?? "";
-                                    DateTime timePoint =
-                                        DateTime.ParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
+                                var timePointAttribute = groupHdf5Group.Attributes.Find("timePoint");
+                                string timePointString = timePointAttribute?.Value<string>("") ?? "";
+                                DateTime timePoint =
+                                    DateTime.ParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
 
-                                    TimeSpan? differenceTimeSpan = selectedDateTime - timePoint;
-                                    if (differenceTimeSpan != null)
+                                TimeSpan? differenceTimeSpan = selectedDateTime - timePoint;
+                                if (differenceTimeSpan != null)
+                                {
+                                    if (Math.Abs(differenceTimeSpan.Value.TotalSeconds) < Math.Abs(minTimeSpan.TotalSeconds))
                                     {
-                                        if (Math.Abs(differenceTimeSpan.Value.TotalSeconds) < Math.Abs(minTimeSpan.TotalSeconds))
-                                        {
-                                            minTimeSpan = differenceTimeSpan.Value;
-                                            selectedHdf5Group = groupHdf5Group;
-                                        }
+                                        minTimeSpan = differenceTimeSpan.Value;
+                                        selectedHdf5Group = groupHdf5Group;
                                     }
                                 }
                             }
-
-                            if (selectedHdf5Group != null)
-                            {
-                                var surfaceCurrentInfos =
-                                    _datasetReader.Read<SurfaceCurrentInstance>(hdf5FileName, selectedHdf5Group.Children[0].Name).ToArray();
-
-                                for (int index = 0; index < surfaceCurrentInfos.Length; index++)
-                                {
-                                    // build up features ard wrap 'em in data package
-                                    var direction = surfaceCurrentInfos[index].direction;
-                                    var speed = surfaceCurrentInfos[index].speed;
-
-                                    Esri.ArcGISRuntime.Geometry.Geometry? geometry =
-                                        _geometryBuilderFactory.Create("Point", new double[] { positionValues[index].longitude }, new double[] { positionValues[index].latitude }, (int)horizontalCRS);
-
-                                    var currentNonGravitationalInstance = new CurrentNonGravitational()
-                                    {
-                                        Id = selectedHdf5Group.Name,
-                                        FeatureName = new FeatureName[] { new FeatureName { DisplayName = selectedHdf5Group.Name } },
-                                        Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
-                                        Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
-                                        Geometry = geometry
-                                    };
-                                    geoFeatures[index] = currentNonGravitationalInstance;
-                                }
-                            }
-                        }).ConfigureAwait(false);
-
-                        dataPackage.RawHdfData = hdf5S111Root;
-                        if (geoFeatures.Length > 0)
-                        {
-                            dataPackage.GeoFeatures = geoFeatures.ToArray();
-                            dataPackage.MetaFeatures = new IMetaFeature[0];
-                            dataPackage.InformationFeatures = new IInformationFeature[0];
                         }
+
+                        if (selectedHdf5Group != null)
+                        {
+                            var surfaceCurrentInfos =
+                                _datasetReader.Read<SurfaceCurrentInstance>(hdf5FileName, selectedHdf5Group.Children[0].Name).ToArray();
+
+                            for (int index = 0; index < surfaceCurrentInfos.Length; index++)
+                            {
+                                // build up features ard wrap 'em in data package
+                                var direction = surfaceCurrentInfos[index].direction;
+                                var speed = surfaceCurrentInfos[index].speed;
+
+                                Esri.ArcGISRuntime.Geometry.Geometry? geometry =
+                                    _geometryBuilderFactory.Create("Point", new double[] { positionValues[index].longitude }, new double[] { positionValues[index].latitude }, (int)horizontalCRS);
+
+                                var currentNonGravitationalInstance = new CurrentNonGravitational()
+                                {
+                                    Id = selectedHdf5Group.Name,
+                                    FeatureName = new FeatureName[] { new FeatureName { DisplayName = selectedHdf5Group.Name } },
+                                    Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
+                                    Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
+                                    Geometry = geometry
+                                };
+                                geoFeatures[index] = currentNonGravitationalInstance;
+                            }
+                        }
+                    }).ConfigureAwait(false);
+
+                    dataPackage.RawHdfData = hdf5S111Root;
+                    if (geoFeatures.Length > 0)
+                    {
+                        dataPackage.GeoFeatures = geoFeatures.ToArray();
+                        dataPackage.MetaFeatures = new IMetaFeature[0];
+                        dataPackage.InformationFeatures = new IInformationFeature[0];
                     }
                 }
-            }
 
             Progress?.Invoke(100);
             return dataPackage;
