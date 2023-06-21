@@ -8,6 +8,7 @@ using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
+using System.Globalization;
 using System.Xml;
 
 namespace S1XViewer.Model
@@ -123,6 +124,31 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
+            // retrieve values for undefined data cells
+            double nillValueSpeed = -9999.0;
+            double nillValueDirection = -9999.0;
+            var featureMetaInfoElements = _datasetReader.ReadCompound<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
+            if (featureMetaInfoElements.values.Length > 0)
+            {
+                foreach (var featureMetainfoElementValue in featureMetaInfoElements.values)
+                {
+                    if (featureMetainfoElementValue.code.Equals("surfaceCurrentSpeed"))
+                    {
+                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedFillValue))
+                        {
+                            nillValueSpeed = speedFillValue;
+                        }
+                    }
+                    else if (featureMetainfoElementValue.code.Equals("surfaceCurrentDirection") || featureMetainfoElementValue.code.Equals("sufaceCurrentDirection"))
+                    {
+                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedDirectionValue))
+                        {
+                            nillValueDirection += speedDirectionValue;
+                        }
+                    }
+                }
+            }
+            
             var selectedSurfaceFeatureElement = featureElement.Children[0];
             if (selectedSurfaceFeatureElement != null)
             {
@@ -135,7 +161,7 @@ namespace S1XViewer.Model
 
                     if (positionValues == null || positionValues.Length == 0)
                     {
-                        throw new Exception($"Surfacefeature with name {positioningElement.Children[0].Name} contains no positions!");
+                        throw new Exception($"Surface feature with name {positioningElement.Children[0].Name} contains no positions!");
                     }
 
                     // now retrieve group based on selectedTime 
@@ -148,30 +174,33 @@ namespace S1XViewer.Model
 
                         if (surfaceCurrentInfos.Length != positionValues.Length)
                         {
-                            throw new Exception("Positioning information does not match the number of surfacecurrent info items!");
+                            throw new Exception("Positioning information does not match the number of surface current info items!");
                         }
 
                         var geoFeatures = new List<IGeoFeature>();
                         await Task.Run(() =>
                         {
-                            // build up features and wrap 'em in datapackage
+                            // build up features and wrap 'em in data package
                             for (int i = 0; i < surfaceCurrentInfos.Length; i++)
                             {
                                 var direction = surfaceCurrentInfos[i].direction;
                                 var speed = surfaceCurrentInfos[i].speed;
 
-                                var geometry =
-                                    _geometryBuilderFactory.Create("Point", new double[] { positionValues[i].longitude }, new double[] { positionValues[i].latitude }, (int)horizontalCRS);
-
-                                var currentNonGravitationalInstance = new CurrentNonGravitational()
+                                if (speed != nillValueSpeed && direction != nillValueDirection)
                                 {
-                                    Id = groupHdf5Group.Name + $"_{i}",
-                                    FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{positionValues[i].longitude.ToString().Replace(",", ".")}_{positionValues[i].latitude.ToString().Replace(",", ".")}" } },
-                                    Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
-                                    Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
-                                    Geometry = geometry
-                                };
-                                geoFeatures.Add(currentNonGravitationalInstance);
+                                    var geometry =
+                                        _geometryBuilderFactory.Create("Point", new double[] { positionValues[i].longitude }, new double[] { positionValues[i].latitude }, (int)horizontalCRS);
+
+                                    var currentNonGravitationalInstance = new CurrentNonGravitational()
+                                    {
+                                        Id = groupHdf5Group.Name + $"_{i}",
+                                        FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{positionValues[i].longitude.ToString().Replace(",", ".")}_{positionValues[i].latitude.ToString().Replace(",", ".")}" } },
+                                        Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
+                                        Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },
+                                        Geometry = geometry
+                                    };
+                                    geoFeatures.Add(currentNonGravitationalInstance);
+                                }
                             }
                         }).ConfigureAwait(false);
 

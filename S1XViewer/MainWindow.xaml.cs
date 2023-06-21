@@ -827,56 +827,56 @@ namespace S1XViewer
 
                     var directory = System.Environment.CurrentDirectory;                   
                     selectedFilename = @$"{directory}\{selectDatasetWindow.SelectedFilename}";
-
-                    var filename = selectedFilename.LastPart(@"\");
-                    if (string.IsNullOrEmpty(filename) == false)
-                    {
-                        var xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
-                        xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
-
-                        var producerCodeNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata/S100XC:producerCode", xmlNSMgr);
-                        var producerCode = string.Empty;
-                        if (producerCodeNode != null)
-                        {
-                            producerCode = producerCodeNode.InnerText.PadRight(4, char.Parse("0"));
-                        }
-
-                        var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file:/{producerCode}/{filename}']", xmlNSMgr);
-                        if (datasetDiscoveryMetadataNode != null && datasetDiscoveryMetadataNode.ChildNodes.Count > 0)
-                        {
-                            DateTime beginTime = DateTime.Now;
-                            var beginTimeNode = datasetDiscoveryMetadataNode.SelectSingleNode(@"S100XC:temporalExtent/S100XC:timeInstantBegin", xmlNSMgr);
-                            if (beginTimeNode != null && beginTimeNode.HasChildNodes)
-                            {
-                                DateTime.TryParse(beginTimeNode.InnerText, out beginTime);
-                            }
-
-                            DateTime endTime = DateTime.Now;
-                            var endTimeNode = datasetDiscoveryMetadataNode.SelectSingleNode(@"S100XC:temporalExtent/S100XC:timeInstantEnd", xmlNSMgr);
-                            if (endTimeNode != null && endTimeNode.HasChildNodes)
-                            {
-                                DateTime.TryParse(endTimeNode.InnerText, out endTime);
-                            }
-
-                            var selectDateTimeWindow = new SelectDateTimeWindow();
-                            selectDateTimeWindow.Owner = Application.Current.MainWindow;
-                            selectDateTimeWindow.textblockInfo.Text = $"Values available from {beginTime.ToUniversalTime().ToString()} UTC to {endTime.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
-                            selectDateTimeWindow.FirstValidDate = beginTime.ToUniversalTime();
-                            selectDateTimeWindow.LastValidDate = endTime.ToUniversalTime();
-                            selectDateTimeWindow.datePicker.SelectedDate = beginTime.ToUniversalTime();
-                            selectDateTimeWindow.ShowDialog();
-                            selectedDateTime = selectDateTimeWindow.SelectedDateTime;
-
-                            buttonBackward.Tag = beginTime.ToUniversalTime();
-                            buttonForward.Tag = endTime.ToUniversalTime();
-                            textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
-                            textBoxTimeValue.Tag = $"{selectedFilename}#{productStandard}#{selectedDateTime}";
-                        }
-                    }
                 }
                 else if (productFileNames.Count == 1)
                 {
                     selectedFilename = productFileNames[0];
+                }
+
+                var filename = selectedFilename.LastPart(@"\");
+                if (string.IsNullOrEmpty(filename) == false)
+                {
+                    var xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
+                    xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
+
+                    var producerCodeNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata/S100XC:producerCode", xmlNSMgr);
+                    var producerCode = string.Empty;
+                    if (producerCodeNode != null)
+                    {
+                        producerCode = producerCodeNode.InnerText.PadRight(4, char.Parse("0"));
+                    }
+
+                    var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file:/{producerCode}/{filename}']", xmlNSMgr);
+                    if (datasetDiscoveryMetadataNode != null && datasetDiscoveryMetadataNode.ChildNodes.Count > 0)
+                    {
+                        DateTime beginTime = DateTime.Now;
+                        var beginTimeNode = datasetDiscoveryMetadataNode.SelectSingleNode(@"S100XC:temporalExtent/S100XC:timeInstantBegin", xmlNSMgr);
+                        if (beginTimeNode != null && beginTimeNode.HasChildNodes)
+                        {
+                            DateTime.TryParse(beginTimeNode.InnerText, out beginTime);
+                        }
+
+                        DateTime endTime = DateTime.Now;
+                        var endTimeNode = datasetDiscoveryMetadataNode.SelectSingleNode(@"S100XC:temporalExtent/S100XC:timeInstantEnd", xmlNSMgr);
+                        if (endTimeNode != null && endTimeNode.HasChildNodes)
+                        {
+                            DateTime.TryParse(endTimeNode.InnerText, out endTime);
+                        }
+
+                        var selectDateTimeWindow = new SelectDateTimeWindow();
+                        selectDateTimeWindow.Owner = Application.Current.MainWindow;
+                        selectDateTimeWindow.textblockInfo.Text = $"Values available from {beginTime.ToUniversalTime().ToString()} UTC to {endTime.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
+                        selectDateTimeWindow.FirstValidDate = beginTime.ToUniversalTime();
+                        selectDateTimeWindow.LastValidDate = endTime.ToUniversalTime();
+                        selectDateTimeWindow.datePicker.SelectedDate = beginTime.ToUniversalTime();
+                        selectDateTimeWindow.ShowDialog();
+                        selectedDateTime = selectDateTimeWindow.SelectedDateTime;
+
+                        buttonBackward.Tag = beginTime.ToUniversalTime();
+                        buttonForward.Tag = endTime.ToUniversalTime();
+                        textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
+                        textBoxTimeValue.Tag = $"{selectedFilename}#{productStandard}#{selectedDateTime}";
+                    }
                 }
 
                 if (String.IsNullOrEmpty(selectedFilename) == false && selectedDateTime != null)

@@ -132,7 +132,7 @@ namespace S1XViewer.Model
                 return dataPackage;
             }
 
-            // retrieve values for undefined datacells
+            // retrieve values for undefined data cells
             double nillValueSpeed = -9999.0;
             double nillValueDirection = -9999.0;
             var featureMetaInfoElements = _datasetReader.ReadCompound<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
