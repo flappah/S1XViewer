@@ -202,7 +202,7 @@ namespace S1XViewer.Model
                     {
                         for (int lonIdx = 0; lonIdx < (numPointsLongitude * 2); lonIdx += 2)
                         {
-                            // build up featutes ard wrap 'em in datapackage
+                            // build up features and wrap 'em in datapackage
                             float speed;
                             float direction;
                             if (currentDataset.members[0].Equals("surfaceCurrentDirection"))
