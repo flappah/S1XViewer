@@ -147,11 +147,11 @@ namespace S1XViewer.Model
                             nillValueSpeed = speedFillValue;
                         }
                     }
-                    else if (featureMetainfoElementValue.code.Equals("surfaceCurrentDirection") || featureMetainfoElementValue.code.Equals("sufaceCurrentDirection"))
+                    else if (featureMetainfoElementValue.code.Equals("surfaceCurrentDirection") || featureMetainfoElementValue.code.Equals("surfaceCurrentDirection"))
                     {
                         if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedDirectionValue))
                         {
-                            nillValueDirection += speedDirectionValue;
+                            nillValueDirection = speedDirectionValue;
                         }
                     }
                 }
