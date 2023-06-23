@@ -15,9 +15,9 @@ namespace S1XViewer.HDF
         public async Task<Hdf5Element> RetrieveHdf5FileAsync(string hdf5FileName)
         {
             Hdf5Element hdf5S111Root;
-            if (_cachedHdfTrees.ContainsKey(hdf5FileName))
+            if (_cachedHdfTrees.ContainsKey($@"{Environment.CurrentDirectory}\{hdf5FileName}"))
             {
-                hdf5S111Root = _cachedHdfTrees[hdf5FileName];
+                hdf5S111Root = _cachedHdfTrees[$@"{Environment.CurrentDirectory}\{hdf5FileName}"];
             }
             else
             {
@@ -28,7 +28,7 @@ namespace S1XViewer.HDF
 
                 }, hdf5FileName).ConfigureAwait(false);
 
-                _cachedHdfTrees.Add(hdf5FileName, hdf5S111Root);
+                _cachedHdfTrees.Add($@"{Environment.CurrentDirectory}\{hdf5FileName}", hdf5S111Root);
             }
 
             return hdf5S111Root;
