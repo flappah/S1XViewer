@@ -213,7 +213,7 @@ namespace S1XViewer.Model
                             else
                             {
                                 speed = currentDataset.values[latIdx, lonIdx];
-                                direction = currentDataset.values[latIdx, latIdx + 1];
+                                direction = currentDataset.values[latIdx, lonIdx + 1];
                             }
 
                             if (speed != nillValueSpeed && direction != nillValueDirection)
