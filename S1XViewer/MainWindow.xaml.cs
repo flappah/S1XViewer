@@ -1589,41 +1589,39 @@ namespace S1XViewer
             var vectorFeatureList = new List<Feature>();
             var filledPolyFeatureLists = new Dictionary<string, List<Feature>>();
 
-            Parallel.ForEach(dataPackage.GeoFeatures, feature =>
+            //Parallel.ForEach(dataPackage.GeoFeatures, feature =>
+            foreach (var feature in dataPackage.GeoFeatures)
             {
                 if (feature is IGeoFeature geoFeature)
                 {
                     (string type, Feature feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererManager, horizontalCRS);
 
-                    lock (this)
+                    switch (renderedFeature.type)
                     {
-                        switch (renderedFeature.type)
-                        {
-                            case "PointFeatures":
-                                pointFeatureList.Add(renderedFeature.feature);
-                                break;
+                        case "PointFeatures":
+                            pointFeatureList.Add(renderedFeature.feature);
+                            break;
 
-                            case "LineFeatures":
-                                lineFeatureList.Add(renderedFeature.feature);
-                                break;
+                        case "LineFeatures":
+                            lineFeatureList.Add(renderedFeature.feature);
+                            break;
 
-                            case "PolygonFeatures":
-                                polygonFeatureList.Add(renderedFeature.feature);
-                                break;
+                        case "PolygonFeatures":
+                            polygonFeatureList.Add(renderedFeature.feature);
+                            break;
 
-                            case "VectorFeatures":
-                                vectorFeatureList.Add(renderedFeature.feature);
-                                break;
+                        case "VectorFeatures":
+                            vectorFeatureList.Add(renderedFeature.feature);
+                            break;
 
-                            default:
-                                if (filledPolyFeatureLists.ContainsKey(renderedFeature.type) == false)
-                                {
-                                    filledPolyFeatureLists.Add(renderedFeature.type, new List<Feature>());
-                                }
-                                filledPolyFeatureLists[renderedFeature.type].Add(renderedFeature.feature);
+                        default:
+                            if (filledPolyFeatureLists.ContainsKey(renderedFeature.type) == false)
+                            {
+                                filledPolyFeatureLists.Add(renderedFeature.type, new List<Feature>());
+                            }
+                            filledPolyFeatureLists[renderedFeature.type].Add(renderedFeature.feature);
 
-                                break;
-                        }
+                            break;
                     }
 
                     if (renderedFeature.graphic != null)
@@ -1631,7 +1629,7 @@ namespace S1XViewer
                         graphicList.Add(renderedFeature.graphic);
                     }
                 }
-            });
+            }
 
             await pointsTable.AddFeaturesAsync(pointFeatureList);
             await linesTable.AddFeaturesAsync(lineFeatureList);
