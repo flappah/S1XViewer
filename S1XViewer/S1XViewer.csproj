@@ -49,6 +49,8 @@
     <PackageReference Include="GDAL" Version="3.6.3" />
     <PackageReference Include="GDAL.Native" Version="3.6.3" />
     <PackageReference Include="HDF5-CSharp" Version="1.17.0" />
+    <PackageReference Include="LiveCharts" Version="0.9.7" />
+    <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
   </ItemGroup>
 
   <ItemGroup>
