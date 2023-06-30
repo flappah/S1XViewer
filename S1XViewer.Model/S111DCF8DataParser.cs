@@ -71,6 +71,7 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
+            _syncContext = SynchronizationContext.Current;
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
@@ -137,7 +138,7 @@ namespace S1XViewer.Model
 
                     if (positionValues == null || positionValues.Length == 0)
                     {
-                        throw new Exception($"Surfacefeature with name {positioningElement.Children[0].Name} contains no positions!");
+                        throw new Exception($"SurfaceFeature with name {positioningElement.Children[0].Name} contains no positions!");
                     }
 
                     // retrieve directions and current speeds
@@ -167,6 +168,7 @@ namespace S1XViewer.Model
                     await Task.Run(() =>
                     {
                         int stationNumber = 0;
+                        int maxCount = selectedSurfaceFeatureElement.Children.Count;
                         foreach (Hdf5Element? groupHdf5Group in selectedSurfaceFeatureElement.Children)
                         {
                             if (groupHdf5Group.Name.Contains("Group_"))
@@ -254,6 +256,13 @@ namespace S1XViewer.Model
 
                                     geoFeatures[stationNumber] = currentNonGravitationalInstance;
                                     stationNumber++;
+
+                                    var ratio = 50 + (int)((50.0 / (double)maxCount) * (double)stationNumber);
+                                    _syncContext?.Post(new SendOrPostCallback(r =>
+                                    {
+                                        Progress?.Invoke((int)r);
+
+                                    }), ratio);
                                 }
                             }
                         }

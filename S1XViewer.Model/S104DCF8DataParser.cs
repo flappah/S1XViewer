@@ -71,6 +71,9 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
+            _syncContext = SynchronizationContext.Current;
+            Progress?.Invoke(50);
+
             Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
             long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
             if (horizontalCRS <= 0)
@@ -147,9 +150,11 @@ namespace S1XViewer.Model
                     }
 
                     IGeoFeature[] geoFeatures = new IGeoFeature[numberOfStations];
+
                     await Task.Run(() =>
                     {
                         int stationNumber = 0;
+                        int maxCount = selectedWaterLevelFeatureElement.Children.Count;
                         foreach (Hdf5Element? groupHdf5Group in selectedWaterLevelFeatureElement.Children)
                         {
                             if (groupHdf5Group.Name.Contains("Group_"))
@@ -252,6 +257,13 @@ namespace S1XViewer.Model
                                 geoFeatures[stationNumber] = tidalStationInstance;
                                 stationNumber++;
                             }
+
+                            var ratio = 50 + (int)((50.0 / (double)maxCount) * (double)stationNumber);
+                            _syncContext?.Post(new SendOrPostCallback(r =>
+                            {
+                                Progress?.Invoke((int)r);
+
+                            }), ratio);
                         }
                     });
 
@@ -265,6 +277,7 @@ namespace S1XViewer.Model
                 }
             }
 
+            Progress?.Invoke(100);
             return dataPackage;
         }
 

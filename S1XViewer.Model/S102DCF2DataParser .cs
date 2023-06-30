@@ -165,6 +165,7 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
+            _syncContext = SynchronizationContext.Current;
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S102Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
@@ -299,6 +300,7 @@ namespace S1XViewer.Model
                         dataPackage.numPointsY = numPointsLatitude;
 
                         dataPackage.Data = new float[numPointsLatitude, numPointsLongitude];
+
                         for (int yIdx = 0; yIdx < numPointsLatitude; yIdx++)
                         {
                             for (int xIdx = 0; xIdx < (numPointsLongitude * 2); xIdx += 2)

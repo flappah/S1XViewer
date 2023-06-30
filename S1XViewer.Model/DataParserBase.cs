@@ -9,6 +9,7 @@ namespace S1XViewer.Model
     public abstract class DataParserBase : IDataParser
     {
         protected IOptionsStorage _optionsStorage;
+        protected SynchronizationContext? _syncContext;
 
         public abstract event IDataParser.ProgressFunction? Progress;
 

@@ -59,6 +59,7 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
+            _syncContext = SynchronizationContext.Current;
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
@@ -138,12 +139,16 @@ namespace S1XViewer.Model
                     if (timeInterval > 0)
                     {
                         var geoFeatures = new List<IGeoFeature>();
+
                         await Task.Run(() =>
                         {
                             var startDateTimeAttribute = selectedSurfaceFeatureElement.Attributes.Find("dateTimeOfFirstRecord");
                             string startDateTimeString = startDateTimeAttribute?.Value<string>("") ?? "";
                             DateTime startDateTime =
                                 DateTime.ParseExact(startDateTimeString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
+
+                            int stationNumber = 0;
+                            int maxCount = selectedSurfaceFeatureElement.Children.Count;
 
                             foreach (Hdf5Element? groupHdf5Group in selectedSurfaceFeatureElement.Children)
                             {
@@ -178,7 +183,16 @@ namespace S1XViewer.Model
                                             i++;
                                         }
                                     }
+
+                                    stationNumber++;
                                 }
+
+                                var ratio = 50 + (int)((50.0 / (double)maxCount) * (double)stationNumber);
+                                _syncContext?.Post(new SendOrPostCallback(r =>
+                                {
+                                    Progress?.Invoke((int)r);
+
+                                }), ratio);
                             }
                         }).ConfigureAwait(false);
 

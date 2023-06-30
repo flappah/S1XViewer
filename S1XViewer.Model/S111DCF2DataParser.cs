@@ -2,7 +2,6 @@
 using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
-using S1XViewer.Model.Geometry;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
@@ -11,7 +10,6 @@ using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
 using System.Globalization;
 using System.Xml;
-using Windows.Media.Capture;
 
 namespace S1XViewer.Model
 {
@@ -72,6 +70,7 @@ namespace S1XViewer.Model
                 RawHdfData = null
             };
 
+            _syncContext = SynchronizationContext.Current;
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
@@ -162,17 +161,23 @@ namespace S1XViewer.Model
             if (minGroup != null)
             {
                 var geoFeatures = new List<IGeoFeature>();
+
                 await Task.Run(() =>
                 {
                     //we've found the relevant group. Use this group to create features on by calculating its position
-                    var minGroupParentNode = (Hdf5Element)minGroup.Parent;
-                    var gridOriginLatitudeElement = minGroupParentNode.Attributes.Find("gridOriginLatitude");
+                    var surfaceFeatureInstanceNode = (Hdf5Element)minGroup.Parent;
+                    if (surfaceFeatureInstanceNode == null)
+                    {
+                        return;
+                    }
+
+                    var gridOriginLatitudeElement = surfaceFeatureInstanceNode.Attributes.Find("gridOriginLatitude");
                     var gridOriginLatitude = gridOriginLatitudeElement?.Value<double>() ?? -999.0;
-                    var gridOriginLongitudeElement = minGroupParentNode.Attributes.Find("gridOriginLongitude");
+                    var gridOriginLongitudeElement = surfaceFeatureInstanceNode.Attributes.Find("gridOriginLongitude");
                     var gridOriginLongitude = gridOriginLongitudeElement?.Value<double>() ?? -999.0;
-                    var gridSpacingLatitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLatitudinal");
+                    var gridSpacingLatitudinalElement = surfaceFeatureInstanceNode.Attributes.Find("gridSpacingLatitudinal");
                     var gridSpacingLatitudinal = gridSpacingLatitudinalElement?.Value<double>() ?? -999.0;
-                    var gridSpacingLongitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal");
+                    var gridSpacingLongitudinalElement = surfaceFeatureInstanceNode.Attributes.Find("gridSpacingLongitudinal");
                     var gridSpacingLongitudinal = gridSpacingLongitudinalElement?.Value<double>() ?? -999.0;
 
                     if (gridOriginLatitude == -999.0 || gridOriginLongitude == -999.0 || gridSpacingLatitudinal == -999.0 || gridSpacingLongitudinal == -999.0)
@@ -180,15 +185,27 @@ namespace S1XViewer.Model
                         return;
                     }
 
-                    var numPointsLatitudinalElement = minGroupParentNode.Attributes.Find("numPointsLatitudinal");
+                    var numPointsLatitudinalElement = surfaceFeatureInstanceNode.Attributes.Find("numPointsLatitudinal");
                     int numPointsLatitude = numPointsLatitudinalElement?.Value<int>() ?? -1;
-                    var numPointsLongitudinalNode = minGroupParentNode.Attributes.Find("numPointsLongitudinal");
+                    var numPointsLongitudinalNode = surfaceFeatureInstanceNode.Attributes.Find("numPointsLongitudinal");
                     int numPointsLongitude = numPointsLongitudinalNode?.Value<int>() ?? -1;
 
                     if (numPointsLatitude == -1 || numPointsLongitude == -1)
                     {
                         return;
                     }
+
+                    var startSequenceNode = surfaceFeatureInstanceNode.Attributes.Find("startSequence");
+                    string startSequence = startSequenceNode?.Value<string>() ?? string.Empty;
+
+                    var surfaceFeatureNode = (Hdf5Element)surfaceFeatureInstanceNode.Parent;
+                    if (surfaceFeatureNode == null) 
+                    {
+                        return;
+                    }
+
+                    var scanDirectionNode = surfaceFeatureNode.Attributes.Find("sequencingRule.scanDirection");
+                    string scanDirection = scanDirectionNode?.Value<string>() ?? string.Empty;
 
                     var currentDataset =
                           _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude * 2);
@@ -198,35 +215,37 @@ namespace S1XViewer.Model
                         return;
                     }
 
-                    for (int latIdx = 0; latIdx < numPointsLatitude; latIdx++)
+                    int innerLoopMax = numPointsLongitude;
+                    int outerLoopMax = numPointsLatitude;
+                    for (int outerLoopIdx = 0; outerLoopIdx < outerLoopMax; outerLoopIdx++)
                     {
-                        for (int lonIdx = 0; lonIdx < (numPointsLongitude * 2); lonIdx += 2)
+                        for (int innerLoopIdx = 0; innerLoopIdx < (innerLoopMax * 2); innerLoopIdx += 2)
                         {
                             // build up features and wrap 'em in datapackage
                             float speed;
                             float direction;
                             if (currentDataset.members[0].Equals("surfaceCurrentDirection"))
                             {
-                                direction = currentDataset.values[latIdx, lonIdx];
-                                speed = currentDataset.values[latIdx, lonIdx + 1];
+                                direction = currentDataset.values[outerLoopIdx, innerLoopIdx];
+                                speed = currentDataset.values[outerLoopIdx, innerLoopIdx + 1];
                             }
                             else
                             {
-                                speed = currentDataset.values[latIdx, lonIdx];
-                                direction = currentDataset.values[latIdx, lonIdx + 1];
+                                speed = currentDataset.values[outerLoopIdx, innerLoopIdx];
+                                direction = currentDataset.values[outerLoopIdx, innerLoopIdx + 1];
                             }
 
                             if (speed != nillValueSpeed && direction != nillValueDirection)
                             {
-                                double longitude = gridOriginLongitude + (((double)lonIdx / 2.0) * gridSpacingLongitudinal);
-                                double latitude = gridOriginLatitude + ((double)latIdx * gridSpacingLatitudinal);
+                                double longitude = gridOriginLongitude + (((double)innerLoopIdx / 2.0) * gridSpacingLongitudinal);
+                                double latitude = gridOriginLatitude + ((double)outerLoopIdx * gridSpacingLatitudinal);
 
                                 var geometry =
                                     _geometryBuilderFactory.Create("Point", new double[] { longitude }, new double[] { latitude }, (int)horizontalCRS);
 
                                 var currentNonGravitationalInstance = new CurrentNonGravitational()
                                 {
-                                    Id = minGroup.Name + $"_{latIdx}_{lonIdx}",
+                                    Id = minGroup.Name + $"_{outerLoopIdx}_{innerLoopIdx}",
                                     FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{longitude.ToString().Replace(",", ".")}_{latitude.ToString().Replace(",", ".")}" } },
                                     Orientation = new Orientation { OrientationValue = direction },
                                     Speed = new Speed { SpeedMaximum = speed },
@@ -237,7 +256,12 @@ namespace S1XViewer.Model
                             }
                         }
 
-                        Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)latIdx));
+                        var ratio = 50 + (int)((50.0 / (double)numPointsLatitude) * (double)outerLoopIdx);
+                        _syncContext?.Post(new SendOrPostCallback(r =>
+                        {
+                            Progress?.Invoke((int)r);
+
+                        }), ratio);
                     }
 
                     dataPackage.RawHdfData = hdf5S111Root;
@@ -264,177 +288,14 @@ namespace S1XViewer.Model
         /// <exception cref="NotImplementedException"></exception>
         public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
         {
-            if (string.IsNullOrEmpty(hdf5FileName))
+            return new S111DataPackage
             {
-                throw new ArgumentException($"'{nameof(hdf5FileName)}' cannot be null or empty.", nameof(hdf5FileName));
-            }
-
-            if (selectedDateTime == null)
-            {
-                return new S111DataPackage
-                {
-                    Type = S1xxTypes.Null,
-                    RawHdfData = null,
-                    GeoFeatures = new IGeoFeature[0],
-                    MetaFeatures = new IMetaFeature[0],
-                    InformationFeatures = new IInformationFeature[0]
-                };
-            }
-
-            var dataPackage = new S111DataPackage
-            {
-                Type = S1xxTypes.S111,
-                RawHdfData = null
+                Type = S1xxTypes.Null,
+                RawHdfData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
             };
-
-            Progress?.Invoke(50);
-
-            Hdf5Element hdf5S111Root = _productSupport.RetrieveHdf5FileAsync(hdf5FileName).GetAwaiter().GetResult();
-            long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
-
-            // retrieve boundingbox
-            var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
-            var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<double>(0f) ?? 0.0;
-            var northBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("northBoundLatitude");
-            var northBoundLatitude = northBoundLatitudeAttribute?.Value<double>(0f) ?? 0f;
-            var southBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("southBoundLatitude");
-            var southBoundLatitude = southBoundLatitudeAttribute?.Value<double>(0f) ?? 0f;
-            var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
-            var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0f) ?? 0f;
-
-            string invertLatLonString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
-            if (!bool.TryParse(invertLatLonString, out bool invertLatLon))
-            {
-                invertLatLon = false;
-            }
-            string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
-            _geometryBuilderFactory.InvertLonLat = invertLatLon;
-            _geometryBuilderFactory.DefaultCRS = defaultCRSString;
-
-            dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
-
-            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent"));
-            if (featureElement == null)
-            {
-                return dataPackage;
-            }
-
-            double nillValueSpeed = -9999.0;
-            double nillValueDirection = -9999.0;
-            var featureMetaInfoElements = _datasetReader.ReadCompound<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
-            if (featureMetaInfoElements.members.Length > 0)
-            {
-                foreach (var featureMetainfoElementValue in featureMetaInfoElements.values)
-                {
-                    if (featureMetainfoElementValue.code.Equals("surfaceCurrentSpeed"))
-                    {
-                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedFillValue))
-                        {
-                            nillValueSpeed = speedFillValue;
-                        }
-                    }
-                    else if (featureMetainfoElementValue.code.Equals("surfaceCurrentDirection") || featureMetainfoElementValue.code.Equals("sufaceCurrentDirection"))
-                    {
-                        if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedDirectionValue))
-                        {
-                            nillValueDirection += speedDirectionValue;
-                        }
-                    }
-                }
-            }
-
-            Hdf5Element? minGroup = _productSupport.FindGroupByDateTime(featureElement.Children, selectedDateTime);
-            if (minGroup != null)
-            {
-                var geoFeatures = new List<IGeoFeature>();
-
-                //we've found the relevant group. Use this group to create features on by calculating its position
-                var minGroupParentNode = (Hdf5Element)minGroup.Parent;
-                var gridOriginLatitudeElement = minGroupParentNode.Attributes.Find("gridOriginLatitude");
-                var gridOriginLatitude = gridOriginLatitudeElement?.Value<double>() ?? -1.0;
-                var gridOriginLongitudeElement = minGroupParentNode.Attributes.Find("gridOriginLongitude");
-                var gridOriginLongitude = gridOriginLongitudeElement?.Value<double>() ?? -1.0;
-                var gridSpacingLatitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLatitudinal");
-                var gridSpacingLatitudinal = gridSpacingLatitudinalElement?.Value<double>() ?? -1.0;
-                var gridSpacingLongitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal");
-                var gridSpacingLongitudinal = gridSpacingLongitudinalElement?.Value<double>() ?? -1.0;
-
-                if (gridOriginLatitude == -1.0 || gridOriginLongitude == -1.0 || gridSpacingLatitudinal == -1.0 || gridSpacingLongitudinal == -1.0)
-                {
-                    return dataPackage;
-                }
-
-                var numPointsLatitudinalElement = minGroupParentNode.Attributes.Find("numPointsLatitudinal");
-                int numPointsLatitude = numPointsLatitudinalElement?.Value<int>() ?? -1;
-                var numPointsLongitudinalNode = minGroupParentNode.Attributes.Find("numPointsLongitudinal");
-                int numPointsLongitude = numPointsLongitudinalNode?.Value<int>() ?? -1;
-
-                if (numPointsLatitude == -1 || numPointsLongitude == -1)
-                {
-                    return dataPackage;
-                }
-
-                var currentDataset =
-                      _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude * 2);
-
-                if (currentDataset.members.Length == 0)
-                {
-                    return dataPackage;
-                }
-
-                for (int latIdx = 0; latIdx < numPointsLatitude; latIdx++)
-                {
-                    for (int lonIdx = 0; lonIdx < numPointsLongitude; lonIdx += 2)
-                    {
-                        // build up featutes ard wrap 'em in datapackage
-                        float speed;
-                        float direction;
-                        if (currentDataset.members[0].Equals("surfaceCurrentDirection"))
-                        {
-                            direction = currentDataset.values[latIdx, lonIdx];
-                            speed = currentDataset.values[latIdx, lonIdx + 1];
-                        }
-                        else
-                        {
-                            speed = currentDataset.values[latIdx, lonIdx];
-                            direction = currentDataset.values[latIdx, latIdx + 1];
-                        }
-
-                        if (speed != nillValueSpeed && direction != nillValueDirection)
-                        {
-                            double longitude = gridOriginLongitude + (((double)lonIdx / 2.0) * gridSpacingLongitudinal);
-                            double latitude = gridOriginLatitude + ((double)latIdx * gridSpacingLatitudinal);
-
-                            var geometry =
-                                _geometryBuilderFactory.Create("Point", new double[] { longitude }, new double[] { latitude }, (int)horizontalCRS);
-
-                            var currentNonGravitationalInstance = new CurrentNonGravitational()
-                            {
-                                Id = minGroup.Name + $"_{latIdx}_{lonIdx}",
-                                FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{longitude.ToString().Replace(",", ".")}_{latitude.ToString().Replace(",", ".")}" } },
-                                Orientation = new Orientation { OrientationValue = direction },
-                                Speed = new Speed { SpeedMaximum = speed },
-                                Geometry = geometry
-                            };
-
-                            geoFeatures.Add(currentNonGravitationalInstance);
-                        }
-                    }
-
-                    Progress?.Invoke(50 + (int)((50.0 / (double)numPointsLatitude) * (double)latIdx));
-                }
-
-                if (geoFeatures.Count > 0)
-                {
-                    dataPackage.RawHdfData = hdf5S111Root;
-                    dataPackage.GeoFeatures = geoFeatures.ToArray();
-                    dataPackage.MetaFeatures = new IMetaFeature[0];
-                    dataPackage.InformationFeatures = new IInformationFeature[0];
-                }
-            }
-
-            Progress?.Invoke(100);
-            return dataPackage;
         }
 
         /// <summary>
