@@ -151,25 +151,6 @@ namespace S1XViewer
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <exception cref="NotImplementedException"></exception>
-        private void ColorSchemeItem_Selected(object sender, RoutedEventArgs e)
-        {
-            if (_uiInitializing == false)
-            {
-                if (e.Source is RibbonGalleryItem selectedItem)
-                {
-                    var optionsStorage = _container.Resolve<IOptionsStorage>();
-                    var colorSchemeSelection = String.IsNullOrEmpty(selectedItem.Content?.ToString()) ? "default.xml" : selectedItem.Content?.ToString();
-                    optionsStorage.Store("ColorSchemeSelection", colorSchemeSelection);
-                }
-            }
-        }
-
-        /// <summary>
         ///     To handle closing the mainform when user presses the window its close button (X)
         /// </summary>
         /// <param name="sender"></param>
@@ -233,6 +214,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         public void AutoOpen_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             var selectedFilename = ((RibbonMenuItem)sender).Tag.ToString() ?? string.Empty;            
             comboboxColorSchemes.IsEnabled = false;
 
@@ -279,7 +270,36 @@ namespace S1XViewer
                 }
             }
         }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void ColorSchemeItem_Selected(object sender, RoutedEventArgs e)
+        {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
+            if (_uiInitializing == false)
+            {
+                if (e.Source is RibbonGalleryItem selectedItem)
+                {
+                    var optionsStorage = _container.Resolve<IOptionsStorage>();
+                    var colorSchemeSelection = String.IsNullOrEmpty(selectedItem.Content?.ToString()) ? "default.xml" : selectedItem.Content?.ToString();
+                    optionsStorage.Store("ColorSchemeSelection", colorSchemeSelection);
+                }
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -287,6 +307,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void buttonFileAdd_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Filter = "HDF5 files (*.h5;*.hdf5)|*.h5;*.hdf5|ENC files (*.000)|*.031"
@@ -364,6 +394,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         public void buttonFileOpen_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Filter = "All files (*.*)|*.*|XML/GML files (*.xml;*.gml)|*.xml;*.gml|HDF5 files (*.h5;*.hdf5)|*.h5;*.hdf5|ENC files (*.000)|*.031"
@@ -449,6 +489,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         public void buttonClearLayers_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             _dataPackages.Clear();
 
             Layer? encLayer = myMapView?.Map?.OperationalLayers?.ToList().Find(tp => tp.GetType().ToString().Contains("EncLayer"));
@@ -499,6 +549,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         public void buttonOptions_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             var newOptionsMenu = new OptionsWindow
             {
                 Owner = this,
@@ -514,6 +574,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         public async void TreeviewItem_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             var itemDataTable = ((TreeViewItem)sender).Tag as DataTable;
             if (itemDataTable != null)
             {
@@ -570,6 +640,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         private async void buttonBackward_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             var firstDateTimeSeries = (DateTime)buttonBackward.Tag;
 
             var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "#" }, StringSplitOptions.RemoveEmptyEntries);
@@ -608,6 +688,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         private async void buttonForward_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             var lastDateTimeSeries = (DateTime)buttonForward.Tag;
             var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "#" }, StringSplitOptions.RemoveEmptyEntries);
             if (textboxTimeValueTagValues?.Length == 3)
@@ -644,6 +734,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void buttonEditColorScheme_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             try
             {
                 var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
@@ -666,6 +766,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         private void buttonRefresh_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             var fileName = ((RibbonButton)sender).Tag.ToString();
 
             if (String.IsNullOrEmpty(fileName) == false)
@@ -708,6 +818,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         private async void buttonResetView_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             if (myMapView != null && myMapView.Map != null && myMapView.Map.OperationalLayers != null && myMapView.Map.OperationalLayers.Count() > 0)
             {
                 List<Envelope> datasetExtents = new List<Envelope>();
@@ -747,6 +867,16 @@ namespace S1XViewer
         /// <param name="e"></param>
         private async void buttonFindFeature_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is null)
+            {
+                return;
+            }
+
+            if (e is null)
+            {
+                return;
+            }
+
             if (textBoxFindValue.Text == null || textBoxFindValue.Text.Length == 0)
             {
                 return;
