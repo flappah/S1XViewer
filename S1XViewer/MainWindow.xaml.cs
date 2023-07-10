@@ -768,34 +768,110 @@ namespace S1XViewer
                 };
             }
 
+            var results = new Dictionary<string, DataTable>();
             foreach (Layer operationalLayer in myMapView.Map.OperationalLayers)
             {
                 if (operationalLayer is FeatureCollectionLayer featureCollectionLayer)
                 {
                     foreach (var table in featureCollectionLayer.FeatureCollection.Tables)
                     {
-                        var featureQueryResult = await table.QueryFeaturesAsync(queryParameters);
+                        FeatureQueryResult featureQueryResult = await table.QueryFeaturesAsync(queryParameters);
                         if (featureQueryResult.Count() > 0)
                         {
-                            var feature = featureQueryResult.First();
-
+                            Feature idFeature = featureQueryResult.First();
                             featureCollectionLayer?.Layers.ToList().ForEach(l => l.ClearSelection());
 
                             foreach (var layer in featureCollectionLayer?.Layers)
                             {
-                                if (feature.Geometry is MapPoint && layer.Name.Equals("PointFeatures"))
+                                if (idFeature.Geometry is MapPoint && layer.Name.Equals("PointFeatures"))
                                 {
-                                    layer.SelectFeature(feature);
+                                    layer.SelectFeature(idFeature);
                                 }
-                                else if ((feature.Geometry is MapPoint) == false && layer.Name.Equals("PointFeatures") == false)
+                                else if ((idFeature.Geometry is MapPoint) == false && layer.Name.Equals("PointFeatures") == false)
                                 {
-                                    layer.SelectFeature(feature);
+                                    layer.SelectFeature(idFeature);
                                 }
                             }
+
+                            if (idFeature != null && idFeature.Attributes.ContainsKey("FeatureId"))
+                            {
+                                if (String.IsNullOrEmpty(idFeature.Attributes["FeatureId"]?.ToString()) == false)
+                                {
+                                    IFeature feature = FindFeature(idFeature.Attributes["FeatureId"].ToString());
+                                    if (feature != null)
+                                    {
+                                        DataTable featureAttributesDataTable = feature.GetData();
+                                        string key = (feature is IGeoFeature geoFeature ?
+                                            $"{geoFeature.GetType().ToString().LastPart(".")} ({geoFeature.FeatureName.First()?.Name})" :
+                                            feature.Id.ToString()) ?? $"No named feature with Id '{feature.Id}'";
+
+                                        if (results.ContainsKey(key))
+                                        {
+                                            int i = 0;
+                                            while (results.ContainsKey($"{key} ({++i})")) ;
+                                            key = $"{key} ({i})";
+                                        }
+
+                                        results.Add(key, featureAttributesDataTable);
+                                    }
+                                }
+                            }
+
                             break;
                         }
                     }
                 }
+            }
+
+            if (results != null && results.Count > 0)
+            {
+                dataGridFeatureProperties.ItemsSource = results.First().Value.AsDataView();
+                dataGridFeatureProperties.Items.Refresh();
+
+                if (treeViewFeatures.Items.Count > 0)
+                {
+                    // make a local copy of the treeviewitems
+                    TreeViewItem[] tvItemArray = new TreeViewItem[treeViewFeatures.Items.Count];
+                    treeViewFeatures.Items.CopyTo(tvItemArray, 0);
+                    List<TreeViewItem> tvItemList = tvItemArray.ToList();
+
+                    // remove all non-meta features
+                    foreach (TreeViewItem item in treeViewFeatures.Items)
+                    {
+                        if (item.Tag.Equals("meta") == false)
+                        {
+                            tvItemList.Remove(item);
+                        }
+                    }
+
+                    // and restore treeview with meta features
+                    treeViewFeatures.Items.Clear();
+                    foreach (TreeViewItem item in tvItemList)
+                    {
+                        treeViewFeatures.Items.Add(item);
+                    }
+                }
+
+                // add geo features
+                var parentTreeNode = new TreeViewItem
+                {
+                    Header = $"Selected {results.Count.ToString()} geo-feature{(results.Count == 1 ? "" : "s")}",
+                    Tag = "feature_count",
+                    IsExpanded = true
+                };
+                treeViewFeatures.Items.Add(parentTreeNode);
+
+                foreach (KeyValuePair<string, DataTable> result in results)
+                {
+                    TreeViewItem treeNode = new();
+                    treeNode.MouseUp += TreeviewItem_Click;
+                    treeNode.Header = result.Key;
+                    treeNode.Tag = result.Value;
+
+                    parentTreeNode.Items.Add(treeNode);
+                }
+
+                    ((TreeViewItem)parentTreeNode.Items[0]).IsSelected = true;
             }
         }
 
@@ -1783,12 +1859,12 @@ namespace S1XViewer
         {
             if (sender is null)
             {
-                throw new ArgumentNullException(nameof(sender));
+                return;
             }
 
             if (e is null)
             {
-                throw new ArgumentNullException(nameof(e));
+                return;
             }
 
             if (myMapView == null || myMapView.Map == null || myMapView.Map.OperationalLayers == null)
