@@ -137,7 +137,7 @@ namespace S1XViewer.Model
             var featureMetaInfoElements = _datasetReader.ReadCompound<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/SurfaceCurrent");
             if (featureMetaInfoElements.values.Length > 0)
             {
-                foreach (var featureMetainfoElementValue in  featureMetaInfoElements.values) 
+                foreach (var featureMetainfoElementValue in featureMetaInfoElements.values) 
                 {
                     if (featureMetainfoElementValue.code.Equals("surfaceCurrentSpeed"))
                     {
@@ -146,7 +146,7 @@ namespace S1XViewer.Model
                             nillValueSpeed = speedFillValue;
                         }
                     }
-                    else if (featureMetainfoElementValue.code.Equals("surfaceCurrentDirection") || featureMetainfoElementValue.code.Equals("surfaceCurrentDirection"))
+                    else if (featureMetainfoElementValue.code.Equals("surfaceCurrentDirection"))
                     {
                         if (float.TryParse(featureMetainfoElementValue.fillValue, NumberStyles.Float, new CultureInfo("en-US"), out float speedDirectionValue))
                         {

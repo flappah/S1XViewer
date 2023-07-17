@@ -35,7 +35,7 @@ namespace S1XViewer
         private void labelLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var series = new ChartValues<double>();
-            var xAsis = new List<DateTime>();
+            var xAsis = new List<string>();
 
             var stationName = string.Empty;
             foreach (DataRow row in FieldCollection)
@@ -52,9 +52,9 @@ namespace S1XViewer
                             var keyValue = splittedValue.Split(new[] { "=" }, StringSplitOptions.RemoveEmptyEntries);
                             if (keyValue.Length == 2)
                             {
-                                if (DateTime.TryParseExact(keyValue[0], "ddMMMyyyy HHss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timeStamp))
+                                if (DateTime.TryParseExact(keyValue[0], "ddMMMyyyy HHmm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timeStamp))
                                 {
-                                    xAsis.Add(timeStamp);
+                                    xAsis.Add(timeStamp.ToString("HHmm"));
                                 }
 
                                 if (double.TryParse(keyValue[1].Replace(",", "."), System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out double height))
@@ -74,6 +74,7 @@ namespace S1XViewer
 
             var tidalCurveWindow = new TidalCurveWindow();
             tidalCurveWindow.Title = "Tidal Curve at " + stationName;
+            tidalCurveWindow.Labels = xAsis.ToArray();
             tidalCurveWindow.SeriesCollection = new SeriesCollection() 
             {
                 new LineSeries
