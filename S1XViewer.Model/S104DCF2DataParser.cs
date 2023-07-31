@@ -367,7 +367,7 @@ namespace S1XViewer.Model
         /// <exception cref="NotImplementedException"></exception>
         public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
         {
-            return new S111DataPackage
+            return new S104DataPackage
             {
                 Type = S1xxTypes.Null,
                 RawHdfData = null,
@@ -385,7 +385,7 @@ namespace S1XViewer.Model
         /// <exception cref="NotImplementedException"></exception>
         public override async Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
         {
-            return new S111DataPackage
+            return new S104DataPackage
             {
                 Type = S1xxTypes.Null,
                 RawHdfData = null,
@@ -403,7 +403,7 @@ namespace S1XViewer.Model
         /// <exception cref="NotImplementedException"></exception>
         public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
         {
-            return new S111DataPackage
+            return new S104DataPackage
             {
                 Type = S1xxTypes.Null,
                 RawHdfData = null,

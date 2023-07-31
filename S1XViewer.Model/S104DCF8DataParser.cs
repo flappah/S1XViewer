@@ -54,7 +54,7 @@ namespace S1XViewer.Model
 
             if (selectedDateTime == null)
             {
-                return new S111DataPackage
+                return new S104DataPackage
                 {
                     Type = S1xxTypes.Null,
                     RawHdfData = null,
@@ -74,8 +74,8 @@ namespace S1XViewer.Model
             _syncContext = SynchronizationContext.Current;
             Progress?.Invoke(50);
 
-            Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
-            long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
+            Hdf5Element hdf5S104Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
+            long horizontalCRS = RetrieveHorizontalCRS(hdf5S104Root, hdf5FileName);
             if (horizontalCRS <= 0)
             {
                 string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
@@ -96,7 +96,7 @@ namespace S1XViewer.Model
             _geometryBuilderFactory.InvertLonLat = invertLonLat;
 
             // retrieve relevant time-frame from SurfaceCurrents collection
-            Hdf5Element? featureElement = hdf5S111Root.Children.Find(elm => elm.Name.Equals("/WaterLevel"));
+            Hdf5Element? featureElement = hdf5S104Root.Children.Find(elm => elm.Name.Equals("/WaterLevel"));
             if (featureElement == null)
             {
                 return dataPackage;
@@ -115,13 +115,13 @@ namespace S1XViewer.Model
             }
 
             // retrieve boundingbox
-            var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
+            var eastBoundLongitudeAttribute = hdf5S104Root.Attributes.Find("eastBoundLongitude");
             var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<double>(0.0) ?? 0.0;
-            var northBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("northBoundLatitude");
+            var northBoundLatitudeAttribute = hdf5S104Root.Attributes.Find("northBoundLatitude");
             var northBoundLatitude = northBoundLatitudeAttribute?.Value<double>(0.0) ?? 0.0;
-            var southBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("southBoundLatitude");
+            var southBoundLatitudeAttribute = hdf5S104Root.Attributes.Find("southBoundLatitude");
             var southBoundLatitude = southBoundLatitudeAttribute?.Value<double>(0.0) ?? 0.0;
-            var westBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("westBoundLongitude");
+            var westBoundLongitudeAttribute = hdf5S104Root.Attributes.Find("westBoundLongitude");
             var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0.0) ?? 0.0;
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
@@ -267,7 +267,7 @@ namespace S1XViewer.Model
                         }
                     });
 
-                    dataPackage.RawHdfData = hdf5S111Root;
+                    dataPackage.RawHdfData = hdf5S104Root;
                     if (geoFeatures.Length > 0)
                     {
                         dataPackage.GeoFeatures = geoFeatures.ToArray();
@@ -282,25 +282,58 @@ namespace S1XViewer.Model
         }
 
         /// <summary>
-        /// 
+        ///     Parses specified HDF5 file
+        /// </summary>
+        /// <param name="hdf5FileName">HDF5 file name</param>
+        /// <param name="selectedDateTime">selected datetime to render data on</param>
+        /// <returns>IS1xxDataPackage</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
+        {
+            return new S104DataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawHdfData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
+        }
+
+        /// <summary>
+        ///     No implementation!
         /// </summary>
         /// <param name="xmlDocument"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override async Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
         {
-            throw new NotImplementedException();
+            return new S104DataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawHdfData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
         }
 
+        /// <summary>
+        ///     No implementation!
+        /// </summary>
+        /// <param name="xmlDocument"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
         {
-            throw new NotImplementedException();
+            return new S104DataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawHdfData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
         }
-
-        public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }
