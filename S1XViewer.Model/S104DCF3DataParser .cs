@@ -139,7 +139,7 @@ namespace S1XViewer.Model
             // retrieve values for undefined data cells
             double nillValueHeight = -9999.0;
             double nillValueTrend = 0;
-            var featureMetaInfoElements = _datasetReader.ReadCompound<SurfaceCurrentInformationInstance>(hdf5FileName, "/Group_F/WaterLevel");
+            var featureMetaInfoElements = _datasetReader.ReadCompound<WaterLevelInformationInstance>(hdf5FileName, "/Group_F/WaterLevel");
             if (featureMetaInfoElements.values.Length > 0)
             {
                 foreach (var featureMetainfoElementValue in featureMetaInfoElements.values)

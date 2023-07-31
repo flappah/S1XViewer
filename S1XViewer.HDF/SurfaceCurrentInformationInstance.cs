@@ -1,5 +1,4 @@
-﻿using HDF5CSharp.DataTypes;
-using PureHDF;
+﻿using PureHDF;
 using System.Runtime.InteropServices;
 
 namespace S1XViewer.HDF
