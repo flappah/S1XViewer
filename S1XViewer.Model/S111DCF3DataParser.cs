@@ -149,12 +149,12 @@ namespace S1XViewer.Model
                     }
                 }
             }
-            
-            var selectedSurfaceFeatureElement = featureElement.Children[0];
-            if (selectedSurfaceFeatureElement != null)
+
+            Hdf5Element? minGroup = _productSupport.FindGroupByDateTime(featureElement.Children, selectedDateTime);
+            if (minGroup != null)
             {
                 // now retrieve positions 
-                var positioningElement = selectedSurfaceFeatureElement.Children.Find(nd => nd.Name.LastPart("/") == "Positioning");
+                var positioningElement = ((Hdf5Element)minGroup.Parent).Children.Find(nd => nd.Name.LastPart("/") == "Positioning");
                 if (positioningElement != null)
                 {
                     var positionValues =

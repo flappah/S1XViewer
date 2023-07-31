@@ -268,7 +268,7 @@ namespace S1XViewer.Model
                                             double longitude = gridOriginLongitude + (((double)innerLoopIdx / 2.0) * gridSpacingLongitudinal);
                                             double latitude = gridOriginLatitude + ((double)outerLoopIdx * gridSpacingLatitudinal);
 
-                                            var geometry =
+                                            Esri.ArcGISRuntime.Geometry.Geometry? geometry =
                                                 _geometryBuilderFactory.Create("Point", new double[] { longitude }, new double[] { latitude }, (int)horizontalCRS);
 
                                             var selectedHeight = -9999.0f;

@@ -189,14 +189,14 @@ namespace S1XViewer.Model
                         // create all features based on selected datetime
                         if (selectedHdf5Group != null)
                         {
-                            var waterLevelWithTimeInfos =
-                                _datasetReader.ReadCompound<WaterLevelWithTimeInstance>(hdf5FileName, selectedHdf5Group.Children[0].Name).values.ToArray();
+                            var waterLevelInfos =
+                                _datasetReader.Read<WaterLevelInstance>(hdf5FileName, selectedHdf5Group.Children[0].Name).ToArray();
 
-                            for (int index = 0; index < waterLevelWithTimeInfos.Length; index++)
+                            for (int index = 0; index < waterLevelInfos.Length; index++)
                             {
                                 // build up features ard wrap 'em in data package
-                                float height = waterLevelWithTimeInfos[index].waterLevelHeight;
-                                short trend = waterLevelWithTimeInfos[index].waterLevelTrend;
+                                float height = waterLevelInfos[index].height;
+                                short trend = waterLevelInfos[index].trend;
 
                                 Esri.ArcGISRuntime.Geometry.Geometry? geometry =
                                     _geometryBuilderFactory.Create("Point", new double[] { positionValues[index].longitude }, new double[] { positionValues[index].latitude }, (int)horizontalCRS);
@@ -209,7 +209,7 @@ namespace S1XViewer.Model
                                     TidalTrends = new Dictionary<string, string>(),
                                     SelectedIndex = (short)index,
                                     SelectedDateTime = timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")),
-                                    SelectedHeight = height.ToString(new CultureInfo("en-US")) + " m",
+                                    SelectedHeight = Math.Round(height, 2).ToString().Replace(",", ".") + " m",
                                     SelectedTrend = trend.ToString() switch
                                     {
                                         "1" => "decreasing",
@@ -238,16 +238,22 @@ namespace S1XViewer.Model
                                         timePoint =
                                             DateTime.ParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
 
-                                        waterLevelWithTimeInfos =
-                                            _datasetReader.ReadCompound<WaterLevelWithTimeInstance>(hdf5FileName, timeValueHdf5Group.Children[0].Name).values.ToArray();
+                                        waterLevelInfos =
+                                            _datasetReader.Read<WaterLevelInstance>(hdf5FileName, timeValueHdf5Group.Children[0].Name).ToArray();
 
-                                        for (int index = 0; index < waterLevelWithTimeInfos.Length; index++)
+                                        for (int index = 0; index < waterLevelInfos.Length; index++)
                                         {
-                                            float height = waterLevelWithTimeInfos[index].waterLevelHeight;
-                                            short trend = waterLevelWithTimeInfos[index].waterLevelTrend;
+                                            float height = waterLevelInfos[index].height;
+                                            short trend = waterLevelInfos[index].trend;
 
-                                            ((TidalStation)geoFeatures[index]).TidalHeights.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), height.ToString(new CultureInfo("en-US")));
-                                            ((TidalStation)geoFeatures[index]).TidalTrends.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), trend.ToString());
+                                            ((TidalStation)geoFeatures[index]).TidalHeights.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), Math.Round(height, 2).ToString().Replace(",", "."));
+                                            ((TidalStation)geoFeatures[index]).TidalTrends.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), trend.ToString() switch
+                                            {
+                                                "1" => "decreasing",
+                                                "2" => "increasing",
+                                                "3" => "steady",
+                                                _ => "unknown"
+                                            });
                                         }
                                     }
 
