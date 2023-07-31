@@ -1,9 +1,9 @@
 # S1XViewer
-A viewer for Windows .NET 6.0 for viewing S1xx files, currently supporting S102 (DCF2), S104 (DCF8), S111 (DCF1, DCF2, DCF3, DCF4, DCF8), S122, S123 and S128 GML formats. This S1XViewer supersedes the [S1xxViewer](https://github.com/flappah/s1xxviewer). 
+A viewer for Windows .NET 6.0 for viewing S1xx files, currently supporting S102 (DCF2), S104 (DCF2, DCF8), S111 (DCF1, DCF2, DCF3, DCF4, DCF8), S122, S123 and S128 GML formats. This S1XViewer supersedes the [S1xxViewer](https://github.com/flappah/s1xxviewer). 
 
-The viewer has different parsers and renderers for IHO's S102 (DCF2), S104 (DCF8), S111 (DCF1, DCF2, DCF3, DCF4, DCF8), S122, S123 and S128 GML files. For presentation it uses the ESRI ArcGIS Runtime and currently is using the developer license only.
+The viewer has different parsers and renderers for IHO's S102 (DCF2), S104 (DCF2, DCF8), S111 (DCF1, DCF2, DCF3, DCF4, DCF8), S122, S123 and S128 GML files. For presentation it uses the ESRI ArcGIS Runtime and currently is using the developer license only.
 
-The application been tested with a number of S102 (datacodingformat = 2), S104 (datacodingformat = 8), S111 (datacodingformat = 1, datacodingformat = 2, S111 datacodingformat = 3, datacodingformat = 4, datacodingformat = 8), S122, S123 and S128 GML files. 
+The application been tested with a number of S102 (datacodingformat = 2), S104 (datacodingformat = 2, datacodingformat = 8), S111 (datacodingformat = 1, datacodingformat = 2, S111 datacodingformat = 3, datacodingformat = 4, datacodingformat = 8), S122, S123 and S128 GML files. 
 
 The software expects an active Internet connection for the ESRI ArcGIS runtime to be able to retrieve the basemap.
 
@@ -31,7 +31,13 @@ Next are five S111 screenshots for every datacodingformat one screenshot. The fi
 
 ![S111_dcf8_sample](https://user-images.githubusercontent.com/14106566/225308598-3d99d3ab-c641-4d68-906b-32a9fefd713a.png)
 
-There is support for S104 dcf8. It roughly follows the portrayal guidelines specified in the S104 v1.2 standard. It shows a popup with the current tidal height information at the specified time. It renders a link that displays the full 24Hr tidal curve for the selected tidal station.
+There is support for S104 dcf2 and dcf8. It roughly follows the portrayal guidelines specified in the S104 v1.2 standard. It shows 
+a popup with the current tidal height information at the specified time. It renders a link that displays the full 24Hr tidal curve 
+for the selected tidal station. Here's a screenshot of a loaded S104 DCF2 file.
+
+![S104_DCF2_screenshot_plus_popup](https://github.com/flappah/S1XViewer/assets/14106566/3647ffc2-adb3-459e-aaad-3a68a09b624c)
+
+Next are two screenshots of a loaded S104 DCF8 file.
 
 ![S104_DCF8_screenshot_plus_popup](https://github.com/flappah/S1XViewer/assets/14106566/8f5252d9-86e0-4831-9f83-4e6cdf6b895f)
 
