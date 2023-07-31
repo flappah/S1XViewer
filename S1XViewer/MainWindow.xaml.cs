@@ -1356,7 +1356,7 @@ namespace S1XViewer
                 string elapsedTime = string.Empty;
                 if (timerStart != null)
                 {
-                    (DateTime.Now - timerStart).ToString(); 
+                    elapsedTime = (DateTime.Now - timerStart).ToString(); 
                 }
 
                 _syncContext?.Post(new SendOrPostCallback(o =>
