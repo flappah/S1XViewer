@@ -113,7 +113,7 @@ namespace S1XViewer.Model
                 var axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
                 if (axisNamesStrings != null && axisNamesStrings.Length == 2)
                 {
-                    invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                    invertLonLat = axisNamesStrings[0].ToUpper().Contains("LAT") && axisNamesStrings[1].ToUpper().Contains("LON");
                     dataPackage.InvertLonLat = invertLonLat;
                 }
             }

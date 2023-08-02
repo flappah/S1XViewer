@@ -109,7 +109,7 @@ namespace S1XViewer.Model
                 var axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
                 if (axisNamesStrings != null && axisNamesStrings.Length == 2)
                 {
-                    invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                    invertLonLat = axisNamesStrings[0].ToUpper().Contains("LAT") && axisNamesStrings[1].ToUpper().Contains("LON");
                     dataPackage.InvertLonLat = invertLonLat;
                 }
             }
@@ -242,12 +242,12 @@ namespace S1XViewer.Model
 
                                 if (speed != -1 && direction != -1)
                                 {
-                                    Esri.ArcGISRuntime.Geometry.Geometry geometry =
+                                    Esri.ArcGISRuntime.Geometry.Geometry? geometry =
                                         _geometryBuilderFactory.Create("Point", new double[] { positionValues[stationNumber].longitude }, new double[] { positionValues[stationNumber].latitude }, (int)horizontalCRS);
 
                                     var currentNonGravitationalInstance = new CurrentNonGravitational()
                                     {
-                                        Id = groupHdf5Group.Name,
+                                        Id = $"{groupHdf5Group.Name}_{stationNumber}",
                                         FeatureName = new FeatureName[] { new FeatureName { DisplayName = featureName } },
                                         Orientation = new Types.ComplexTypes.Orientation { OrientationValue = direction },
                                         Speed = new Types.ComplexTypes.Speed { SpeedMaximum = speed },

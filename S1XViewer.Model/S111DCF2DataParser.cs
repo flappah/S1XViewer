@@ -103,12 +103,13 @@ namespace S1XViewer.Model
 
             // check position ordering lon/lat vs lat/lon
             var axisNameElement = featureElement.Children.Find(elm => elm.Name.Equals("/SurfaceCurrent/axisNames"));
+            string[] axisNamesStrings = new string[0];
             if (axisNameElement != null)
             {
-                var axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
+                axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
                 if (axisNamesStrings != null && axisNamesStrings.Length == 2)
                 {
-                    invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                    invertLonLat = axisNamesStrings[0].ToUpper().Contains("LAT") && axisNamesStrings[1].ToUpper().Contains("LON");
                     dataPackage.InvertLonLat = invertLonLat;
                 }
             }
@@ -215,53 +216,81 @@ namespace S1XViewer.Model
                         return;
                     }
 
-                    int innerLoopMax = numPointsLongitude;
-                    int outerLoopMax = numPointsLatitude;
-                    for (int outerLoopIdx = 0; outerLoopIdx < outerLoopMax; outerLoopIdx++)
+                    var scanDirectionParts = scanDirection.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                    if (scanDirectionParts.Length == 0 && axisNamesStrings?.Length > 0)
                     {
-                        for (int innerLoopIdx = 0; innerLoopIdx < (innerLoopMax * 2); innerLoopIdx += 2)
+                        // now if scandirection is not defined and axisnames are, use axisnames as scandirection
+                        scanDirectionParts = axisNamesStrings;
+                    }
+
+                    if (scanDirectionParts.Length == 2)
+                    {
+                        // axisnames and scandirection should be equal!!!
+                        if (axisNamesStrings?.Length > 0 && scanDirectionParts[0] != axisNamesStrings[0] && scanDirectionParts[1] != axisNamesStrings[1])
                         {
-                            // build up features and wrap 'em in datapackage
-                            float speed;
-                            float direction;
-                            if (currentDataset.members[0].Equals("surfaceCurrentDirection"))
-                            {
-                                direction = currentDataset.values[outerLoopIdx, innerLoopIdx];
-                                speed = currentDataset.values[outerLoopIdx, innerLoopIdx + 1];
-                            }
-                            else
-                            {
-                                speed = currentDataset.values[outerLoopIdx, innerLoopIdx];
-                                direction = currentDataset.values[outerLoopIdx, innerLoopIdx + 1];
-                            }
-
-                            if (speed != nillValueSpeed && direction != nillValueDirection)
-                            {
-                                double longitude = gridOriginLongitude + (((double)innerLoopIdx / 2.0) * gridSpacingLongitudinal);
-                                double latitude = gridOriginLatitude + ((double)outerLoopIdx * gridSpacingLatitudinal);
-
-                                var geometry =
-                                    _geometryBuilderFactory.Create("Point", new double[] { longitude }, new double[] { latitude }, (int)horizontalCRS);
-
-                                var currentNonGravitationalInstance = new CurrentNonGravitational()
-                                {
-                                    Id = minGroup.Name + $"_{outerLoopIdx}_{innerLoopIdx}",
-                                    FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{longitude.ToString().Replace(",", ".")}_{latitude.ToString().Replace(",", ".")}" } },
-                                    Orientation = new Orientation { OrientationValue = direction },
-                                    Speed = new Speed { SpeedMaximum = speed },
-                                    Geometry = geometry
-                                };
-
-                                geoFeatures.Add(currentNonGravitationalInstance);
-                            }
+                            return;
                         }
 
-                        var ratio = 50 + (int)((50.0 / (double)numPointsLatitude) * (double)outerLoopIdx);
-                        _syncContext?.Post(new SendOrPostCallback(r =>
+                        int innerLoopMax = scanDirectionParts[0].ToUpper().Contains("LON") ? numPointsLongitude : numPointsLatitude;
+                        int outerLoopMax = scanDirectionParts[1].ToUpper().Contains("LAT") ? numPointsLatitude : numPointsLongitude;
+                        for (int outerLoopIdx = 0; outerLoopIdx < outerLoopMax; outerLoopIdx++)
                         {
-                            Progress?.Invoke((int)r);
+                            for (int innerLoopIdx = 0; innerLoopIdx < (innerLoopMax * 2); innerLoopIdx += 2)
+                            {
+                                // build up features and wrap 'em in data package
+                                float speed;
+                                float direction;
+                                if (currentDataset.members[0].Equals("surfaceCurrentDirection"))
+                                {
+                                    direction = currentDataset.values[outerLoopIdx, innerLoopIdx];
+                                    speed = currentDataset.values[outerLoopIdx, innerLoopIdx + 1];
+                                }
+                                else
+                                {
+                                    speed = currentDataset.values[outerLoopIdx, innerLoopIdx];
+                                    direction = currentDataset.values[outerLoopIdx, innerLoopIdx + 1];
+                                }
 
-                        }), ratio);
+                                if (speed != nillValueSpeed && direction != nillValueDirection)
+                                {
+                                    double longitude;
+                                    double latitude;
+
+                                    if (scanDirectionParts[0].ToUpper().Contains("LON"))
+                                    {
+                                        longitude = gridOriginLongitude + (((double)innerLoopIdx / 2.0) * gridSpacingLongitudinal);
+                                        latitude = gridOriginLatitude + ((double)outerLoopIdx * gridSpacingLatitudinal);
+                                    }
+                                    else
+                                    {
+                                        longitude = gridOriginLongitude + (((double)innerLoopIdx / 2.0) * gridSpacingLongitudinal);
+                                        latitude = gridOriginLatitude + ((double)outerLoopIdx * gridSpacingLatitudinal);
+                                    }
+
+                                    var geometry =
+                                        _geometryBuilderFactory.Create("Point", new double[] { longitude }, new double[] { latitude }, (int)horizontalCRS);
+
+                                    var currentNonGravitationalInstance = new CurrentNonGravitational()
+                                    {
+                                        Id = minGroup.Name + $"_{outerLoopIdx}_{innerLoopIdx}",
+                                        FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"VS_{longitude.ToString().Replace(",", ".")}_{latitude.ToString().Replace(",", ".")}" } },
+                                        Orientation = new Orientation { OrientationValue = direction },
+                                        Speed = new Speed { SpeedMaximum = speed },
+                                        Geometry = geometry
+                                    };
+
+                                    geoFeatures.Add(currentNonGravitationalInstance);
+                                }
+                            }
+
+                            var ratio = 50 + (int)((50.0 / (double)numPointsLatitude) * (double)outerLoopIdx);
+                            _syncContext?.Post(new SendOrPostCallback(r =>
+                            {
+                                Progress?.Invoke((int)r);
+
+                            }), ratio);
+
+                        }
                     }
 
                     dataPackage.RawHdfData = hdf5S111Root;

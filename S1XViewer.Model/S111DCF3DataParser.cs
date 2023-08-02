@@ -108,12 +108,12 @@ namespace S1XViewer.Model
                 var axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
                 if (axisNamesStrings != null && axisNamesStrings.Length == 2)
                 {
-                    invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                    invertLonLat = axisNamesStrings[0].ToUpper().Contains("LAT") && axisNamesStrings[1].ToUpper().Contains("LON");
                     dataPackage.InvertLonLat = invertLonLat;
                 }
             }
 
-            // retrieve boundingbox
+            // retrieve bounding box
             var eastBoundLongitudeAttribute = hdf5S111Root.Attributes.Find("eastBoundLongitude");
             var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<double>(0f) ?? 0.0;
             var northBoundLatitudeAttribute = hdf5S111Root.Attributes.Find("northBoundLatitude");
