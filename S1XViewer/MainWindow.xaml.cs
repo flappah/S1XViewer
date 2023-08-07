@@ -1053,6 +1053,10 @@ namespace S1XViewer
                     }
 
                     var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file:/{producerCode}/{filename}']", xmlNSMgr);
+                    if (datasetDiscoveryMetadataNode == null)
+                    {
+                        datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file:/DATASET_FILES/{producerCode}/{filename}']", xmlNSMgr);
+                    }
                     if (datasetDiscoveryMetadataNode != null && datasetDiscoveryMetadataNode.ChildNodes.Count > 0)
                     {
                         DateTime beginTime = DateTime.Now;
