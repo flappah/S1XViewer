@@ -1,11 +1,13 @@
 # S1XViewer
-A viewer for Windows .NET 6.0 for viewing S1xx files, currently supporting S102 (DCF2), S104 (DCF2, DCF8), S111 (DCF1, DCF2, DCF3, DCF4, DCF8), S122, S123 and S128 GML formats. This S1XViewer supersedes the [S1xxViewer](https://github.com/flappah/s1xxviewer). 
+A viewer for Windows .NET 6.0 for viewing S1xx files, currently supporting S102 (DCF2), S104 (DCF1, DCF2, DCF3, DCF8), S111 (DCF1, DCF2, DCF3, DCF4, DCF8), S122, S123 and S128 GML formats. This S1XViewer supersedes the [S1xxViewer](https://github.com/flappah/s1xxviewer). 
 
-The viewer has different parsers and renderers for IHO's S102 (DCF2), S104 (DCF2, DCF8), S111 (DCF1, DCF2, DCF3, DCF4, DCF8), S122, S123 and S128 GML files. For presentation it uses the ESRI ArcGIS Runtime and currently is using the developer license only.
+The viewer has different parsers and renderers for IHO's S102 (DCF2), S104 (DCF1, DCF2, DCF3, DCF8), S111 (DCF1, DCF2, DCF3, DCF4, DCF8), S122, S123 and S128 GML files. For presentation it uses the ESRI ArcGIS Runtime and currently is using the developer license only.
 
-The application been tested with a number of S102 (datacodingformat = 2), S104 (datacodingformat = 2, datacodingformat = 8), S111 (datacodingformat = 1, datacodingformat = 2, S111 datacodingformat = 3, datacodingformat = 4, datacodingformat = 8), S122, S123 and S128 GML files. 
+The application been tested with a number of S102 (datacodingformat = 2), S104 (datacodingformat = 1, datacodingformat = 2, datacodingformat = 3, datacodingformat = 8), S111 (datacodingformat = 1, datacodingformat = 2, S111 datacodingformat = 3, datacodingformat = 4, datacodingformat = 8), S122, S123 and S128 GML files. 
 
 The software expects an active Internet connection for the ESRI ArcGIS runtime to be able to retrieve the basemap.
+
+>**There is an issue with the installer in regards to the existence of older version of the viewer. To get the best results its better to manually uninstall the previous version before installing this newer version!!**
 
 Next are a number of screenshots displaying the different IHO S1x standard that are currently supported. The first screenshot shows a sample S122 file.
 
