@@ -48,11 +48,11 @@ namespace S1XViewer.Model
             nsmgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
             nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
 
-            var productSpecificationNameNode = xmlDocument.DocumentElement.SelectSingleNode("S100XC:productSpecification/S100XC:name", nsmgr);
+            var productSpecificationIdentifierNode = xmlDocument.DocumentElement.SelectSingleNode("S100XC:productSpecification/S100XC:productIdentifier", nsmgr);
             string productStandard = string.Empty;
-            if (productSpecificationNameNode != null)
+            if (productSpecificationIdentifierNode != null)
             {
-                productStandard = productSpecificationNameNode.InnerText;
+                productStandard = productSpecificationIdentifierNode.InnerText;
             }
 
             DatasetInfoItems = new List<DatasetInfo>();
