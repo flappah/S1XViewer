@@ -1017,10 +1017,10 @@ namespace S1XViewer
         {
             var exchangeSetLoader = _container.Resolve<IExchangesetLoader>();
             var xmlDocument = exchangeSetLoader.Load(fullFileName);
-            (var productStandard, var productFileNames) = exchangeSetLoader.Parse(xmlDocument);
+            (var originalProductStandard, var productFileNames) = exchangeSetLoader.Parse(xmlDocument);
              
             string selectedFilename = string.Empty;
-            productStandard = productStandard?.Replace("-", "").ToUpper() ?? string.Empty;
+            var productStandard = originalProductStandard?.Replace("-", "").ToUpper() ?? string.Empty;
             if (productStandard.In("S102", "S104", "S111") == true)
             {
                 DateTime? selectedDateTime = DateTime.Now;
@@ -1043,19 +1043,26 @@ namespace S1XViewer
                 if (string.IsNullOrEmpty(filename) == false)
                 {
                     var xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
-                    xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
+                    xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc/5.0");
 
                     var producerCodeNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata/S100XC:producerCode", xmlNSMgr);
                     var producerCode = string.Empty;
+
+                    if (producerCodeNode == null)
+                    {
+                        xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
+                        xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
+                    }
+
                     if (producerCodeNode != null)
                     {
                         producerCode = producerCodeNode.InnerText.PadRight(4, char.Parse("0"));
                     }
 
-                    var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file:/{producerCode}/{filename}']", xmlNSMgr);
+                    var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file://{producerCode}/{filename}']", xmlNSMgr);
                     if (datasetDiscoveryMetadataNode == null)
                     {
-                        datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file:/DATASET_FILES/{producerCode}/{filename}']", xmlNSMgr);
+                        datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file://{originalProductStandard}/DATASET_FILES/{producerCode}/{filename}']", xmlNSMgr);
                     }
                     if (datasetDiscoveryMetadataNode != null && datasetDiscoveryMetadataNode.ChildNodes.Count > 0)
                     {
