@@ -1052,6 +1052,8 @@ namespace S1XViewer
                     {
                         xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
                         xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
+
+                        producerCodeNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata/S100XC:producerCode", xmlNSMgr);
                     }
 
                     if (producerCodeNode != null)
