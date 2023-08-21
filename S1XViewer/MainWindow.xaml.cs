@@ -1061,10 +1061,10 @@ namespace S1XViewer
                         producerCode = producerCodeNode.InnerText.PadRight(4, char.Parse("0"));
                     }
 
-                    var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file://{producerCode}/{filename}']", xmlNSMgr);
+                    var datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file:/{producerCode}/{filename}']", xmlNSMgr);
                     if (datasetDiscoveryMetadataNode == null)
                     {
-                        datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file://{originalProductStandard}/DATASET_FILES/{producerCode}/{filename}']", xmlNSMgr);
+                        datasetDiscoveryMetadataNode = xmlDocument.DocumentElement?.SelectSingleNode($@"S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata[S100XC:fileName='file:/{originalProductStandard}/DATASET_FILES/{producerCode}/{filename}']", xmlNSMgr);
                     }
                     if (datasetDiscoveryMetadataNode != null && datasetDiscoveryMetadataNode.ChildNodes.Count > 0)
                     {
