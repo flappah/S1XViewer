@@ -67,7 +67,7 @@ namespace S1XViewer.Model
 
             DatasetInfoItems = new List<DatasetInfo>();
 
-            var datasetDiscoveryNodes = xmlDocument.DocumentElement?.SelectNodes("S100XC:datasetDiscoveryMetadata", nsmgr);
+            var datasetDiscoveryNodes = xmlDocument.DocumentElement?.SelectNodes("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata", nsmgr);
             var productFileNames = new List<string>();
             if (datasetDiscoveryNodes != null && datasetDiscoveryNodes.Count > 0)
             {
@@ -111,6 +111,11 @@ namespace S1XViewer.Model
                     productFileNames.Add(productFileName);
 
                     var temporalExtentNode = metaDataNode.SelectSingleNode("S100XC:temporalExtent", nsmgr);
+                    if (temporalExtentNode == null)
+                    {
+                        temporalExtentNode = metaDataNode.SelectSingleNode("temporalExtent");
+                    }
+
                     string timeInstantBegin = string.Empty;
                     string timeInstantEnd = string.Empty;
                     if (temporalExtentNode != null)
@@ -126,11 +131,6 @@ namespace S1XViewer.Model
                         {
                             timeInstantEnd = timeInstantEndNode.InnerText;
                         }
-                    }
-                    else
-                    {
-                        temporalExtentNode = metaDataNode.SelectSingleNode("temporalExtent");
-
                     }
 
                     var datasetInfoItem = new DatasetInfo() { DateTimeEnd = timeInstantEnd, DateTimeStart = timeInstantBegin, FileName = productFileName };

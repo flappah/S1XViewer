@@ -2,9 +2,7 @@
 using PureHDF;
 using S1XViewer.HDF.Interfaces;
 using System.IO.MemoryMappedFiles;
-using System.Printing;
 using System.Reflection;
-using System.Reflection.Metadata;
 
 namespace S1XViewer.HDF
 {
@@ -33,8 +31,8 @@ namespace S1XViewer.HDF
                     Hdf5.CloseFile(fileId);
                 }
             }
-            
-            return default(IEnumerable<T>);
+
+            return Array.Empty<T>();
         }
 
         /// <summary>
@@ -53,9 +51,12 @@ namespace S1XViewer.HDF
             {
                 try
                 {
-                    var dataset = file.Dataset(name);
-                    var data = dataset.ReadString();
-                    return data == null ? new string[0] : data;
+                    IH5Dataset dataset = file.Dataset(name);
+                    string?[] data = dataset.ReadString();
+                    if (data != null)
+                    {
+                        return data;
+                    }
                 }
                 catch { }
                 finally
@@ -66,7 +67,7 @@ namespace S1XViewer.HDF
                 }
             }
 
-            return new string[0];
+            return Array.Empty<string>();
         }
 
         /// <summary>
@@ -85,11 +86,11 @@ namespace S1XViewer.HDF
             {
                 try
                 {
-                    var dataset = file.Dataset(name);
+                    IH5Dataset dataset = file.Dataset(name);
 
-                    var members = dataset.Type.Compound.Members;
+                    CompoundMember[] members = dataset.Type.Compound.Members;
                     var compoundMembers = new List<string>();
-                    foreach (var member in members)
+                    foreach (CompoundMember member in members)
                     {
                         compoundMembers.Add(member.Name);
                     }
@@ -112,7 +113,7 @@ namespace S1XViewer.HDF
                 }
             }
 
-            return (new string[0], new T[0]);
+            return (Array.Empty<string>(), Array.Empty<T>());
         }
 
         /// <summary>
@@ -154,7 +155,7 @@ namespace S1XViewer.HDF
                 }
             }
 
-            return (new string[0], new float[0, 0]); 
+            return (Array.Empty<string>(), new float[0, 0]); 
         }
     }
 }

@@ -4,6 +4,6 @@ namespace S1XViewer.Types.Interfaces
 {
     public interface IMetaFeature : IFeature
     {
-        Geometry Geometry { get; set; }
+        Geometry? Geometry { get; set; }
     }
 }

@@ -102,7 +102,7 @@ namespace S1XViewer.Model
 
                     if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
                     {
-                        XmlNode geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
+                        XmlNode? geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
                         if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                         {
                             geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
@@ -114,7 +114,7 @@ namespace S1XViewer.Model
                     {
                         if (feature is IMetaFeature metaFeature && memberNode.HasChildNodes)
                         {
-                            XmlNode geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
+                            XmlNode? geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
                             if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                             {
                                 metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);

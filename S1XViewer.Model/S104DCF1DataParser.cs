@@ -133,7 +133,7 @@ namespace S1XViewer.Model
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
             var selectedWaterLevelFeatureElement = _productSupport.FindFeatureByDateTime(featureElement.Children, selectedDateTime);
-            if (selectedWaterLevelFeatureElement != null)
+            if (selectedWaterLevelFeatureElement != null && selectedWaterLevelFeatureElement.Children.Count() > 0)
             {
                 // now retrieve positions 
                 var positioningElement = selectedWaterLevelFeatureElement.Children.Find(nd => nd.Name.LastPart("/") == "Positioning");
@@ -161,33 +161,41 @@ namespace S1XViewer.Model
                     {
                         TimeSpan minTimeSpan = TimeSpan.MaxValue;
                         Hdf5Element? selectedHdf5Group = null;
+                        DateTime selectedTimePoint = DateTime.MinValue;
                         DateTime timePoint = DateTime.MinValue;
 
                         foreach (Hdf5Element? groupHdf5Group in selectedWaterLevelFeatureElement.Children)
                         {
-                            // find out which Group_x to use
-
+                            // find out which Group_x to use based on the selected time value
                             if (groupHdf5Group.Name.Contains("Group_"))
                             {
                                 var timePointAttribute = groupHdf5Group.Attributes.Find("timePoint");
-                                string timePointString = timePointAttribute?.Value<string>("") ?? "";
-                                timePoint =
-                                    DateTime.ParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
-
-                                TimeSpan? differenceTimeSpan = selectedDateTime - timePoint;
-                                if (differenceTimeSpan != null)
+                                if (timePointAttribute != null)
                                 {
-                                    if (Math.Abs(differenceTimeSpan.Value.TotalSeconds) < Math.Abs(minTimeSpan.TotalSeconds))
+                                    try
                                     {
-                                        minTimeSpan = differenceTimeSpan.Value;
-                                        selectedHdf5Group = groupHdf5Group;
+                                        string timePointString = timePointAttribute?.Value<string>("") ?? "";
+                                        timePoint =
+                                            DateTime.ParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
+
+                                        TimeSpan? differenceTimeSpan = selectedDateTime - timePoint;
+                                        if (differenceTimeSpan != null)
+                                        {
+                                            if (Math.Abs(differenceTimeSpan.Value.TotalSeconds) < Math.Abs(minTimeSpan.TotalSeconds))
+                                            {
+                                                minTimeSpan = differenceTimeSpan.Value;
+                                                selectedHdf5Group = groupHdf5Group;
+                                                selectedTimePoint = timePoint;
+                                            }
+                                        }
                                     }
+                                    catch(Exception) { }
                                 }
                             }
                         }
 
                         // create all features based on selected datetime
-                        if (selectedHdf5Group != null)
+                        if (selectedHdf5Group != null && selectedTimePoint != DateTime.MinValue) 
                         {
                             var waterLevelInfos =
                                 _datasetReader.Read<WaterLevelInstance>(hdf5FileName, selectedHdf5Group.Children[0].Name).ToArray();
@@ -208,7 +216,7 @@ namespace S1XViewer.Model
                                     TidalHeights = new Dictionary<string, string>(),
                                     TidalTrends = new Dictionary<string, string>(),
                                     SelectedIndex = (short)index,
-                                    SelectedDateTime = timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")),
+                                    SelectedDateTime = selectedTimePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")),
                                     SelectedHeight = Math.Round(height, 2).ToString().Replace(",", ".") + " m",
                                     SelectedTrend = trend.ToString() switch
                                     {
@@ -233,27 +241,30 @@ namespace S1XViewer.Model
                                 {
                                     if (timeValueHdf5Group != null && timeValueHdf5Group.Name.Contains("Group_"))
                                     {
-                                        var timePointAttribute = timeValueHdf5Group.Attributes.Find("timePoint");
-                                        string timePointString = timePointAttribute?.Value<string>("") ?? "";
-                                        timePoint =
-                                            DateTime.ParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
-
-                                        waterLevelInfos =
-                                            _datasetReader.Read<WaterLevelInstance>(hdf5FileName, timeValueHdf5Group.Children[0].Name).ToArray();
-
-                                        for (int index = 0; index < waterLevelInfos.Length; index++)
+                                        Hdf5AttributeElement? timePointAttribute = timeValueHdf5Group.Attributes.Find("timePoint");
+                                        if (timePointAttribute != null)
                                         {
-                                            float height = waterLevelInfos[index].height;
-                                            short trend = waterLevelInfos[index].trend;
+                                            string timePointString = timePointAttribute.Value<string>("") ?? "";
+                                            timePoint =
+                                                DateTime.ParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
 
-                                            ((TidalStation)geoFeatures[index]).TidalHeights.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), Math.Round(height, 2).ToString().Replace(",", "."));
-                                            ((TidalStation)geoFeatures[index]).TidalTrends.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), trend.ToString() switch
+                                            waterLevelInfos =
+                                                _datasetReader.Read<WaterLevelInstance>(hdf5FileName, timeValueHdf5Group.Children[0].Name).ToArray();
+
+                                            for (int index = 0; index < waterLevelInfos.Length; index++)
                                             {
-                                                "1" => "decreasing",
-                                                "2" => "increasing",
-                                                "3" => "steady",
-                                                _ => "unknown"
-                                            });
+                                                float height = waterLevelInfos[index].height;
+                                                short trend = waterLevelInfos[index].trend;
+
+                                                ((TidalStation)geoFeatures[index]).TidalHeights.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), Math.Round(height, 2).ToString().Replace(",", "."));
+                                                ((TidalStation)geoFeatures[index]).TidalTrends.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), trend.ToString() switch
+                                                {
+                                                    "1" => "decreasing",
+                                                    "2" => "increasing",
+                                                    "3" => "steady",
+                                                    _ => "unknown"
+                                                });
+                                            }
                                         }
                                     }
 

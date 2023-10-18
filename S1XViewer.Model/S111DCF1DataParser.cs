@@ -129,7 +129,7 @@ namespace S1XViewer.Model
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
             var selectedSurfaceFeatureElement = _productSupport.FindFeatureByDateTime(featureElement.Children, selectedDateTime);
-            if (selectedSurfaceFeatureElement != null)
+            if (selectedSurfaceFeatureElement != null && selectedSurfaceFeatureElement.Children.Count() > 0)
             {
                 // now retrieve positions 
                 var positioningElement = selectedSurfaceFeatureElement.Children.Find(nd => nd.Name.LastPart("/") == "Positioning");
@@ -174,21 +174,29 @@ namespace S1XViewer.Model
                         Hdf5Element? selectedHdf5Group = null;
                         foreach (Hdf5Element? groupHdf5Group in selectedSurfaceFeatureElement.Children)
                         {
+                            // find out which Group_x to use based on the selected time value
                             if (groupHdf5Group.Name.Contains("Group_"))
                             {
                                 var timePointAttribute = groupHdf5Group.Attributes.Find("timePoint");
-                                string timePointString = timePointAttribute?.Value<string>("") ?? "";
-                                DateTime timePoint =
-                                    DateTime.ParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
-
-                                TimeSpan? differenceTimeSpan = selectedDateTime - timePoint;
-                                if (differenceTimeSpan != null)
+                                if (timePointAttribute != null)
                                 {
-                                    if (Math.Abs(differenceTimeSpan.Value.TotalSeconds) < Math.Abs(minTimeSpan.TotalSeconds))
+                                    try
                                     {
-                                        minTimeSpan = differenceTimeSpan.Value;
-                                        selectedHdf5Group = groupHdf5Group;
+                                        string timePointString = timePointAttribute.Value<string>("") ?? "";
+                                        DateTime timePoint =
+                                            DateTime.ParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture).ToUniversalTime();
+
+                                        TimeSpan? differenceTimeSpan = selectedDateTime - timePoint;
+                                        if (differenceTimeSpan != null)
+                                        {
+                                            if (Math.Abs(differenceTimeSpan.Value.TotalSeconds) < Math.Abs(minTimeSpan.TotalSeconds))
+                                            {
+                                                minTimeSpan = differenceTimeSpan.Value;
+                                                selectedHdf5Group = groupHdf5Group;
+                                            }
+                                        }
                                     }
+                                    catch (Exception) { }
                                 }
                             }
                         }

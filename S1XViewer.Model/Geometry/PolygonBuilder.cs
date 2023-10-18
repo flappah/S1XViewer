@@ -99,7 +99,7 @@ namespace S1XViewer.Model.Geometry
         /// <returns>ESRI Arc GIS geometry</returns>
         public override Esri.ArcGISRuntime.Geometry.Geometry? FromXml(XmlNode node, XmlNamespaceManager mgr)
         {
-            if (node is null || node.HasChildNodes == false)
+            if (node is null)
             {
                 throw new ArgumentNullException(nameof(node));
             }
@@ -107,6 +107,14 @@ namespace S1XViewer.Model.Geometry
             if (mgr is null)
             {
                 throw new ArgumentNullException(nameof(mgr));
+            }
+
+            if (node?.Attributes?.Count > 0 && node.Attributes.Contains("nilReason") == true)
+            {
+                if (String.IsNullOrEmpty(node.Attributes["nilReason"]?.InnerText ?? "") == false)
+                {
+                    return null;
+                }
             }
 
             XmlNode? srsNode = null;

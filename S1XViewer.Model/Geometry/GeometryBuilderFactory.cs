@@ -16,8 +16,18 @@ namespace S1XViewer.Model.Geometry
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public Esri.ArcGISRuntime.Geometry.Geometry? Create(XmlNode node, XmlNamespaceManager mgr)
+        public Esri.ArcGISRuntime.Geometry.Geometry? Create(XmlNode? node, XmlNamespaceManager? mgr)
         {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
+            if (mgr == null)
+            {
+                throw new ArgumentNullException(nameof(mgr));
+            }
+
             string geometryTypeString;
 
             if (node.Name.Contains(false, "Envelope", "Curve", "Point", "Polygon", "Surface") == false)
