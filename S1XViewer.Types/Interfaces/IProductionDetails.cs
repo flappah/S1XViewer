@@ -1,6 +1,6 @@
 ﻿namespace S1XViewer.Types.Interfaces
 {
-    public interface IProductionDetail : IInformationFeature
+    public interface IProductionDetails : IInformationFeature
     {
         string CallName { get; set; }
         string CallSign { get; set; }

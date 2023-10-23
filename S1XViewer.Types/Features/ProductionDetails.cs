@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
-    public class DistributionDetail : InformationFeatureBase, IDistributionDetail, IS128Feature
+    public class ProductionDetails : InformationFeatureBase, IProductionDetails, IS128Feature
     {
         public string CallName { get; set; }
         public string CallSign { get; set; }
@@ -28,7 +28,7 @@ namespace S1XViewer.Types.Features
         /// <returns></returns>
         public override IFeature DeepClone()
         {
-            return new DistributionDetail
+            return new ProductionDetails
             {
                 FeatureName = FeatureName == null
                     ? new[] { new FeatureName() }
