@@ -19,6 +19,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="temp\**" />
+    <EmbeddedResource Remove="temp\**" />
+    <None Remove="temp\**" />
+    <Page Remove="temp\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="images\Fa-Team-Fontawesome-FontAwesome-Gear.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Left.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Circle-Right.ico" />
@@ -97,10 +104,6 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="temp\" />
   </ItemGroup>
 
 </Project>
