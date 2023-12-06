@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="6.5.0" />
-    <PackageReference Include="GDAL" Version="3.6.4" />
-    <PackageReference Include="GDAL.Native" Version="3.6.4" />
+    <PackageReference Include="Autofac" Version="7.1.0" />
+    <PackageReference Include="GDAL" Version="3.7.2" />
+    <PackageReference Include="GDAL.Native" Version="3.7.2" />
   </ItemGroup>
 
 </Project>

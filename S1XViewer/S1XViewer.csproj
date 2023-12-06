@@ -47,14 +47,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="6.5.0" />
-    <PackageReference Include="Esri.ArcGISRuntime" Version="200.1.0" />
-    <PackageReference Include="Esri.ArcGISRuntime.Hydrography" Version="200.1.0" />
-    <PackageReference Include="Esri.ArcGISRuntime.Toolkit.WPF" Version="200.1.0" />
-    <PackageReference Include="Esri.ArcGISRuntime.WPF" Version="200.1.0" />
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.0" />
-    <PackageReference Include="GDAL" Version="3.6.4" />
-    <PackageReference Include="GDAL.Native" Version="3.6.4" />
+    <PackageReference Include="Autofac" Version="7.1.0" />
+    <PackageReference Include="Esri.ArcGISRuntime" Version="200.2.0" />
+    <PackageReference Include="Esri.ArcGISRuntime.Hydrography" Version="200.2.0" />
+    <PackageReference Include="Esri.ArcGISRuntime.Toolkit.WPF" Version="200.2.0" />
+    <PackageReference Include="Esri.ArcGISRuntime.WPF" Version="200.2.0" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.1" />
+    <PackageReference Include="GDAL" Version="3.7.2" />
+    <PackageReference Include="GDAL.Native" Version="3.7.2" />
     <PackageReference Include="HDF5-CSharp" Version="1.17.0" />
     <PackageReference Include="LiveCharts" Version="0.9.7" />
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />

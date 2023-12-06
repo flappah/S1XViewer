@@ -9,7 +9,8 @@
         Title="IHO S1xx standard Viewer" 
         Height="1000" Width="1280" 
         Icon="/Paomedia-Small-N-Flat-Map.ico"
-        WindowStartupLocation="CenterOwner"        
+        WindowStartupLocation="CenterOwner"       
+        ResizeMode="CanResizeWithGrip"
         Closing="MainWindow_Closing">
     
     <Window.Resources>
