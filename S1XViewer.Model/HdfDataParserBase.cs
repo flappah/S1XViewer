@@ -1,9 +1,16 @@
-﻿using HDF5CSharp.DataTypes;
+﻿using Esri.ArcGISRuntime.Geometry;
+using GeoAPI.CoordinateSystems.Transformations;
+using GeoAPI.CoordinateSystems;
+using GeoAPI.Geometries;
+using HDF5CSharp.DataTypes;
+using ProjNet.CoordinateSystems.Transformations;
+using ProjNet.CoordinateSystems;
 using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
 using System.Reflection;
+using System.Windows.Controls;
 
 namespace S1XViewer.Model
 {
@@ -16,14 +23,15 @@ namespace S1XViewer.Model
         /// </summary>
         /// <param name="hdf5S111Root"></param>
         /// <param name="hdf5FileName"></param>
-        /// <returns></returns>
-        protected long RetrieveHorizontalCRS(Hdf5Element hdf5S111Root, string hdf5FileName)
+        /// <returns>crs-id, zone (if utm)</returns>
+        protected (int crs, string zone) RetrieveHorizontalCRS(Hdf5Element hdf5S111Root, string hdf5FileName)
         {
-            long horizontalCRS = -1;
+            string utmZone = "";
+            int horizontalCRS = -1;
             var horizontalCRSAttribute = hdf5S111Root.Attributes.Find("horizontalCRS"); // S111 v1.2
             if (horizontalCRSAttribute != null)
             {
-                horizontalCRS = horizontalCRSAttribute?.Value<long>() ?? -1;
+                horizontalCRS = horizontalCRSAttribute?.Value<int>() ?? -1;
                 if (horizontalCRS == -1)
                 {
                     var nameOfHorizontalCRSAttribute = hdf5S111Root.Attributes.Find("nameOfHorizontalCRS");
@@ -61,30 +69,39 @@ namespace S1XViewer.Model
                 {
                     var epochAttribute = hdf5S111Root.Attributes.Find("epoch");
                     var epoch = epochAttribute?.Value<string>() ?? string.Empty;
-                    horizontalCRS = CorrectCRSWithEpoch(horizontalDatumValue, epoch);
+
+                    if (String.IsNullOrEmpty(epoch) == false)
+                    {
+                        horizontalCRS = CorrectCRSWithEpoch(horizontalDatumValue, epoch);
+                    }
+                    else
+                    {
+                        horizontalCRS = 4326; // a set utmZone means input data will be transformed to WGS84!
+                        utmZone = FindUtmZone(horizontalDatumValue);
+                    }
                 }
             }
 
-            return horizontalCRS;
+            return (horizontalCRS, utmZone);
         }
 
         /// <summary>
-        ///     Retrieves the corrected CRS for baseId and epoch. File crs.csv contains all CRS'ses
+        ///     Retrieves the corrected CRS for baseId and epoch. File crs.csv contains all CRS's
         /// </summary>
         /// <param name="baseCRSId"></param>
         /// <param name="epoch"></param>
-        /// <returns></returns>
-        public long CorrectCRSWithEpoch(long baseCRSId, string epoch)
+        /// <returns>Corrected CRS value</returns>
+        protected int CorrectCRSWithEpoch(int baseCRSId, string epoch)
         {
             if (String.IsNullOrEmpty(epoch) == false)
             {
-                var assemblyPath = Assembly.GetAssembly(GetType()).Location;
-                string folder = Path.GetDirectoryName(assemblyPath);
+                var assemblyPath = Assembly.GetAssembly(GetType())?.Location ?? "";
+                string folder = Path.GetDirectoryName(assemblyPath) ?? "";
 
                 try
                 {
                     string[] allCrs = File.ReadAllLines($@"{folder}\crs.csv");
-                    List<string> epochLines = allCrs.ToList().FindAll(t => t.Contains($"({epoch.ToUpper()})"));
+                    var epochLines = allCrs.ToList().Where(q => q.Contains(epoch.ToUpper())).ToList();
                     if (epochLines != null && epochLines.Count > 0)
                     {
                         string epochLine = epochLines.Last();
@@ -98,11 +115,94 @@ namespace S1XViewer.Model
                         }
                     }
                 }
-                catch(Exception ex) { }
+                catch (Exception) { }
             }
 
             return baseCRSId; // base WGS84
         }
 
+        /// <summary>
+        ///     Finds the UTM zone if applicable
+        /// </summary>
+        /// <param name="crsId">CRS id</param>
+        /// <returns>UTM zone including north or sound. Empty is no UTM</returns>
+        protected string FindUtmZone(int crsId)
+        {
+            var assemblyPath = Assembly.GetAssembly(GetType())?.Location ?? "";
+            string folder = Path.GetDirectoryName(assemblyPath) ?? "";
+
+            try
+            {
+                string[] allCrs = File.ReadAllLines($@"{folder}\crs.csv");
+                var crsLines = allCrs.ToList().Where(q => q.Contains(crsId + ",")).ToList();
+                if (crsLines != null && crsLines.Count > 0)
+                {
+                    string crsLine = crsLines.Last();
+                    if (crsLine.Contains("UTM"))
+                    {
+                        var utmZone = crsLine.Substring(crsLine.IndexOf("UTM") + 3, crsLine.Length - crsLine.IndexOf("UTM") - 3).Trim().Replace("Zone", "").Replace("zone", "");
+                        return utmZone;
+                    }
+                }
+            }
+            catch (Exception) { }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="utmZone"> </param>
+        /// <returns></returns>
+        protected Coordinate TransformUTMToWGS84(Coordinate point, string utmZone)
+        {
+            CoordinateSystemFactory csFact = new CoordinateSystemFactory();
+            CoordinateTransformationFactory ctFact = new CoordinateTransformationFactory();
+
+            string wgs84SpatialRefWKT =
+                @"GEOGCS[""GCS_WGS_1984"",DATUM[""D_WGS_1984"",SPHEROID[""WGS_1984"",6378137,298.257223563]],PRIMEM[""Greenwich"",0],UNIT[""Degree"",0.0174532925199433]]";
+
+            ICoordinateSystem wgs84 = csFact.CreateFromWkt(wgs84SpatialRefWKT);
+
+            if (int.TryParse(utmZone.ToUpper().Replace("N", "").Replace("S", ""), out int utmNumber))
+            {
+                IProjectedCoordinateSystem utm = ProjectedCoordinateSystem.WGS84_UTM(utmNumber, utmZone.ToUpper().Contains("N"));
+                ICoordinateTransformation trans = ctFact.CreateFromCoordinateSystems(utm, wgs84);
+
+                Coordinate tCoord = trans.MathTransform.Transform(point);
+                return tCoord;
+            }
+
+            throw new InvalidCastException($"Could not convert zone '{utmZone}' to int!");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="points"></param>
+        /// <returns></returns>
+        protected Coordinate[] TransformListUTMToWGS84(Coordinate[] points, string utmZone)
+        {
+            CoordinateSystemFactory csFact = new CoordinateSystemFactory();
+            CoordinateTransformationFactory ctFact = new CoordinateTransformationFactory();
+
+            string wgs84SpatialRefWKT =
+                @"GEOGCS[""GCS_WGS_1984"",DATUM[""D_WGS_1984"",SPHEROID[""WGS_1984"",6378137,298.257223563]],PRIMEM[""Greenwich"",0],UNIT[""Degree"",0.0174532925199433]]";
+
+            ICoordinateSystem wgs84 = csFact.CreateFromWkt(wgs84SpatialRefWKT);
+
+            if(int.TryParse(utmZone.ToUpper().Replace("N", "").Replace("S", ""), out int utmNumber))
+            {
+                IProjectedCoordinateSystem utm = ProjectedCoordinateSystem.WGS84_UTM(utmNumber, utmZone.ToUpper().Contains("N"));
+                ICoordinateTransformation trans = ctFact.CreateFromCoordinateSystems(utm, wgs84);
+
+                Coordinate[] tpoints = trans.MathTransform.TransformList(points).ToArray();
+                return tpoints; 
+            }
+
+            throw new InvalidCastException($"Could not convert zone '{utmZone}' to int!");
+        }
     }
 }

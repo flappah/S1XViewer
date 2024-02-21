@@ -12,6 +12,8 @@
     <PackageReference Include="GDAL" Version="3.7.2" />
     <PackageReference Include="GDAL.Native" Version="3.7.2" />
     <PackageReference Include="HDF5-CSharp" Version="1.17.0" />
+    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
+    <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
   </ItemGroup>
 
   <ItemGroup>

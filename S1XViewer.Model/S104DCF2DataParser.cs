@@ -79,7 +79,7 @@ namespace S1XViewer.Model
             Progress?.Invoke(50);
 
             Hdf5Element hdf5S111Root = await _productSupport.RetrieveHdf5FileAsync(hdf5FileName);
-            long horizontalCRS = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
+            (long horizontalCRS, string utmZone) = RetrieveHorizontalCRS(hdf5S111Root, hdf5FileName);
             if (horizontalCRS <= 0)
             {
                 string defaultCRSString = _optionsStorage.Retrieve("comboBoxCRS");
@@ -108,9 +108,10 @@ namespace S1XViewer.Model
 
             // check position ordering lon/lat vs lat/lon
             var axisNameElement = featureElement.Children.Find(elm => elm.Name.Equals("/WaterLevel/axisNames"));
+            string[] axisNamesStrings = new string[0];
             if (axisNameElement != null)
             {
-                var axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
+                axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
                 if (axisNamesStrings != null && axisNamesStrings.Length == 2)
                 {
                     if (axisNamesStrings[0].ToUpper().Equals("LATITUDE") || axisNamesStrings[1].ToUpper().Equals("LATITUDE"))
@@ -123,7 +124,7 @@ namespace S1XViewer.Model
                     }
                     else if (axisNamesStrings[0].ToUpper().Equals("EASTING") || axisNamesStrings[1].ToUpper().Equals("EASTING"))
                     {
-                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("EASTING") && axisNamesStrings[1].ToUpper().Equals("NORTHING");
+                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("NORTHING") && axisNamesStrings[1].ToUpper().Equals("EASTING");
                     }
 
                     dataPackage.InvertLonLat = invertLonLat;
@@ -204,6 +205,15 @@ namespace S1XViewer.Model
                         if (gridOriginLatitude == -999.0 || gridOriginLongitude == -999.0 || gridSpacingLatitudinal == -999.0 || gridSpacingLongitudinal == -999.0)
                         {
                             return;
+                        }
+
+                        if (String.IsNullOrEmpty(utmZone) == false)
+                        {
+                            GeoAPI.Geometries.Coordinate transformedCoordinate =
+                                TransformUTMToWGS84(new GeoAPI.Geometries.Coordinate(gridOriginLongitude, gridOriginLatitude), utmZone);
+
+                            gridOriginLongitude = transformedCoordinate.X;
+                            gridOriginLatitude = transformedCoordinate.Y;
                         }
 
                         var numPointsLatitudinalElement = waterLevelFeatureInstanceNode.Attributes.Find("numPointsLatitudinal");

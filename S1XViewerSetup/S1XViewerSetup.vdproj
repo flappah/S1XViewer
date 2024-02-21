@@ -3655,7 +3655,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=he, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=he, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_03BE99D7E835406993D83CA67BC6787C"
@@ -3786,7 +3786,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=lt, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=lt, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_06C668C8A50A413E94DE08647FF3F3B0"
@@ -3968,7 +3968,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=pt-BR, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=pt-BR, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_09BAEA2ECA5C49BE811E4B869C5D5EB0"
@@ -4279,7 +4279,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=vi, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=vi, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_0EFF5C1CF12C4828B0D594066E381D52"
@@ -4570,7 +4570,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=da, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=da, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_17343EB8D67E473F95BAED2D775E7C00"
@@ -4772,7 +4772,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=bs, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=bs, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_1CC1DBFFC37148D6B1E3F295BC8940DD"
@@ -4803,7 +4803,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=ko, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=ko, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_1CE4414F63564A018CB00525DC53A389"
@@ -5034,7 +5034,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=uk, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=uk, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_22E99DB3D520444489C3ADB354C9AE01"
@@ -5365,7 +5365,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=fi, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=fi, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_2A49BC64C18B4E4698BBB41E24640A99"
@@ -5396,7 +5396,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=de, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=de, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_2A6187BD0B5C4F5D8AEFAF2FD335732E"
@@ -5527,7 +5527,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=no, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=no, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_2D525F2AB4FA4876B2B93C3AC0329340"
@@ -6149,7 +6149,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=tr, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=tr, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_3F2C50C9502E4CA0BBE49536EBE52A9C"
@@ -6280,7 +6280,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=zh-HK, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=zh-HK, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_4283DAC0703842DE8231FAA3AEB90639"
@@ -6571,7 +6571,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=nl, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=nl, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_496886968B13477597024A11A97C2917"
@@ -6602,7 +6602,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=ca, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=ca, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_4A4AA3E09C124BA094E2F1558FF5ECCF"
@@ -6653,7 +6653,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=fr, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=fr, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_4BAC82D5573844628E966A2C11FC1D5D"
@@ -6906,7 +6906,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=et, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=et, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_5019C5CDD57940D195750FE933840956"
@@ -7228,7 +7228,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=hu, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=hu, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_5B21B53AFDDB46A6B09ADF60B413A7E6"
@@ -7339,7 +7339,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=sv, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=sv, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_5D8431CD2AC4405DA935BB6DC38C3607"
@@ -7370,7 +7370,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=pt-PT, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=pt-PT, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_5DB38209211B4A46B596788E18ADA525"
@@ -7521,7 +7521,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=nb-NO, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=nb-NO, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_613DA770A0F04D22B1496C5B5E4822C7"
@@ -7672,7 +7672,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=sl, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=sl, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_6454AF35C38140D5AC4109736D143E4A"
@@ -8154,7 +8154,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=ro, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=ro, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_6DF14ABE248946C1BC35C313CBEF9223"
@@ -8245,7 +8245,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=zh-CN, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=zh-CN, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_6E63582CC97A410C870415FBD4F8EC06"
@@ -8296,7 +8296,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=it, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=it, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_6F3E3767C1194CD89F102CADBA39941E"
@@ -8547,7 +8547,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=ja, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=ja, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_72AC4A9B24D0447FA8B9C11F55D608F8"
@@ -8638,7 +8638,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=ru, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=ru, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_75956F989E6F44DBA28A997A2E26EF4D"
@@ -8849,7 +8849,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=sr, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=sr, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_7B98F2CD79524D25AB0F933CF9E31DB1"
@@ -9120,7 +9120,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=es, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=es, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_81F4FC893B464410940779EDA7BD701B"
@@ -9571,7 +9571,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=pl, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=pl, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_8D6E7023F54A4C72B2A4260C68A0B19E"
@@ -9682,7 +9682,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=lv, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=lv, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_9064191DE75F4E8E8E024A21AB998637"
@@ -10624,7 +10624,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=zh-TW, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=zh-TW, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_A4A32C2000F74D1198DD73BEB49FF120"
@@ -11286,7 +11286,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=el, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=el, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_B4DBB5F1A473409FB0746BD85EC5B09E"
@@ -11577,7 +11577,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=hr, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=hr, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_BB0F7F0F190444619A1F15AF267F8B71"
@@ -12359,7 +12359,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=cs, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=cs, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_CF60098E21D4420E890244AE8355BE04"
@@ -12570,7 +12570,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=bg, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=bg, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_D319C8FEFC9941CB983CFFBB2BFA61A8"
@@ -12932,7 +12932,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=th, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=th, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_DBD04E2945404AA6BBE668745FEDBA65"
@@ -13043,7 +13043,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=id, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=id, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_E0B03B6B8D6041C58D2DC205AD71B85B"
@@ -13594,7 +13594,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=zh-Hans, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=zh-Hans, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_ECB786AB885D4D0CA418DCA2432AD0FF"
@@ -13925,7 +13925,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.1.0.0, Culture=sk, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Esri.ArcGISRuntime.resources, Version=200.2.0.0, Culture=sk, PublicKeyToken=8fc3cc631e44ad86, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_F4BDF0B25ED140A79F81CA07996A46F5"
@@ -15229,15 +15229,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:IHO S1X Standards Viewer"
-        "ProductCode" = "8:{AD4D36B9-4EF7-4CF5-9235-9BF0E35A31CD}"
-        "PackageCode" = "8:{86188EA3-50BF-48A6-B4BD-69BBF33A4D15}"
+        "ProductCode" = "8:{FDCE5F68-786B-4EEC-9D1C-AA6564824DBE}"
+        "PackageCode" = "8:{054A3065-16D2-4D5E-9CA8-3DB5490A369F}"
         "UpgradeCode" = "8:{9365262E-4DE1-455B-A8F0-EB0020974CE0}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:2.2.4"
+        "ProductVersion" = "8:2.2.5"
         "Manufacturer" = "8:Netherlands Hydrographic Service"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -15779,7 +15779,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C1A0A090B6294D2C9D1DA52028B47047"
             {
-            "SourcePath" = "8:..\\S1XViewer\\obj\\Release\\net6.0-windows10.0.19041.0\\apphost.exe"
+            "SourcePath" = "8:..\\S1XViewer\\obj\\Debug\\net6.0-windows10.0.19041.0\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_91FD78E5650E41E4A4F3B1A7BB635144"
