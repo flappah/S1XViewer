@@ -202,11 +202,23 @@ namespace S1XViewer.Model
                 var axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
                 if (axisNamesStrings != null && axisNamesStrings.Length == 2)
                 {
-                    invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                    if (axisNamesStrings[0].ToUpper().Equals("LATITUDE") || axisNamesStrings[1].ToUpper().Equals("LATITUDE"))
+                    {
+                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                    }
+                    else if (axisNamesStrings[0].ToUpper().Equals("LAT") || axisNamesStrings[1].ToUpper().Equals("LAT"))
+                    {
+                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("LAT") && axisNamesStrings[1].ToUpper().Equals("LON");
+                    }
+                    else if (axisNamesStrings[0].ToUpper().Equals("EASTING") || axisNamesStrings[1].ToUpper().Equals("EASTING"))
+                    {
+                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("EASTING") && axisNamesStrings[1].ToUpper().Equals("NORTHING");
+                    }
+
                     dataPackage.InvertLonLat = invertLonLat;
                 }
             }
-            
+
             // retrieve boundingbox
             var eastBoundLongitudeAttribute = hdf5S102Root.Attributes.Find("eastBoundLongitude");
             var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<double>(0f) ?? 0.0;

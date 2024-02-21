@@ -1231,7 +1231,7 @@ namespace S1XViewer
             {
                 SaveRecentFile(fileName);
 
-                // now find out which codingformat is to be used to determine S111 dataparser
+                // now find out which data coding format is to be used to determine S1xx data-parser
                 IProductSupportFactory productSupportFactory = _container.Resolve<IProductSupportFactory>();
                 IProductSupportBase productSupport = productSupportFactory.Create(productStandard);
                 short dataCodingFormat = productSupport.GetDataCodingFormat(fileName);

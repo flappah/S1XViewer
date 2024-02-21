@@ -101,7 +101,7 @@ namespace S1XViewer.Model
                 catch(Exception ex) { }
             }
 
-            return 4326; // base WGS84
+            return baseCRSId; // base WGS84
         }
 
     }
