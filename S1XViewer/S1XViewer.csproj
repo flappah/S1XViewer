@@ -37,6 +37,7 @@
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Square-Plus.ico" />
     <None Remove="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Sun.ico" />
     <None Remove="images\Pictogrammers-Material-Image-refresh-outline.ico" />
+    <None Remove="images\S1XViewer_SplashScreen.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -84,6 +85,9 @@
     </Resource>
     <Resource Include="images\Fa-Team-Fontawesome-Regular-FontAwesome-Regular-Sun.ico" />
     <Resource Include="images\Pictogrammers-Material-Image-refresh-outline.ico" />
+    <SplashScreen Include="images\S1XViewer_SplashScreen.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </SplashScreen>
     <Resource Include="Paomedia-Small-N-Flat-Map.ico" />
   </ItemGroup>
 

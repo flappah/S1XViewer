@@ -49,6 +49,9 @@ namespace S1XViewer
         /// </summary>
         public MainWindow()
         {
+            var splashScreen = new SplashScreen(@"images\S1XViewer_SplashScreen.png");
+            splashScreen.Show(false, true);
+
             _container = AutofacInitializer.Initialize();
             var stateStorage = _container.Resolve<IStateStorage>();
             if (stateStorage != null)
@@ -148,6 +151,8 @@ namespace S1XViewer
 
                 });
             });
+
+            splashScreen.Close(TimeSpan.FromSeconds(2));
         }
 
         /// <summary>
