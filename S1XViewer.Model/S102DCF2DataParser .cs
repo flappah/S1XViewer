@@ -9,6 +9,7 @@ using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
 using System.Globalization;
+using System.Net.Http.Headers;
 using System.Security.Principal;
 using System.Windows;
 using System.Xml;
@@ -221,14 +222,10 @@ namespace S1XViewer.Model
             }
 
             // retrieve boundingbox
-            var eastBoundLongitudeAttribute = hdf5S102Root.Attributes.Find("eastBoundLongitude");
-            var eastBoundLongitude = eastBoundLongitudeAttribute?.Value<double>(0f) ?? 0.0;
-            var northBoundLatitudeAttribute = hdf5S102Root.Attributes.Find("northBoundLatitude");
-            var northBoundLatitude = northBoundLatitudeAttribute?.Value<double>(0f) ?? 0f;
-            var southBoundLatitudeAttribute = hdf5S102Root.Attributes.Find("southBoundLatitude");
-            var southBoundLatitude = southBoundLatitudeAttribute?.Value<double>(0f) ?? 0f;
-            var westBoundLongitudeAttribute = hdf5S102Root.Attributes.Find("westBoundLongitude");
-            var westBoundLongitude = westBoundLongitudeAttribute?.Value<double>(0f) ?? 0f;
+            var eastBoundLongitude = hdf5S102Root.Attributes.Find("eastBoundLongitude")?.Value<double>(0f) ?? 0f;
+            var northBoundLatitude = hdf5S102Root.Attributes.Find("northBoundLatitude")?.Value<double>(0f) ?? 0f;
+            var southBoundLatitude = hdf5S102Root.Attributes.Find("southBoundLatitude")?.Value<double>(0f) ?? 0f;
+            var westBoundLongitude = hdf5S102Root.Attributes.Find("westBoundLongitude")?.Value<double>(0f) ?? 0f;
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
@@ -270,22 +267,39 @@ namespace S1XViewer.Model
                     {
                         //we've found the relevant group. Use this group to create features on by calculating its position
                         var minGroupParentNode = (Hdf5Element)minGroup.Parent;
-                        var gridOriginLatitudeElement = minGroupParentNode.Attributes.Find("gridOriginLatitude");
-                        var gridOriginLatitude = gridOriginLatitudeElement?.Value<double>() ?? -999.0;
-                        
-                        var gridOriginLongitudeElement = minGroupParentNode.Attributes.Find("gridOriginLongitude");
-                        var gridOriginLongitude = gridOriginLongitudeElement?.Value<double>() ?? -999.0;
+                        var gridOriginLatitude = minGroupParentNode.Attributes.Find("gridOriginLatitude")?.Value<double>() ?? -999.0;
+                        var gridOriginLongitude = minGroupParentNode.Attributes.Find("gridOriginLongitude")?.Value<double>() ?? -999.0;
 
-                        var gridSpacingLatitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLatitudinal");
-                        var gridSpacingLatitudinal = gridSpacingLatitudinalElement?.Value<double>() ?? -999.0;
-                        var gridSpacingLongitudinalElement = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal");
-                        var gridSpacingLongitudinal = gridSpacingLongitudinalElement?.Value<double>() ?? -999.0;
+                        var gridSpacingLatitudinal = minGroupParentNode.Attributes.Find("gridSpacingLatitudinal")?.Value<double>() ?? -999.0;
+                        var gridSpacingLongitudinal = minGroupParentNode.Attributes.Find("gridSpacingLongitudinal")?.Value<double>() ?? -999.0;
 
                         if (gridOriginLatitude == -999.0 || gridOriginLongitude == -999.0 || gridSpacingLatitudinal == -999.0 || gridSpacingLongitudinal == -999.0)
                         {
                             return;
                         }
 
+                        var startSequence = minGroupParentNode.Attributes.Find("startSequence")?.Value<string>() ?? String.Empty;
+
+                        // Now this whole algorithm still doesn't take startSequence into account!! In fact it always assumes that the gridOrigins are at lower left!!! 
+                        // This should be changed in the future. For now startSequence is only evaluated to calculated the true origin since S102 specifies the 
+                        // grid origin to be at the center point of the grid cell
+
+                        if (startSequence == "0,0")
+                        {
+                            // in older versions of the S102 it's not necessary to apply the shift!
+
+                            var southBoundLatitudeInstance = minGroupParentNode.Attributes.Find("southBoundLatitude")?.Value<double>(0f) ?? 0f;
+                            var westBoundLongitudeInstance = minGroupParentNode.Attributes.Find("westBoundLongitude")?.Value<double>(0f) ?? 0f;
+
+                            if (westBoundLongitudeInstance != gridOriginLongitude &&
+                                southBoundLatitudeInstance != gridOriginLatitude)
+                            {
+                                gridOriginLatitude -= (gridSpacingLatitudinal * 0.5);
+                                gridOriginLongitude -= (gridSpacingLongitudinal * 0.5);
+                            }
+                        }
+
+                        // now check if input is UTM. If so transform to decimal degrees. 
                         if (String.IsNullOrEmpty(utmZone) == false)
                         {
                             GeoAPI.Geometries.Coordinate transformedCoordinate =
@@ -305,8 +319,24 @@ namespace S1XViewer.Model
                             return;
                         }
 
+                        // apparently it sometimes happens that there's something else besides a Values element in the Group_Xxx container. 
+                        Hdf5Element valuesElement = minGroup.Children[0];
+                        if (valuesElement != null && valuesElement.Name.ToUpper().Contains("/VALUES") == false)
+                        {
+                            int i = 0;
+                            while (i++ < minGroup.Children.Count && valuesElement.Name.ToUpper().Contains("/VALUES") == false)
+                            {
+                                valuesElement = minGroup.Children[i];
+                            }
+                        }
+
+                        if (valuesElement == null || valuesElement?.Name.ToUpper().Contains("/VALUES") == false)
+                        {
+                            return;
+                        }
+
                         var depthsDataset =
-                              _datasetReader.ReadArrayOfFloats(hdf5FileName, minGroup.Children[0].Name, numPointsLatitude, numPointsLongitude * 2);
+                              _datasetReader.ReadArrayOfFloats(hdf5FileName, valuesElement?.Name, numPointsLatitude, numPointsLongitude * 2);
 
                         if (depthsDataset.members.Length == 0)
                         {
