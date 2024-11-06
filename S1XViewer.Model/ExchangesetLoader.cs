@@ -45,19 +45,27 @@ namespace S1XViewer.Model
         public virtual (string, List<string>) Parse(XmlDocument xmlDocument)
         {
             XmlNamespaceManager nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
-            nsmgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc/5.0");
+            nsmgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc/5.2");
             nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
 
             var productSpecificationIdentifierNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:productSpecification/S100XC:productIdentifier", nsmgr);
             string productStandard = string.Empty;
 
-            if (productSpecificationIdentifierNode == null) // if empty, try S100 V4 mode
+            if (productSpecificationIdentifierNode == null) // if empty, try S100 V5.0 mode
             {
                 nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
-                nsmgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
+                nsmgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc/5.0");
                 nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
 
                 productSpecificationIdentifierNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:productSpecification/S100XC:productIdentifier", nsmgr);
+                if (productSpecificationIdentifierNode == null) // if empty, try S100 V4.0 mode
+                {
+                    nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
+                    nsmgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
+                    nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
+
+                    productSpecificationIdentifierNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:productSpecification/S100XC:productIdentifier", nsmgr);
+                }
             }
 
             if (productSpecificationIdentifierNode != null)

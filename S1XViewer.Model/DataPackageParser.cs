@@ -1,6 +1,7 @@
 ﻿using S1XViewer.Model.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
+using System.Data;
 using System.Xml;
 
 namespace S1XViewer.Model
@@ -18,7 +19,7 @@ namespace S1XViewer.Model
         public string UseStandard { get; set; } = string.Empty;
 
         /// <summary>
-        ///     Retrieves a datapackage parser based on the input from the XML file. Use of property is UseStandard is mandatory if an 
+        ///     Retrieves a data package parser based on the input from the XML file. Use of property is UseStandard is mandatory if an 
         ///     exchange file is used as its basic input
         /// </summary>
         /// <param name="xmlDocument"></param>
@@ -69,12 +70,12 @@ namespace S1XViewer.Model
         }
 
         /// <summary>
-        ///     Retrieves a datapackage parser based on the datacodingformat and the standard that is set in UseStandard
+        ///     Retrieves a data package parser based on the datacoding format and the standard that is set in UseStandard
         /// </summary>
         /// <param name="dataCodingFormat"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public IDataParser GetDataParser(short dataCodingFormat)
+        public IDataParser GetDataParser(short dataCodingFormat, string version = "")
         {
             if (DataParsers == null || DataParsers.Count() == 0)
             {
@@ -87,7 +88,7 @@ namespace S1XViewer.Model
             }
 
             IDataParser locatedDataParser =
-                DataParsers.ToList().Find(tp => tp.GetType().Name.Contains($"{UseStandard}DCF{dataCodingFormat}DataParser"));
+                DataParsers.ToList().Find(tp => tp.GetType().Name.Contains($"{UseStandard}DCF{dataCodingFormat}{(String.IsNullOrEmpty(version) == false ? $"V{version}" : "")}DataParser"));
 
             if (locatedDataParser != null)
             {

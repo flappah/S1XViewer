@@ -658,10 +658,11 @@ namespace S1XViewer
             var firstDateTimeSeries = (DateTime)buttonBackward.Tag;
 
             var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "#" }, StringSplitOptions.RemoveEmptyEntries);
-            if (textboxTimeValueTagValues?.Length == 3)
+            if (textboxTimeValueTagValues?.Length == 4)
             {
                 string selectedFileName = textboxTimeValueTagValues[0];
                 string productStandard = textboxTimeValueTagValues[1];
+                string optionalVersion = textboxTimeValueTagValues[3] ?? "";
                 if (DateTime.TryParse(textboxTimeValueTagValues[2], out DateTime selectedDateTime) == true)
                 {
                     DateTime proposedDateTime = selectedDateTime.AddHours(-1);
@@ -671,7 +672,7 @@ namespace S1XViewer
                     buttonForward.IsEnabled = false;
 
                     textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
-                    textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}";
+                    textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}#{optionalVersion}";
                     await LoadHDF5File(productStandard, selectedFileName, proposedDateTime).ConfigureAwait(true);
 
                     if (proposedDateTime <= firstDateTimeSeries)
@@ -705,10 +706,11 @@ namespace S1XViewer
 
             var lastDateTimeSeries = (DateTime)buttonForward.Tag;
             var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "#" }, StringSplitOptions.RemoveEmptyEntries);
-            if (textboxTimeValueTagValues?.Length == 3)
+            if (textboxTimeValueTagValues?.Length == 4)
             {
                 string selectedFileName = textboxTimeValueTagValues[0];
                 string productStandard = textboxTimeValueTagValues[1];
+                string optionalVersion = textboxTimeValueTagValues[3] ?? "";
                 if (DateTime.TryParse(textboxTimeValueTagValues[2], out DateTime selectedDateTime) == true)
                 {
                     DateTime proposedDateTime = selectedDateTime.AddHours(1);
@@ -718,8 +720,8 @@ namespace S1XViewer
                     buttonForward.IsEnabled = false;
 
                     textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
-                    textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}";
-                    await LoadHDF5File(productStandard, selectedFileName, proposedDateTime).ConfigureAwait(true);
+                    textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}#{optionalVersion}";
+                    await LoadHDF5File(productStandard, selectedFileName, proposedDateTime, true, optionalVersion).ConfigureAwait(true);
 
                     if (proposedDateTime >= lastDateTimeSeries)
                     {
@@ -1045,20 +1047,29 @@ namespace S1XViewer
                 }
 
                 var filename = selectedFilename.LastPart(@"\");
+                string optionalVersion = string.Empty;
                 if (string.IsNullOrEmpty(filename) == false)
                 {
                     var xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
-                    xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc/5.0");
+                    xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc/5.2");
 
                     var producerCodeNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata/S100XC:producerCode", xmlNSMgr);
                     var producerCode = string.Empty;
+                    optionalVersion = "20"; // S104 V2.0
 
                     if (producerCodeNode == null)
                     {
                         xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
-                        xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
+                        xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc/5.0");
 
                         producerCodeNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata/S100XC:producerCode", xmlNSMgr);
+                        if (producerCodeNode == null)
+                        {
+                            xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
+                            xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc");
+
+                            producerCodeNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata/S100XC:producerCode", xmlNSMgr);
+                        }
                     }
 
                     if (producerCodeNode != null)
@@ -1099,13 +1110,13 @@ namespace S1XViewer
                         buttonBackward.Tag = beginTime.ToUniversalTime();
                         buttonForward.Tag = endTime.ToUniversalTime();
                         textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
-                        textBoxTimeValue.Tag = $"{selectedFilename}#{productStandard}#{selectedDateTime}";
+                        textBoxTimeValue.Tag = $"{selectedFilename}#{productStandard}#{selectedDateTime}#{optionalVersion}";
                     }
                 }
 
                 if (String.IsNullOrEmpty(selectedFilename) == false && selectedDateTime != null)
                 {
-                    await LoadHDF5File(productStandard, selectedFilename, selectedDateTime);
+                    await LoadHDF5File(productStandard, selectedFilename, selectedDateTime, true, optionalVersion);
                 }
             }
             else if (productFileNames.Count > 1)
@@ -1194,7 +1205,8 @@ namespace S1XViewer
         /// <param name="fileName"></param>
         /// <param name="selectedDateTime"></param>
         /// <param name="reinitGeoLayers"></param>
-        private async Task LoadHDF5File(string productStandard, string fileName, DateTime? selectedDateTime, bool reinitGeoLayers = true)
+        /// <param name="version"></param>
+        private async Task LoadHDF5File(string productStandard, string fileName, DateTime? selectedDateTime, bool reinitGeoLayers = true, string version = "")
         {
             this.mainRibbon.Title = $"Viewing {fileName.LastPart(@"\")}";
             if (selectedDateTime != null)
@@ -1243,7 +1255,7 @@ namespace S1XViewer
 
                 IDataPackageParser dataParser = _container.Resolve<IDataPackageParser>();
                 dataParser.UseStandard = productStandard;
-                var dataPackageParser = dataParser.GetDataParser(dataCodingFormat);
+                var dataPackageParser = dataParser.GetDataParser(dataCodingFormat, version);
                 dataPackageParser.Progress += new ProgressFunction((p) =>
                 {
                     _syncContext?.Post(new SendOrPostCallback(o =>
