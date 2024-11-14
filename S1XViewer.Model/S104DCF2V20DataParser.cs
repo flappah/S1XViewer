@@ -1,20 +1,19 @@
 ﻿using HDF5CSharp.DataTypes;
+using NetTopologySuite.Algorithm;
+using OSGeo.GDAL;
+using OSGeo.OSR;
+using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
-using S1XViewer.Types.ComplexTypes;
-using S1XViewer.Types.Features;
 using S1XViewer.Types;
+using S1XViewer.Types.Features;
 using S1XViewer.Types.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Principal;
+using System.Windows;
 using System.Xml;
-using S1XViewer.Base;
 
 namespace S1XViewer.Model
 {
@@ -43,6 +42,95 @@ namespace S1XViewer.Model
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataPackage"></param>
+        private void CreateTiff(S104DataPackage dataPackage)
+        {
+            var tempPath = Path.GetTempPath();
+            GdalConfiguration.ConfigureGdal();
+
+            string tiffFileName = $"{tempPath}s1xv_{Guid.NewGuid()}.tif";
+
+            var directoryInfo = new DirectoryInfo(tempPath);
+            var directorySecurity = directoryInfo.GetAccessControl();
+
+            directorySecurity.SetOwner(WindowsIdentity.GetCurrent().User);
+            directoryInfo.SetAccessControl(directorySecurity);
+            directoryInfo.Attributes = FileAttributes.Normal;
+
+            if (File.Exists(tiffFileName) == true)
+            {
+                var fileInfo = new FileInfo(tiffFileName);
+                var fileSecurity = fileInfo.GetAccessControl();
+
+                fileSecurity.SetOwner(WindowsIdentity.GetCurrent().User);
+                fileInfo.SetAccessControl(fileSecurity);
+                fileInfo.IsReadOnly = false;
+
+                try
+                {
+                    File.Delete(tiffFileName);
+                }
+                catch (Exception) { }
+            }
+
+            string line = "";
+            try
+            {
+                Driver driver = Gdal.GetDriverByName("GTiff");
+                using (Dataset outImageDs = driver.Create(tiffFileName, dataPackage.numPointsX, dataPackage.numPointsY, 1, DataType.GDT_Float32, null))
+                {
+                    string wktProj;
+                    Osr.GetWellKnownGeogCSAsWKT("WGS84", out wktProj);
+                    outImageDs.SetProjection(wktProj);
+
+                    var mapWidth = dataPackage.maxX - dataPackage.minX;
+                    var mapHeight = dataPackage.maxY - dataPackage.minY;
+                    double[] geoTransform = new double[] { dataPackage.minX, mapWidth / dataPackage.numPointsX, 0, dataPackage.maxY, 0, (mapHeight / dataPackage.numPointsY) * (-1) };
+
+                    outImageDs.SetGeoTransform(geoTransform);
+
+                    Band outBand = outImageDs.GetRasterBand(1);
+                    var outData = new float[dataPackage.numPointsY * dataPackage.numPointsX];
+                    int i = 0;
+                    for (int yIdx = dataPackage.numPointsY - 1; yIdx >= 0; yIdx--)
+                    {
+                        for (int xIdx = 0; xIdx < dataPackage.numPointsX; xIdx++)
+                        {
+                            outData[i++] = dataPackage.Data[yIdx, xIdx];
+                        }
+                    }
+
+                    outBand.WriteRaster(0, 0, dataPackage.numPointsX, dataPackage.numPointsY, outData, dataPackage.numPointsX, dataPackage.numPointsY, 0, 0);
+
+                    outBand.FlushCache();
+                    outImageDs.FlushCache();
+                    outBand.Dispose();
+                    outImageDs.Dispose();
+
+                    File.SetAttributes(tiffFileName, FileAttributes.Normal);
+                }
+            }
+            catch (Exception ex)
+            {
+                var exception = ex;
+                var errorText = string.Empty;
+                while (exception != null)
+                {
+                    errorText += $"\n{exception.Source}\n{exception.Message}\n{exception.StackTrace}";
+                    exception = exception.InnerException;
+                }
+
+                MessageBox.Show($"({line}) Can't write file {tiffFileName}.{errorText}");
+            }
+            finally
+            {
+                dataPackage.TiffFileName = tiffFileName;
+            }
+        }
+
+        /// <summary>
         ///     Parses specified HDF5 file
         /// </summary>
         /// <param name="hdf5FileName">HDF5 file name</param>
@@ -58,7 +146,7 @@ namespace S1XViewer.Model
 
             if (selectedDateTime == null)
             {
-                return new S111DataPackage
+                return new S104DataPackage
                 {
                     Type = S1xxTypes.Null,
                     RawHdfData = null,
@@ -68,7 +156,7 @@ namespace S1XViewer.Model
                 };
             }
 
-            var dataPackage = new S111DataPackage
+            var dataPackage = new S104DataPackage
             {
                 FileName = hdf5FileName,
                 Type = S1xxTypes.S104,
@@ -176,176 +264,135 @@ namespace S1XViewer.Model
                 var geoFeaturesLookupTable = new Dictionary<string, TidalStation>();
                 DateTime oldTimePoint = DateTime.MinValue;
 
-                int max = 0;
-                foreach (Hdf5Element? waterLevelFeatureInstanceNode in featureElement.Children)
+                Hdf5Element? waterLevelFeatureInstanceNode = null;
+                Hdf5Element? group = null;
+                foreach (Hdf5Element? node in featureElement.Children)
                 {
-                    foreach (Hdf5Element? group in waterLevelFeatureInstanceNode.Children)
+                    foreach (Hdf5Element? childGroup in node.Children)
                     {
-                        max++;
+                        var timePointString = childGroup.Attributes.Find("timePoint")?.Value<string>() ?? string.Empty;
+                        if (DateTime.TryParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timePoint))
+                        {
+                            timePoint = timePoint.ToUniversalTime();
+                            if (timePoint.Equals(selectedDateTime))
+                            {
+                                waterLevelFeatureInstanceNode = node;
+                                group = childGroup;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (waterLevelFeatureInstanceNode != null && group != null)
+                    {
+                        break;
                     }
                 }
 
-                foreach (Hdf5Element? waterLevelFeatureInstanceNode in featureElement.Children)
+                if (waterLevelFeatureInstanceNode != null && group != null && waterLevelFeatureInstanceNode.Name.Contains("/WaterLevel."))
                 {
-                    if (waterLevelFeatureInstanceNode != null && waterLevelFeatureInstanceNode.Name.Contains("/WaterLevel."))
+                    var gridOriginLatitude = waterLevelFeatureInstanceNode.Attributes.Find("gridOriginLatitude")?.Value<double>() ?? -999.0;
+                    var gridOriginLongitude = waterLevelFeatureInstanceNode.Attributes.Find("gridOriginLongitude")?.Value<double>() ?? -999.0;
+                    var gridSpacingLatitudinal = waterLevelFeatureInstanceNode.Attributes.Find("gridSpacingLatitudinal")?.Value<double>() ?? -999.0;
+                    var gridSpacingLongitudinal = waterLevelFeatureInstanceNode.Attributes.Find("gridSpacingLongitudinal")?.Value<double>() ?? -999.0;
+
+                    if (gridOriginLatitude == -999.0 || gridOriginLongitude == -999.0 || gridSpacingLatitudinal == -999.0 || gridSpacingLongitudinal == -999.0)
                     {
-                        var gridOriginLatitude = waterLevelFeatureInstanceNode.Attributes.Find("gridOriginLatitude")?.Value<double>() ?? -999.0;
-                        var gridOriginLongitude = waterLevelFeatureInstanceNode.Attributes.Find("gridOriginLongitude")?.Value<double>() ?? -999.0;
-                        var gridSpacingLatitudinal = waterLevelFeatureInstanceNode.Attributes.Find("gridSpacingLatitudinal")?.Value<double>() ?? -999.0;
-                        var gridSpacingLongitudinal = waterLevelFeatureInstanceNode.Attributes.Find("gridSpacingLongitudinal")?.Value<double>() ?? -999.0;
+                        return;
+                    }
 
-                        if (gridOriginLatitude == -999.0 || gridOriginLongitude == -999.0 || gridSpacingLatitudinal == -999.0 || gridSpacingLongitudinal == -999.0)
+                    if (String.IsNullOrEmpty(utmZone) == false)
+                    {
+                        GeoAPI.Geometries.Coordinate transformedCoordinate =
+                            TransformUTMToWGS84(new GeoAPI.Geometries.Coordinate(gridOriginLongitude, gridOriginLatitude), utmZone);
+
+                        gridOriginLongitude = transformedCoordinate.X;
+                        gridOriginLatitude = transformedCoordinate.Y;
+                    }
+
+                    var numPointsLatitude = waterLevelFeatureInstanceNode.Attributes.Find("numPointsLatitudinal")?.Value<int>() ?? -1;
+                    var numPointsLongitude = waterLevelFeatureInstanceNode.Attributes.Find("numPointsLongitudinal")?.Value<int>() ?? -1;
+
+                    if (numPointsLatitude == -1 || numPointsLongitude == -1)
+                    {
+                        return;
+                    }
+
+                    var startSequence = waterLevelFeatureInstanceNode.Attributes.Find("startSequence")?.Value<string>() ?? string.Empty;
+
+                    var waterLevelFeatureNode = (Hdf5Element)waterLevelFeatureInstanceNode.Parent;
+                    if (waterLevelFeatureNode == null)
+                    {
+                        return;
+                    }
+
+                    var scanDirection = waterLevelFeatureNode.Attributes.Find("sequencingRule.scanDirection")?.Value<string>() ?? string.Empty;
+
+                    var timePointElement = group.Attributes.Find("timePoint");
+                    var timePointString = timePointElement?.Value<string>() ?? string.Empty;
+                    if (DateTime.TryParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timePoint))
+                    {
+                        timePoint = timePoint.ToUniversalTime();
+
+                        var currentDataset =
+                              _datasetReader.ReadArrayOfFloats(hdf5FileName, group.Children[0].Name, numPointsLatitude, numPointsLongitude * 3);
+
+                        if (currentDataset.members.Length == 0)
                         {
                             return;
                         }
 
-                        if (String.IsNullOrEmpty(utmZone) == false)
+                        dataPackage.minX = gridOriginLongitude;
+                        dataPackage.minY = gridOriginLatitude;
+                        dataPackage.maxX = eastBoundLongitude;
+                        dataPackage.maxY = northBoundLatitude;
+                        dataPackage.dY = gridSpacingLongitudinal;
+                        dataPackage.dX = gridSpacingLatitudinal;
+                        dataPackage.noDataValue = nillValueHeight;
+                        dataPackage.numPointsX = numPointsLongitude;
+                        dataPackage.numPointsY = numPointsLatitude;
+                        dataPackage.maxDataValue = -999.0;
+                        dataPackage.minDataValue = 999.0;
+
+                        dataPackage.Data = new float[numPointsLatitude, numPointsLongitude];
+
+                        for (int yIdx = 0; yIdx < numPointsLatitude; yIdx++)
                         {
-                            GeoAPI.Geometries.Coordinate transformedCoordinate =
-                                TransformUTMToWGS84(new GeoAPI.Geometries.Coordinate(gridOriginLongitude, gridOriginLatitude), utmZone);
-
-                            gridOriginLongitude = transformedCoordinate.X;
-                            gridOriginLatitude = transformedCoordinate.Y;
-                        }
-
-                        var numPointsLatitude = waterLevelFeatureInstanceNode.Attributes.Find("numPointsLatitudinal")?.Value<int>() ?? -1;
-                        var numPointsLongitude = waterLevelFeatureInstanceNode.Attributes.Find("numPointsLongitudinal")?.Value<int>() ?? -1;
-
-                        if (numPointsLatitude == -1 || numPointsLongitude == -1)
-                        {
-                            return;
-                        }
-
-                        var startSequence = waterLevelFeatureInstanceNode.Attributes.Find("startSequence")?.Value<string>() ?? string.Empty;
-
-                        var surfaceFeatureNode = (Hdf5Element)waterLevelFeatureInstanceNode.Parent;
-                        if (surfaceFeatureNode == null)
-                        {
-                            return;
-                        }
-
-                        var scanDirection = surfaceFeatureNode.Attributes.Find("sequencingRule.scanDirection")?.Value<string>() ?? string.Empty;
-
-                        short i = 0;
-                        foreach (Hdf5Element? group in waterLevelFeatureInstanceNode.Children)
-                        {
-                            var timePointElement = group.Attributes.Find("timePoint");
-                            var timePointString = timePointElement?.Value<string>() ?? string.Empty;
-                            if (DateTime.TryParseExact(timePointString, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime timePoint))
+                            for (int xIdx = 0; xIdx < (numPointsLongitude * 3); xIdx += 3)
                             {
-                                timePoint = timePoint.ToUniversalTime();
-
-                                var currentDataset =
-                                      _datasetReader.ReadArrayOfFloats(hdf5FileName, group.Children[0].Name, numPointsLatitude, numPointsLongitude * 3);
-
-                                if (currentDataset.members.Length == 0)
+                                if (currentDataset.values[yIdx, xIdx] != nillValueHeight)
                                 {
-                                    return;
-                                }
-
-                                int innerLoopMax = numPointsLongitude;
-                                int outerLoopMax = numPointsLatitude;
-                                for (int outerLoopIdx = 0; outerLoopIdx < outerLoopMax; outerLoopIdx++)
-                                {
-                                    for (int innerLoopIdx = 0; innerLoopIdx < (innerLoopMax * 3); innerLoopIdx += 3)
+                                    // find out min/max values
+                                    if (currentDataset.values[yIdx, xIdx] < dataPackage.minDataValue)
                                     {
-                                        // build up features and wrap 'em in data package
-                                        float trend;
-                                        float height;
-                                        if (currentDataset.members[0].Equals("waterLevelHeight"))
-                                        {
-                                            height = currentDataset.values[outerLoopIdx, innerLoopIdx];
-                                            trend = currentDataset.values[outerLoopIdx, innerLoopIdx + 1];
-                                        }
-                                        else
-                                        {
-                                            trend = currentDataset.values[outerLoopIdx, innerLoopIdx];
-                                            height = currentDataset.values[outerLoopIdx, innerLoopIdx + 1];
-                                        }
-
-                                        // since trend is being read as a float and the value doesn't convert correctly, do a new determination
-                                        trend = trend.ToString() switch
-                                        {
-                                            "0" => 0,
-                                            "1E-45" => 1,
-                                            "3E-45" => 2,
-                                            "4E-45" => 3,
-                                            _ => 0
-                                        };
-
-                                        if (height != nillValueHeight)
-                                        {
-                                            double longitude = gridOriginLongitude + (((double)innerLoopIdx / 3.0) * gridSpacingLongitudinal);
-                                            double latitude = gridOriginLatitude + ((double)outerLoopIdx * gridSpacingLatitudinal);
-
-                                            Esri.ArcGISRuntime.Geometry.Geometry? geometry =
-                                                _geometryBuilderFactory.Create("Point", new double[] { longitude }, new double[] { latitude }, (int)horizontalCRS);
-
-                                            var selectedHeight = -9999.0f;
-                                            short selectedTrend = -1;
-                                            if (((DateTime)selectedDateTime).Between(oldTimePoint, timePoint))
-                                            {
-                                                selectedHeight = height;
-                                                selectedTrend = (short)trend;
-                                            }
-
-                                            if (geoFeaturesLookupTable.ContainsKey($"{outerLoopIdx}_{innerLoopIdx}"))
-                                            {
-                                                geoFeaturesLookupTable[$"{outerLoopIdx}_{innerLoopIdx}"].TidalHeights.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), height.ToString().Replace(",", "."));
-                                                geoFeaturesLookupTable[$"{outerLoopIdx}_{innerLoopIdx}"].TidalTrends.Add(timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), ((short)trend).ToString());
-
-                                                if (geoFeaturesLookupTable[$"{outerLoopIdx}_{innerLoopIdx}"].SelectedHeight == "-9999 m")
-                                                {
-                                                    geoFeaturesLookupTable[$"{outerLoopIdx}_{innerLoopIdx}"].SelectedIndex = i;
-                                                    geoFeaturesLookupTable[$"{outerLoopIdx}_{innerLoopIdx}"].SelectedDateTime = ((DateTime)selectedDateTime).ToString("ddMMMyyyy HHmm");
-                                                    geoFeaturesLookupTable[$"{outerLoopIdx}_{innerLoopIdx}"].SelectedHeight = Math.Round(selectedHeight, 2).ToString().Replace(",", ".") + " m";
-                                                    geoFeaturesLookupTable[$"{outerLoopIdx}_{innerLoopIdx}"].SelectedTrend = selectedTrend.ToString() switch
-                                                    {
-                                                        "1" => "decreasing",
-                                                        "2" => "increasing",
-                                                        "3" => "steady",
-                                                        _ => "unknown"
-                                                    };
-                                                }
-                                            }
-                                            else
-                                            {
-                                                var tidalStationInstance = new TidalStation()
-                                                {
-                                                    Id = $"{outerLoopIdx}_{innerLoopIdx}",
-                                                    FeatureName = new FeatureName[] { new FeatureName { DisplayName = $"{outerLoopIdx}_{innerLoopIdx}" } },
-                                                    TidalHeights = new Dictionary<string, string>() { { timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), height.ToString().Replace(",", ".") } },
-                                                    TidalTrends = new Dictionary<string, string>() { { timePoint.ToString("ddMMMyyyy HHmm", new CultureInfo("en-US")), ((short)trend).ToString() } },
-                                                    SelectedIndex = i,
-                                                    SelectedDateTime = timePoint.ToString("ddMMMyyyy HHmm"),
-                                                    SelectedHeight = Math.Round(selectedHeight, 2).ToString().Replace(",", ".") + " m",
-                                                    SelectedTrend = selectedTrend.ToString() switch
-                                                    {
-                                                        "1" => "decreasing",
-                                                        "2" => "increasing",
-                                                        "3" => "steady",
-                                                        _ => "unknown"
-                                                    },
-                                                    Geometry = geometry
-                                                };
-
-                                                geoFeaturesLookupTable.Add($"{outerLoopIdx}_{innerLoopIdx}", tidalStationInstance);
-                                            }
-                                        }
+                                        dataPackage.minDataValue = currentDataset.values[yIdx, xIdx];
                                     }
+                                    if (currentDataset.values[yIdx, xIdx] > dataPackage.maxDataValue)
+                                    {
+                                        dataPackage.maxDataValue = currentDataset.values[yIdx, xIdx];
+                                    }
+
+                                    float value = currentDataset.values[yIdx, xIdx]; // actual data value
+                                    dataPackage.Data[yIdx, (int)xIdx / 3] = value;
                                 }
-
-                                oldTimePoint = timePoint;
+                                else
+                                {
+                                    dataPackage.Data[yIdx, (int)xIdx / 3] = (float) nillValueHeight;
+                                }
                             }
-
-                            var ratio = 50 + (int)((50.0 / (double)max) * (double)i);
-                            _syncContext?.Post(new SendOrPostCallback(r =>
-                            {
-                                Progress?.Invoke((int)r);
-
-                            }), ratio);
-                            i++;
                         }
+
+                        CreateTiff(dataPackage);
+
+                        dataPackage.RawHdfData = hdf5S111Root;
+                        if (geoFeatures.Count > 0)
+                        {
+                            dataPackage.GeoFeatures = geoFeatures.ToArray();
+                            dataPackage.MetaFeatures = new IMetaFeature[0];
+                            dataPackage.InformationFeatures = new IInformationFeature[0];
+                        }
+
+                        oldTimePoint = timePoint;
                     }
                 }
 

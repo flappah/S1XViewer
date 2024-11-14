@@ -24,7 +24,7 @@ namespace S1XViewer.Types
         private Renderer CreateRenderer(GeometryType rendererType, bool isVector = false)
         {
             // Return a simple renderer to match the geometry type provided
-            Symbol sym = null;
+            Symbol? sym = null;
 
             switch (rendererType)
             {

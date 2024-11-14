@@ -1,139 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ColorSchemes>
-  <ColorScheme type="S102" name="rainbow" recalculate="true">
-    <Range>
-      <Min inclusive="false">0</Min>
-      <Max inclusive="true">2.5</Max>
-      <Color a="255" r="255" g="0" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">2.5</Min>
-      <Max inclusive="true">5</Max>
-      <Color a="255" r="255" g="15" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">5</Min>
-      <Max inclusive="true">7.5</Max>
-      <Color a="255" r="255" g="31" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">7.5</Min>
-      <Max inclusive="true">10</Max>
-      <Color a="255" r="255" g="63" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">10</Min>
-      <Max inclusive="true">12.5</Max>
-      <Color a="255" r="255" g="95" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">12.5</Min>
-      <Max inclusive="true">15</Max>
-      <Color a="255" r="255" g="127" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">15</Min>
-      <Max inclusive="true">17.5</Max>
-      <Color a="255" r="255" g="159" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">17.5</Min>
-      <Max inclusive="true">20</Max>
-      <Color a="255" r="255" g="191" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">20</Min>
-      <Max inclusive="true">22.5</Max>
-      <Color a="255" r="255" g="223" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">22.5</Min>
-      <Max inclusive="true">25</Max>
-      <Color a="255" r="255" g="255" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">25</Min>
-      <Max inclusive="true">27.5</Max>
-      <Color a="255" r="223" g="255" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">27.5</Min>
-      <Max inclusive="true">30</Max>
-      <Color a="255" r="191" g="255" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">30</Min>
-      <Max inclusive="true">32.5</Max>
-      <Color a="255" r="127" g="255" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">32.5</Min>
-      <Max inclusive="true">35</Max>
-      <Color a="255" r="63" g="255" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">35</Min>
-      <Max inclusive="true">37.5</Max>
-      <Color a="255" r="0" g="255" b="0" />
-    </Range>
-    <Range>
-      <Min inclusive="false">37.5</Min>
-      <Max inclusive="true">40</Max>
-      <Color a="255" r="0" g="223" b="31" />
-    </Range>
-    <Range>
-      <Min inclusive="false">40</Min>
-      <Max inclusive="true">42.5</Max>
-      <Color a="255" r="0" g="191" b="63" />
-    </Range>
-    <Range>
-      <Min inclusive="false">42.5</Min>
-      <Max inclusive="true">45</Max>
-      <Color a="255" r="0" g="127" b="127" />
-    </Range>
-    <Range>
-      <Min inclusive="false">45</Min>
-      <Max inclusive="true">47.5</Max>
-      <Color a="255" r="0" g="95" b="159" />
-    </Range>
-    <Range>
-      <Min inclusive="false">47.5</Min>
-      <Max inclusive="true">50</Max>
-      <Color a="255" r="0" g="63" b="191" />
-    </Range>
-    <Range>
-      <Min inclusive="false">50</Min>
-      <Max inclusive="true">52.5</Max>
-      <Color a="255" r="0" g="0" b="255" />
-    </Range>
-    <Range>
-      <Min inclusive="false">52.5</Min>
-      <Max inclusive="true">55</Max>
-      <Color a="255" r="63" g="0" b="255" />
-    </Range>
-    <Range>
-      <Min inclusive="false">55</Min>
-      <Max inclusive="true">57.5</Max>
-      <Color a="255" r="127" g="0" b="255" />
-    </Range>
-    <Range>
-      <Min inclusive="false">57.5</Min>
-      <Max inclusive="true">60</Max>
-      <Color a="255" r="159" g="0" b="255" />
-    </Range>
-    <Range>
-      <Min inclusive="false">60</Min>
-      <Max inclusive="true">62.5</Max>
-      <Color a="255" r="191" g="0" b="255" />
-    </Range>
-    <Range>
-      <Min inclusive="false">62.5</Min>
-      <Max inclusive="true">65</Max>
-      <Color a="255" r="223" g="0" b="255" />
-    </Range>
-    <Range>
-      <Min inclusive="false">65</Min>
-      <Color a="255" r="255" g="0" b="255" />
-    </Range>
-  </ColorScheme>
+    <ColorScheme type="S102" name="rainbow" recalculate="true">
+        <Range>
+            <Min inclusive="false">0</Min>
+            <Max inclusive="true">2.5</Max>
+            <Color a="255" r="255" g="0" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">2.5</Min>
+            <Max inclusive="true">5</Max>
+            <Color a="255" r="255" g="15" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">5</Min>
+            <Max inclusive="true">7.5</Max>
+            <Color a="255" r="255" g="31" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">7.5</Min>
+            <Max inclusive="true">10</Max>
+            <Color a="255" r="255" g="63" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">10</Min>
+            <Max inclusive="true">12.5</Max>
+            <Color a="255" r="255" g="95" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">12.5</Min>
+            <Max inclusive="true">15</Max>
+            <Color a="255" r="255" g="127" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">15</Min>
+            <Max inclusive="true">17.5</Max>
+            <Color a="255" r="255" g="159" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">17.5</Min>
+            <Max inclusive="true">20</Max>
+            <Color a="255" r="255" g="191" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">20</Min>
+            <Max inclusive="true">22.5</Max>
+            <Color a="255" r="255" g="223" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">22.5</Min>
+            <Max inclusive="true">25</Max>
+            <Color a="255" r="255" g="255" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">25</Min>
+            <Max inclusive="true">27.5</Max>
+            <Color a="255" r="223" g="255" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">27.5</Min>
+            <Max inclusive="true">30</Max>
+            <Color a="255" r="191" g="255" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">30</Min>
+            <Max inclusive="true">32.5</Max>
+            <Color a="255" r="127" g="255" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">32.5</Min>
+            <Max inclusive="true">35</Max>
+            <Color a="255" r="63" g="255" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">35</Min>
+            <Max inclusive="true">37.5</Max>
+            <Color a="255" r="0" g="255" b="0"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">37.5</Min>
+            <Max inclusive="true">40</Max>
+            <Color a="255" r="0" g="223" b="31"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">40</Min>
+            <Max inclusive="true">42.5</Max>
+            <Color a="255" r="0" g="191" b="63"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">42.5</Min>
+            <Max inclusive="true">45</Max>
+            <Color a="255" r="0" g="127" b="127"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">45</Min>
+            <Max inclusive="true">47.5</Max>
+            <Color a="255" r="0" g="95" b="159"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">47.5</Min>
+            <Max inclusive="true">50</Max>
+            <Color a="255" r="0" g="63" b="191"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">50</Min>
+            <Max inclusive="true">52.5</Max>
+            <Color a="255" r="0" g="0" b="255"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">52.5</Min>
+            <Max inclusive="true">55</Max>
+            <Color a="255" r="63" g="0" b="255"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">55</Min>
+            <Max inclusive="true">57.5</Max>
+            <Color a="255" r="127" g="0" b="255"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">57.5</Min>
+            <Max inclusive="true">60</Max>
+            <Color a="255" r="159" g="0" b="255"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">60</Min>
+            <Max inclusive="true">62.5</Max>
+            <Color a="255" r="191" g="0" b="255"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">62.5</Min>
+            <Max inclusive="true">65</Max>
+            <Color a="255" r="223" g="0" b="255"/>
+        </Range>
+        <Range>
+            <Min inclusive="false">65</Min>
+            <Color a="255" r="255" g="0" b="255"/>
+        </Range>
+    </ColorScheme>
 </ColorSchemes>

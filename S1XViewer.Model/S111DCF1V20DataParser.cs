@@ -16,7 +16,7 @@ using WinRT;
 
 namespace S1XViewer.Model
 {
-    public class S111DCF1DataParser : HdfDataParserBase, IS111DCF1DataParser
+    public class S111DCF1V20DataParser : HdfDataParserBase, IS111DCF1V20DataParser
     {
         public delegate void ProgressFunction(double percentage);
         public override event IDataParser.ProgressFunction? Progress;
@@ -32,7 +32,7 @@ namespace S1XViewer.Model
         /// <param name="geometryBuilderFactory"></param>
         /// <param name="productSupport"></param>
         /// <param name="optionsStorage"></param>
-        public S111DCF1DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport, IOptionsStorage optionsStorage)
+        public S111DCF1V20DataParser(IDatasetReader datasetReader, IGeometryBuilderFactory geometryBuilderFactory, IS111ProductSupport productSupport, IOptionsStorage optionsStorage)
         {
             _datasetReader = datasetReader;
             _geometryBuilderFactory = geometryBuilderFactory;
@@ -110,35 +110,22 @@ namespace S1XViewer.Model
             if (axisNameElement != null)
             {
                 axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
-                if (axisNameElement != null)
+                if (axisNamesStrings != null && axisNamesStrings.Length == 2)
                 {
-                    axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
-                    if (axisNamesStrings != null)
+                    if (axisNamesStrings[0].ToUpper().Equals("LATITUDE") || axisNamesStrings[1].ToUpper().Equals("LATITUDE"))
                     {
-                        if (axisNamesStrings.Length == 1 && axisNamesStrings[0].Contains(","))
-                        {
-                            axisNamesStrings = axisNamesStrings[0].Split(",");
-                        }
-
-                        if (axisNamesStrings.Length == 2)
-                        {
-                            if (axisNamesStrings[0].ToUpper().Equals("LATITUDE") || axisNamesStrings[1].ToUpper().Equals("LATITUDE"))
-                            {
-                                invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
-                            }
-                            else if (axisNamesStrings[0].ToUpper().Equals("LAT") || axisNamesStrings[1].ToUpper().Equals("LAT"))
-                            {
-                                invertLonLat = axisNamesStrings[0].ToUpper().Equals("LAT") && axisNamesStrings[1].ToUpper().Equals("LON");
-                            }
-                            else if (axisNamesStrings[0].ToUpper().Equals("EASTING") || axisNamesStrings[1].ToUpper().Equals("EASTING"))
-                            {
-                                invertLonLat = axisNamesStrings[0].ToUpper().Equals("NORTHING") && axisNamesStrings[1].ToUpper().Equals("EASTING");
-                            }
-
-                            dataPackage.InvertLonLat = invertLonLat;
-
-                        }
+                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
                     }
+                    else if (axisNamesStrings[0].ToUpper().Equals("LAT") || axisNamesStrings[1].ToUpper().Equals("LAT"))
+                    {
+                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("LAT") && axisNamesStrings[1].ToUpper().Equals("LON");
+                    }
+                    else if (axisNamesStrings[0].ToUpper().Equals("EASTING") || axisNamesStrings[1].ToUpper().Equals("EASTING"))
+                    {
+                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("NORTHING") && axisNamesStrings[1].ToUpper().Equals("EASTING");
+                    }
+
+                    dataPackage.InvertLonLat = invertLonLat;
                 }
             }
 

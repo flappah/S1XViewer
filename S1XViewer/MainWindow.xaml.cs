@@ -4,9 +4,11 @@ using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Hydrography;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Rasters;
+using Esri.ArcGISRuntime.Toolkit.UI.Controls;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
 using Microsoft.Win32;
+using Microsoft.Windows.Themes;
 using S1XViewer.Base;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
@@ -17,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Globalization;
+using System.Globalization; 
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,6 +29,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Xml;
+using Xceed.Wpf.AvalonDock.Themes;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
 namespace S1XViewer
@@ -435,7 +438,14 @@ namespace S1XViewer
 
                 if (selectedFilename.ToUpper().Contains("CATALOG") && selectedFilename.ToUpper().Contains(".XML"))
                 {
-                    _ = LoadExchangeSet(selectedFilename);
+                    try
+                    {
+                        _ = LoadExchangeSet(selectedFilename);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show($"Invalid exchangeset file or invalid XML contents! '{selectedFilename.LastPart(@"\\")}'");
+                    }
                 }
                 else if (selectedFilename.ToUpper().Contains(".XML") || selectedFilename.ToUpper().Contains(".GML"))
                 {
@@ -658,30 +668,40 @@ namespace S1XViewer
             var firstDateTimeSeries = (DateTime)buttonBackward.Tag;
 
             var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "#" }, StringSplitOptions.RemoveEmptyEntries);
-            if (textboxTimeValueTagValues?.Length == 4)
+            if (textboxTimeValueTagValues != null)
             {
-                string selectedFileName = textboxTimeValueTagValues[0];
-                string productStandard = textboxTimeValueTagValues[1];
-                string optionalVersion = textboxTimeValueTagValues[3] ?? "";
-                if (DateTime.TryParse(textboxTimeValueTagValues[2], out DateTime selectedDateTime) == true)
+                if (textboxTimeValueTagValues.Length == 3) // v1 compatibility
                 {
-                    DateTime proposedDateTime = selectedDateTime.AddHours(-1);
-                    _resetViewpoint = false;
+                    string[] oldTagValues = textboxTimeValueTagValues;
+                    textboxTimeValueTagValues = new string[4];
+                    Array.Copy(oldTagValues, textboxTimeValueTagValues, oldTagValues.Length);
+                }
 
-                    buttonBackward.IsEnabled = false;
-                    buttonForward.IsEnabled = false;
-
-                    textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
-                    textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}#{optionalVersion}";
-                    await LoadHDF5File(productStandard, selectedFileName, proposedDateTime).ConfigureAwait(true);
-
-                    if (proposedDateTime <= firstDateTimeSeries)
+                if (textboxTimeValueTagValues?.Length == 4)
+                {
+                    string selectedFileName = textboxTimeValueTagValues[0];
+                    string productStandard = textboxTimeValueTagValues[1];
+                    string optionalVersion = textboxTimeValueTagValues[3] ?? "";
+                    if (DateTime.TryParse(textboxTimeValueTagValues[2], out DateTime selectedDateTime) == true)
                     {
-                        buttonBackward.IsEnabled = false;
-                        return;
-                    }
+                        DateTime proposedDateTime = selectedDateTime.AddHours(-1);
+                        _resetViewpoint = false;
 
-                    buttonForward.IsEnabled = true;
+                        buttonBackward.IsEnabled = false;
+                        buttonForward.IsEnabled = false;
+
+                        textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
+                        textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}#{optionalVersion}";
+                        await LoadHDF5File(productStandard, selectedFileName, proposedDateTime, true, optionalVersion).ConfigureAwait(true);
+
+                        if (proposedDateTime <= firstDateTimeSeries)
+                        {
+                            buttonBackward.IsEnabled = false;
+                            return;
+                        }
+
+                        buttonForward.IsEnabled = true;
+                    }
                 }
             }
         }
@@ -706,30 +726,40 @@ namespace S1XViewer
 
             var lastDateTimeSeries = (DateTime)buttonForward.Tag;
             var textboxTimeValueTagValues = textBoxTimeValue.Tag?.ToString()?.Split(new[] { "#" }, StringSplitOptions.RemoveEmptyEntries);
-            if (textboxTimeValueTagValues?.Length == 4)
+            if (textboxTimeValueTagValues != null)
             {
-                string selectedFileName = textboxTimeValueTagValues[0];
-                string productStandard = textboxTimeValueTagValues[1];
-                string optionalVersion = textboxTimeValueTagValues[3] ?? "";
-                if (DateTime.TryParse(textboxTimeValueTagValues[2], out DateTime selectedDateTime) == true)
+                if (textboxTimeValueTagValues.Length == 3) // v1 compatibility
                 {
-                    DateTime proposedDateTime = selectedDateTime.AddHours(1);
-                    _resetViewpoint = false;
+                    string[] oldTagValues = textboxTimeValueTagValues;
+                    textboxTimeValueTagValues = new string[4];
+                    Array.Copy(oldTagValues, textboxTimeValueTagValues, oldTagValues.Length);
+                }
 
-                    buttonBackward.IsEnabled = false;
-                    buttonForward.IsEnabled = false;
-
-                    textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
-                    textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}#{optionalVersion}";
-                    await LoadHDF5File(productStandard, selectedFileName, proposedDateTime, true, optionalVersion).ConfigureAwait(true);
-
-                    if (proposedDateTime >= lastDateTimeSeries)
+                if (textboxTimeValueTagValues?.Length == 4)
+                {
+                    string selectedFileName = textboxTimeValueTagValues[0];
+                    string productStandard = textboxTimeValueTagValues[1];
+                    string optionalVersion = textboxTimeValueTagValues[3] ?? "";
+                    if (DateTime.TryParse(textboxTimeValueTagValues[2], out DateTime selectedDateTime) == true)
                     {
-                        buttonForward.IsEnabled = false;
-                        return;
-                    }
+                        DateTime proposedDateTime = selectedDateTime.AddHours(1);
+                        _resetViewpoint = false;
 
-                    buttonBackward.IsEnabled = true;
+                        buttonBackward.IsEnabled = false;
+                        buttonForward.IsEnabled = false;
+
+                        textBoxTimeValue.Text = proposedDateTime.ToString("yy-MM-dd HH:mm");
+                        textBoxTimeValue.Tag = $"{selectedFileName}#{productStandard}#{proposedDateTime}#{optionalVersion}";
+                        await LoadHDF5File(productStandard, selectedFileName, proposedDateTime, true, optionalVersion).ConfigureAwait(true);
+
+                        if (proposedDateTime >= lastDateTimeSeries)
+                        {
+                            buttonForward.IsEnabled = false;
+                            return;
+                        }
+
+                        buttonBackward.IsEnabled = true;
+                    }
                 }
             }
         }
@@ -1023,7 +1053,12 @@ namespace S1XViewer
         private async Task LoadExchangeSet(string fullFileName)
         {
             var exchangeSetLoader = _container.Resolve<IExchangesetLoader>();
-            var xmlDocument = exchangeSetLoader.Load(fullFileName);
+            XmlDocument? xmlDocument = exchangeSetLoader.Load(fullFileName);
+            if (xmlDocument == null)
+            {
+                throw new Exception($"Cannot load XML document '{fullFileName}'");
+            }
+
             (var originalProductStandard, var productFileNames) = exchangeSetLoader.Parse(xmlDocument);
              
             string selectedFilename = string.Empty;
@@ -1061,6 +1096,8 @@ namespace S1XViewer
                     {
                         xmlNSMgr = new XmlNamespaceManager(xmlDocument.NameTable);
                         xmlNSMgr.AddNamespace("S100XC", "http://www.iho.int/s100/xc/5.0");
+
+                        optionalVersion = "";
 
                         producerCodeNode = xmlDocument.DocumentElement?.SelectSingleNode("S100XC:datasetDiscoveryMetadata/S100XC:S100_DatasetDiscoveryMetadata/S100XC:producerCode", xmlNSMgr);
                         if (producerCodeNode == null)
@@ -1255,7 +1292,7 @@ namespace S1XViewer
 
                 IDataPackageParser dataParser = _container.Resolve<IDataPackageParser>();
                 dataParser.UseStandard = productStandard;
-                var dataPackageParser = dataParser.GetDataParser(dataCodingFormat, version);
+                IDataParser dataPackageParser = dataParser.GetDataParser(dataCodingFormat, version);
                 dataPackageParser.Progress += new ProgressFunction((p) =>
                 {
                     _syncContext?.Post(new SendOrPostCallback(o =>
@@ -1355,6 +1392,22 @@ namespace S1XViewer
                             if (o != null)
                             {
                                 CreateRasterCollection((IS1xxDataPackage)o);
+                            }
+
+                            if (string.IsNullOrEmpty(buttonBackward.Tag.ToString()) == false)
+                            {
+                                if (DateTime.TryParse(buttonBackward.Tag.ToString(), out DateTime beginTime))
+                                {
+                                    buttonBackward.IsEnabled = selectedDateTime >= beginTime;
+                                }
+                            }
+
+                            if (string.IsNullOrEmpty(buttonForward.Tag.ToString()) == false)
+                            {
+                                if (DateTime.TryParse(buttonForward.Tag.ToString(), out DateTime endTime))
+                                {
+                                    buttonForward.IsEnabled = selectedDateTime < endTime;
+                                }
                             }
                         }), dataPackage);
                     }
@@ -1657,19 +1710,19 @@ namespace S1XViewer
                 return;
             }
 
-            if (dataPackage is S102DataPackage s102DataPackage)
+            if (dataPackage is IBitmapDataPackage bitmapDataPackage)
             {
                 var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
 
                 //var clipJsonString = "{\"raster_function\":{\"type\":\"Clip_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"minx\":{\"double\":" + s102DataPackage.minX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"miny\":{\"double\":" + s102DataPackage.minY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxx\":{\"double\":" + s102DataPackage.maxX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"maxy\":{\"double\":" + s102DataPackage.maxY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dx\":{\"double\":" + s102DataPackage.dX.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"dy\":{\"double\":" + s102DataPackage.dY.ToString().Replace(",", ".") + ",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
-                var nodataJsonString = "{\"raster_function\":{\"type\":\"Mask_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"nodata_values\":{\"double_array\":[" + s102DataPackage.noDataValue.ToString().Replace(",", ".") + "],\"type\":\"Raster_function_variable\"},\r\n    \"nodata_interpretation\":{\"nodata_interpretation\":\"all\",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
+                var nodataJsonString = "{\"raster_function\":{\"type\":\"Mask_function\"},\r\n  \"raster_function_arguments\":\r\n  {\r\n    \"nodata_values\":{\"double_array\":[" + bitmapDataPackage.noDataValue.ToString().Replace(",", ".") + "],\"type\":\"Raster_function_variable\"},\r\n    \"nodata_interpretation\":{\"nodata_interpretation\":\"all\",\"type\":\"Raster_function_variable\"},\r\n    \"raster\":{\"name\":\"raster\",\"is_raster\":true,\"type\":\"Raster_function_variable\"},\r\n    \"type\":\"Raster_function_arguments\"\r\n  },\r\n  \"type\":\"Raster_function_template\"\r\n}";
 
                 var nodataRasterFunction = RasterFunction.FromJson(nodataJsonString);
                 if (nodataRasterFunction == null)
                 {
                     return;
                 }
-
+                 
                 var arguments = nodataRasterFunction?.Arguments;
                 if (arguments == null)
                 {
@@ -1684,14 +1737,23 @@ namespace S1XViewer
 
                 try
                 {
-                    var raster = new Raster(s102DataPackage.TiffFileName);
+                    var raster = new Raster(bitmapDataPackage.TiffFileName);
                     arguments?.SetRaster(rasterNames[0], raster);
 
                     var nodataRaster = new Raster(nodataRasterFunction);
                     var rasterLayer = new RasterLayer(nodataRaster);
 
                     Colormap? colormap = featureRendererManager.GetColormap(comboboxColorSchemes.Text, dataPackage.Type.ToString());
-                    rasterLayer.Renderer = new ColormapRenderer(colormap);
+                    if (dataPackage.Type.ToString().ToUpper().Equals("S104"))
+                    {
+                        MinMaxStretchParameters minMaxParams = new MinMaxStretchParameters(new double[] { bitmapDataPackage.minDataValue }, new double[] { bitmapDataPackage.maxDataValue });
+                        ColorRamp elevationColorRamp = ColorRamp.Create(PresetColorRampType.Elevation);
+                        rasterLayer.Renderer = new StretchRenderer(minMaxParams, null, true, elevationColorRamp);
+                    }
+                    else
+                    {
+                        rasterLayer.Renderer = new ColormapRenderer(colormap);
+                    }
 
                     rasterLayer.Loaded += (s, e) => Dispatcher.Invoke(async () =>
                     {
@@ -1726,12 +1788,24 @@ namespace S1XViewer
                         catch (Exception) { }
                     });
 
-                    myMapView?.Map?.OperationalLayers.Add(rasterLayer);
-                    await rasterLayer.LoadAsync().ConfigureAwait(true);
-
-                    if (rasterLayer.FullExtent != null)
+                    if (myMapView != null && myMapView.Map != null)
                     {
-                        await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15).ConfigureAwait(false);
+                        //myMapView.LayerViewStateChanged += (a, b) =>
+                        //{
+                        //    var error = b.LayerViewState.Error ?? b.Layer.LoadError;
+                        //    if (error != null)
+                        //    {
+                        //        MessageBox.Show(error.Message, error.GetType().Name);
+                        //    }
+                        //};
+
+                        await rasterLayer.LoadAsync();
+                        myMapView.Map.OperationalLayers.Add(rasterLayer);
+
+                        if (rasterLayer.FullExtent != null)
+                        {
+                            await myMapView.SetViewpointGeometryAsync(rasterLayer.FullExtent, 15);
+                        }
                     }
 
                     nodataRaster = null;
@@ -1746,7 +1820,7 @@ namespace S1XViewer
 
                     }), "");
 
-                    MessageBox.Show($"Can't read file {s102DataPackage.TiffFileName}.\n{ex.Message}\n{ex.StackTrace}");
+                    MessageBox.Show($"Can't read file {bitmapDataPackage.TiffFileName}.\n{ex.Message}\n{ex.StackTrace}");
                 }
             }
         }

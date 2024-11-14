@@ -107,22 +107,35 @@ namespace S1XViewer.Model
             if (axisNameElement != null)
             {
                 axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
-                if (axisNamesStrings != null && axisNamesStrings.Length == 2)
+                if (axisNameElement != null)
                 {
-                    if (axisNamesStrings[0].ToUpper().Equals("LATITUDE") || axisNamesStrings[1].ToUpper().Equals("LATITUDE"))
+                    axisNamesStrings = _datasetReader.ReadStrings(hdf5FileName, axisNameElement.Name).ToArray();
+                    if (axisNamesStrings != null)
                     {
-                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
-                    }
-                    else if (axisNamesStrings[0].ToUpper().Equals("LAT") || axisNamesStrings[1].ToUpper().Equals("LAT"))
-                    {
-                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("LAT") && axisNamesStrings[1].ToUpper().Equals("LON");
-                    }
-                    else if (axisNamesStrings[0].ToUpper().Equals("EASTING") || axisNamesStrings[1].ToUpper().Equals("EASTING"))
-                    {
-                        invertLonLat = axisNamesStrings[0].ToUpper().Equals("NORTHING") && axisNamesStrings[1].ToUpper().Equals("EASTING");
-                    }
+                        if (axisNamesStrings.Length == 1 && axisNamesStrings[0].Contains(","))
+                        {
+                            axisNamesStrings = axisNamesStrings[0].Split(",");
+                        }
 
-                    dataPackage.InvertLonLat = invertLonLat;
+                        if (axisNamesStrings.Length == 2)
+                        {
+                            if (axisNamesStrings[0].ToUpper().Equals("LATITUDE") || axisNamesStrings[1].ToUpper().Equals("LATITUDE"))
+                            {
+                                invertLonLat = axisNamesStrings[0].ToUpper().Equals("LATITUDE") && axisNamesStrings[1].ToUpper().Equals("LONGITUDE");
+                            }
+                            else if (axisNamesStrings[0].ToUpper().Equals("LAT") || axisNamesStrings[1].ToUpper().Equals("LAT"))
+                            {
+                                invertLonLat = axisNamesStrings[0].ToUpper().Equals("LAT") && axisNamesStrings[1].ToUpper().Equals("LON");
+                            }
+                            else if (axisNamesStrings[0].ToUpper().Equals("EASTING") || axisNamesStrings[1].ToUpper().Equals("EASTING"))
+                            {
+                                invertLonLat = axisNamesStrings[0].ToUpper().Equals("NORTHING") && axisNamesStrings[1].ToUpper().Equals("EASTING");
+                            }
+
+                            dataPackage.InvertLonLat = invertLonLat;
+
+                        }
+                    }
                 }
             }
 

@@ -9,7 +9,6 @@ using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
 using System.Globalization;
-using System.Net.Http.Headers;
 using System.Security.Principal;
 using System.Windows;
 using System.Xml;

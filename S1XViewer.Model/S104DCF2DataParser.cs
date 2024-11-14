@@ -1,20 +1,15 @@
 ﻿using HDF5CSharp.DataTypes;
+using S1XViewer.Base;
 using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
+using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
-using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using S1XViewer.Base;
 
 namespace S1XViewer.Model
 {
@@ -58,7 +53,7 @@ namespace S1XViewer.Model
 
             if (selectedDateTime == null)
             {
-                return new S111DataPackage
+                return new S104DataPackage
                 {
                     Type = S1xxTypes.Null,
                     RawHdfData = null,
@@ -68,7 +63,7 @@ namespace S1XViewer.Model
                 };
             }
 
-            var dataPackage = new S111DataPackage
+            var dataPackage = new S104DataPackage
             {
                 FileName = hdf5FileName,
                 Type = S1xxTypes.S104,
