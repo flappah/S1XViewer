@@ -68,14 +68,14 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var periodicDateRangeNodes = node.FirstChild.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
@@ -88,14 +88,14 @@ namespace S1XViewer.Types.Features
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var fixedDateRangeNode = node.FirstChild.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
                 FixedDateRange.FromXml(fixedDateRangeNode, mgr);
             }
 
-            var featureNameNodes = node.FirstChild.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes("featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
@@ -108,14 +108,14 @@ namespace S1XViewer.Types.Features
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndication = node.FirstChild.SelectSingleNode("sourceIndication", mgr);
+            var sourceIndication = node.SelectSingleNode("sourceIndication", mgr);
             if (sourceIndication != null && sourceIndication.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
                 SourceIndication.FromXml(sourceIndication, mgr);
             }
 
-            var textContentNodes = node.FirstChild.SelectNodes("textContent", mgr);
+            var textContentNodes = node.SelectNodes("textContent", mgr);
             if (textContentNodes != null && textContentNodes.Count > 0)
             {
                 var textContents = new List<TextContent>();
@@ -131,37 +131,37 @@ namespace S1XViewer.Types.Features
                 TextContent = textContents.ToArray();
             }
 
-            var flipBearingNode = node.FirstChild.SelectSingleNode("flipBearing", mgr);
+            var flipBearingNode = node.SelectSingleNode("flipBearing", mgr);
             if (flipBearingNode != null && flipBearingNode.HasChildNodes)
             {
                 FlipBearing = flipBearingNode.FirstChild.InnerText;
             }
 
-            var scaleMinimumNode = node.FirstChild.SelectSingleNode("scaleMinimum", mgr);
+            var scaleMinimumNode = node.SelectSingleNode("scaleMinimum", mgr);
             if (scaleMinimumNode != null && scaleMinimumNode.HasChildNodes)
             {
                 ScaleMinimum = scaleMinimumNode.FirstChild.InnerText;
             }
 
-            var textJustificationNode = node.FirstChild.SelectSingleNode("textJustification", mgr);
+            var textJustificationNode = node.SelectSingleNode("textJustification", mgr);
             if (textJustificationNode != null && textJustificationNode.HasChildNodes)
             {
                 TextJustification = textJustificationNode.FirstChild.InnerText;
             }
 
-            var textNode = node.FirstChild.SelectSingleNode("text", mgr);
+            var textNode = node.SelectSingleNode("text", mgr);
             if (textNode != null && textNode.HasChildNodes)
             {
                 Text = textNode.FirstChild.InnerText;
             }
 
-            var textTypeNode = node.FirstChild.SelectSingleNode("textType", mgr);
+            var textTypeNode = node.SelectSingleNode("textType", mgr);
             if (textTypeNode != null && textTypeNode.HasChildNodes)
             {
                 TextType = textTypeNode.FirstChild.InnerText;
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

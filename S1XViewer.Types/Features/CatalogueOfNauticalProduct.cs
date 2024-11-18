@@ -54,14 +54,13 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 && node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var featureNameNodes = node.FirstChild.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes("featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
@@ -74,7 +73,7 @@ namespace S1XViewer.Types.Features
                 FeatureName = featureNames.ToArray();
             }
 
-            var graphicNodes = node.FirstChild.SelectNodes("graphic", mgr);
+            var graphicNodes = node.SelectNodes("graphic", mgr);
             if (graphicNodes != null && graphicNodes.Count > 0)
             {
                 var graphics = new List<Graphic>();
@@ -90,25 +89,25 @@ namespace S1XViewer.Types.Features
                 Graphic = graphics.ToArray();
             }
 
-            var issueDateNode = node.FirstChild.SelectSingleNode("issueDate", mgr);
+            var issueDateNode = node.SelectSingleNode("issueDate", mgr);
             if (issueDateNode != null && issueDateNode.HasChildNodes)
             {
-                IssueDate = issueDateNode.FirstChild.InnerText;
+                IssueDate = issueDateNode.InnerText;
             }
 
-            var editionNumberNode = node.FirstChild.SelectSingleNode("editionNumber", mgr);
+            var editionNumberNode = node.SelectSingleNode("editionNumber", mgr);
             if (editionNumberNode != null && editionNumberNode.HasChildNodes)
             {
-                EditionNumber = editionNumberNode.FirstChild.InnerText;
+                EditionNumber = editionNumberNode.InnerText;
             }
 
-            var marineResourceNameNode = node.FirstChild.SelectSingleNode("marineResourceName", mgr);
+            var marineResourceNameNode = node.SelectSingleNode("marineResourceName", mgr);
             if (marineResourceNameNode != null && marineResourceNameNode.HasChildNodes)
             {
-                MarineResourceName = marineResourceNameNode.FirstChild.InnerText;
+                MarineResourceName = marineResourceNameNode.InnerText;
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

@@ -80,14 +80,14 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var periodicDateRangeNodes = node.FirstChild.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
@@ -100,14 +100,14 @@ namespace S1XViewer.Types.Features
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var fixedDateRangeNode = node.FirstChild.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
                 FixedDateRange.FromXml(fixedDateRangeNode, mgr);
             }
 
-            var featureNameNodes = node.FirstChild.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes("featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
@@ -120,14 +120,14 @@ namespace S1XViewer.Types.Features
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndication = node.FirstChild.SelectSingleNode("sourceIndication", mgr);
+            var sourceIndication = node.SelectSingleNode("sourceIndication", mgr);
             if (sourceIndication != null && sourceIndication.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
                 SourceIndication.FromXml(sourceIndication, mgr);
             }
 
-            var textContentNodes = node.FirstChild.SelectNodes("textContent", mgr);
+            var textContentNodes = node.SelectNodes("textContent", mgr);
             if (textContentNodes != null && textContentNodes.Count > 0)
             {
                 var textContents = new List<TextContent>();
@@ -143,31 +143,31 @@ namespace S1XViewer.Types.Features
                 TextContent = textContents.ToArray();
             }
 
-            var callSignNode = node.FirstChild.SelectSingleNode("callSign", mgr);
+            var callSignNode = node.SelectSingleNode("callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
                 CallSign = callSignNode.FirstChild.InnerText;
             }
 
-            var categoryOfPilotBoardingPlaceNode = node.FirstChild.SelectSingleNode("categoryOfPilotBoardingPlace", mgr);
+            var categoryOfPilotBoardingPlaceNode = node.SelectSingleNode("categoryOfPilotBoardingPlace", mgr);
             if (categoryOfPilotBoardingPlaceNode != null && categoryOfPilotBoardingPlaceNode.HasChildNodes)
             {
                 CategoryOfPilotBoardingPlace = categoryOfPilotBoardingPlaceNode.FirstChild.InnerText;
             }
 
-            var categoryOfPreferenceNode= node.FirstChild.SelectSingleNode("categoryOfPreference", mgr);
+            var categoryOfPreferenceNode= node.SelectSingleNode("categoryOfPreference", mgr);
             if (categoryOfPreferenceNode != null && categoryOfPreferenceNode.HasChildNodes)
             {
                 CategoryOfPilotBoardingPlace = categoryOfPreferenceNode.FirstChild.InnerText;
             }
 
-            var categoryOfVesselNode = node.FirstChild.SelectSingleNode("categoryOfVessel", mgr);
+            var categoryOfVesselNode = node.SelectSingleNode("categoryOfVessel", mgr);
             if (categoryOfVesselNode != null && categoryOfVesselNode.HasChildNodes)
             {
                 CategoryOfVessel = categoryOfVesselNode.FirstChild.InnerText;
             }
 
-            var communicationChannelNodes = node.FirstChild.SelectNodes("communicationChannel", mgr);
+            var communicationChannelNodes = node.SelectNodes("communicationChannel", mgr);
             if (communicationChannelNodes != null && communicationChannelNodes.Count > 0)
             {
                 var channels = new List<string>();
@@ -181,25 +181,25 @@ namespace S1XViewer.Types.Features
                 CommunicationChannel = channels.ToArray();
             }
 
-            var destinationNode = node.FirstChild.SelectSingleNode("destination", mgr);
+            var destinationNode = node.SelectSingleNode("destination", mgr);
             if (destinationNode != null && destinationNode.HasChildNodes)
             {
                 Destination = destinationNode.FirstChild.InnerText;
             }
 
-            var pilotMovementNode = node.FirstChild.SelectSingleNode("pilotMovement", mgr);
+            var pilotMovementNode = node.SelectSingleNode("pilotMovement", mgr);
             if (pilotMovementNode != null && pilotMovementNode.HasChildNodes)
             {
                 PilotMovement = pilotMovementNode.FirstChild.InnerText;
             }
 
-            var pilotVesselNode = node.FirstChild.SelectSingleNode("pilotVessel", mgr);
+            var pilotVesselNode = node.SelectSingleNode("pilotVessel", mgr);
             if (pilotVesselNode != null && pilotVesselNode.HasChildNodes)
             {
                 PilotVessel = pilotVesselNode.FirstChild.InnerText;
             }
                        
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

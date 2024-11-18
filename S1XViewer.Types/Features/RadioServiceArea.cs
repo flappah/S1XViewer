@@ -78,14 +78,14 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var periodicDateRangeNodes = node.FirstChild.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
@@ -98,14 +98,14 @@ namespace S1XViewer.Types.Features
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var fixedDateRangeNode = node.FirstChild.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
                 FixedDateRange.FromXml(fixedDateRangeNode, mgr);
             }
 
-            var featureNameNodes = node.FirstChild.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes("featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
@@ -118,14 +118,14 @@ namespace S1XViewer.Types.Features
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndication = node.FirstChild.SelectSingleNode("sourceIndication", mgr);
+            var sourceIndication = node.SelectSingleNode("sourceIndication", mgr);
             if (sourceIndication != null && sourceIndication.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
                 SourceIndication.FromXml(sourceIndication, mgr);
             }
 
-            var textContentNodes = node.FirstChild.SelectNodes("textContent", mgr);
+            var textContentNodes = node.SelectNodes("textContent", mgr);
             if (textContentNodes != null && textContentNodes.Count > 0)
             {
                 var textContents = new List<TextContent>();
@@ -141,25 +141,25 @@ namespace S1XViewer.Types.Features
                 TextContent = textContents.ToArray();
             }
 
-            var callSignNode = node.FirstChild.SelectSingleNode("callSign", mgr);
+            var callSignNode = node.SelectSingleNode("callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
                 CallSign = callSignNode.FirstChild.InnerText;
             }
 
-            var categoryOfBroadcastCommunicationNode = node.FirstChild.SelectSingleNode("categoryOfBroadcastCommunication", mgr);
+            var categoryOfBroadcastCommunicationNode = node.SelectSingleNode("categoryOfBroadcastCommunication", mgr);
             if (categoryOfBroadcastCommunicationNode != null && categoryOfBroadcastCommunicationNode.HasChildNodes)
             {
                 CategoryOfBroadcastCommunication = categoryOfBroadcastCommunicationNode.FirstChild.InnerText;
             }
 
-            var languageInformationNode = node.FirstChild.SelectSingleNode("languageInformation", mgr);
+            var languageInformationNode = node.SelectSingleNode("languageInformation", mgr);
             if (languageInformationNode != null && languageInformationNode.HasChildNodes)
             {
                 LanguageInformation = languageInformationNode.FirstChild.InnerText;
             }
 
-            var radioCommunicationNodes = node.FirstChild.SelectNodes("radiocommunications", mgr);
+            var radioCommunicationNodes = node.SelectNodes("radiocommunications", mgr);
             if (radioCommunicationNodes != null && radioCommunicationNodes.Count > 0)
             {
                 var radioCommunications = new List<RadioCommunications>();
@@ -175,37 +175,37 @@ namespace S1XViewer.Types.Features
                 RadioCommunications = radioCommunications.ToArray();
             }
 
-            var statusNode = node.FirstChild.SelectSingleNode("status", mgr);
+            var statusNode = node.SelectSingleNode("status", mgr);
             if (statusNode != null && statusNode.HasChildNodes)
             {
                 Status = statusNode.FirstChild.InnerText;
             }
 
-            var timeReferenceNode = node.FirstChild.SelectSingleNode("timeReference", mgr);
+            var timeReferenceNode = node.SelectSingleNode("timeReference", mgr);
             if (timeReferenceNode != null && timeReferenceNode.HasChildNodes)
             {
                 TimeReference = timeReferenceNode.FirstChild.InnerText;
             }
 
-            var transmissionPowerNode = node.FirstChild.SelectSingleNode("transmissionPower", mgr);
+            var transmissionPowerNode = node.SelectSingleNode("transmissionPower", mgr);
             if (transmissionPowerNode != null && transmissionPowerNode.HasChildNodes)
             {
                 TransmissionPower = transmissionPowerNode.FirstChild.InnerText;
             }
 
-            var txIdentCharNode = node.FirstChild.SelectSingleNode("txIdentChar", mgr);
+            var txIdentCharNode = node.SelectSingleNode("txIdentChar", mgr);
             if (txIdentCharNode != null && txIdentCharNode.HasChildNodes)
             {
                 TxIdentChar = txIdentCharNode.FirstChild.InnerText;
             }
 
-            var txTrafficListNode = node.FirstChild.SelectSingleNode("txTrafficList", mgr);
+            var txTrafficListNode = node.SelectSingleNode("txTrafficList", mgr);
             if (txTrafficListNode != null && txTrafficListNode.HasChildNodes)
             {
                 TxTrafficList = txTrafficListNode.FirstChild.InnerText;
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

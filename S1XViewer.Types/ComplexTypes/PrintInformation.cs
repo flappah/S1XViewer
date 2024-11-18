@@ -39,43 +39,43 @@ namespace S1XViewer.Types.ComplexTypes
         /// <returns></returns>
         public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
         {
-            var printAgencyNode = node.FirstChild.SelectSingleNode("printAgency");
+            var printAgencyNode = node.SelectSingleNode("printAgency");
             if (printAgencyNode != null && printAgencyNode.HasChildNodes)
             {
                 PrintAgency = printAgencyNode.FirstChild.InnerText;
             }
 
-            var printNationNode = node.FirstChild.SelectSingleNode("printNation");
+            var printNationNode = node.SelectSingleNode("printNation");
             if (printNationNode != null && printNationNode.HasChildNodes)
             {
                 PrintNation = printNationNode.FirstChild.InnerText;
             }
 
-            var printSizeNode = node.FirstChild.SelectSingleNode("printSize");
+            var printSizeNode = node.SelectSingleNode("printSize");
             if (printSizeNode != null && printSizeNode.HasChildNodes)
             {
                 PrintSize = printSizeNode.FirstChild.InnerText;
             }
 
-            var printWeekNode = node.FirstChild.SelectSingleNode("printWeek");
+            var printWeekNode = node.SelectSingleNode("printWeek");
             if (printWeekNode != null && printWeekNode.HasChildNodes)
             {
                 PrintWeek = printWeekNode.FirstChild.InnerText;
             }
 
-            var printYearNode = node.FirstChild.SelectSingleNode("printYear");
+            var printYearNode = node.SelectSingleNode("printYear");
             if (printYearNode != null && printYearNode.HasChildNodes)
             {
                 PrintYear = printYearNode.FirstChild.InnerText;
             }
 
-            var reprintEditionNode = node.FirstChild.SelectSingleNode("reprintEdition");
+            var reprintEditionNode = node.SelectSingleNode("reprintEdition");
             if (reprintEditionNode != null && reprintEditionNode.HasChildNodes)
             {
                 ReprintEdition = reprintEditionNode.FirstChild.InnerText;
             }
 
-            var reprintNationNode = node.FirstChild.SelectSingleNode("reprintNation");
+            var reprintNationNode = node.SelectSingleNode("reprintNation");
             if (reprintNationNode != null && reprintNationNode.HasChildNodes)
             {
                 ReprintNation = reprintNationNode.FirstChild.InnerText;

@@ -99,42 +99,57 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 && node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
             base.FromXml(node, mgr);
 
             //public string FrameDimensions { get; set; }
-            var frameDimensionsNode = node.FirstChild.SelectSingleNode("frameDimensions", mgr);
+            var frameDimensionsNode = node.SelectSingleNode("frameDimensions", mgr);
+            if (frameDimensionsNode == null)
+            {
+                frameDimensionsNode = node.SelectSingleNode("S128:frameDimensions", mgr);
+            }
             if (frameDimensionsNode != null && frameDimensionsNode.HasChildNodes)
             {
-                FrameDimensions = frameDimensionsNode.FirstChild.InnerText;
+                FrameDimensions = frameDimensionsNode.InnerText;
             }
 
             //public bool MainPanel { get; set; }
-            var mainPanelNode = node.FirstChild.SelectSingleNode("mainPanel", mgr);
+            var mainPanelNode = node.SelectSingleNode("mainPanel", mgr);
+            if (mainPanelNode == null)
+            {
+                mainPanelNode = node.SelectSingleNode("S128:mainPanel", mgr);
+            }
             if (mainPanelNode != null && mainPanelNode.HasChildNodes)
             {
                 MainPanel = false; // default value is false
-                if (bool.TryParse(mainPanelNode.FirstChild.InnerText, out bool mainPanelValue))
+                if (bool.TryParse(mainPanelNode.InnerText, out bool mainPanelValue))
                 {
                     MainPanel = mainPanelValue;
                 }
             }
 
             //public string TypeOfPaper { get; set; }
-            var typeOfPaperNode = node.FirstChild.SelectSingleNode("typeOfPaper", mgr);
+            var typeOfPaperNode = node.SelectSingleNode("typeOfPaper", mgr);
+            if (typeOfPaperNode == null)
+            {
+                typeOfPaperNode = node.SelectSingleNode("S128:typeOfPaper", mgr);
+            }
             if (typeOfPaperNode != null && typeOfPaperNode.HasChildNodes)
             {
-                TypeOfPaper = typeOfPaperNode.FirstChild.InnerText;
+                TypeOfPaper = typeOfPaperNode.InnerText;
             }
 
             //public IPrintInformation PrintInformation { get; set; }
-            var printInformationNode = node.FirstChild.SelectSingleNode("printInformation", mgr);
+            var printInformationNode = node.SelectSingleNode("printInformation", mgr);
+            if (printInformationNode == null)
+            {
+                printInformationNode = node.SelectSingleNode("S128:printInformation", mgr);
+            }
             if (printInformationNode != null && printInformationNode.HasChildNodes)
             {
                 PrintInformation = new PrintInformation();
@@ -142,7 +157,11 @@ namespace S1XViewer.Types.Features
             }
 
             //public IReferenceToNM ReferenceToNM { get; set; }
-            var referenceToNMNode = node.FirstChild.SelectSingleNode("referenceToNM", mgr);
+            var referenceToNMNode = node.SelectSingleNode("referenceToNM", mgr);
+            if (referenceToNMNode == null)
+            {
+                referenceToNMNode = node.SelectSingleNode("S128:referenceToNM", mgr);
+            }
             if (referenceToNMNode != null && referenceToNMNode.HasChildNodes)
             {
                 ReferenceToNM = new ReferenceToNM();
@@ -150,13 +169,17 @@ namespace S1XViewer.Types.Features
             }
 
             //public string ISBN { get; set; }
-            var isbnNode = node.FirstChild.SelectSingleNode("ISBN", mgr);
+            var isbnNode = node.SelectSingleNode("ISBN", mgr);
+            if (isbnNode == null)
+            {
+                isbnNode = node.SelectSingleNode("S128:ISBN", mgr);
+            }
             if (isbnNode != null && isbnNode.HasChildNodes)
             {
-                ISBN = isbnNode.FirstChild.InnerText;
+                ISBN = isbnNode.InnerText;
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

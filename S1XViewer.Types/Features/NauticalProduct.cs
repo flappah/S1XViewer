@@ -108,17 +108,16 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 && node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
             base.FromXml(node, mgr);
 
             //public IProductSpecification ProductSpecification { get; set; }
-            var productSpecificationNode = node.FirstChild.SelectSingleNode("productSpecification", mgr);
+            var productSpecificationNode = node.SelectSingleNode("productSpecification", mgr);
             if (productSpecificationNode != null && productSpecificationNode.HasChildNodes)
             {
                 ProductSpecification = new ProductSpecification();
@@ -126,7 +125,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public IOnlineResource OnlineResource { get; set; }
-            var onlineResourceNode = node.FirstChild.SelectSingleNode("onlineResource", mgr);
+            var onlineResourceNode = node.SelectSingleNode("onlineResource", mgr);
             if (onlineResourceNode != null && onlineResourceNode.HasChildNodes)
             {
                 OnlineResource = new OnlineResource();
@@ -134,7 +133,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public string ServiceSpecification { get; set; }
-            var serviceSpecificationNode = node.FirstChild.SelectSingleNode("serviceSpecification", mgr);
+            var serviceSpecificationNode = node.SelectSingleNode("serviceSpecification", mgr);
             if (serviceSpecificationNode != null && serviceSpecificationNode.HasChildNodes)
             {
                 ServiceSpecification = new ServiceSpecification();
@@ -142,62 +141,62 @@ namespace S1XViewer.Types.Features
             }
 
             //public string PublicationNumber { get; set; }
-            var publicationNumberNode = node.FirstChild.SelectSingleNode("publicationNumber", mgr);
+            var publicationNumberNode = node.SelectSingleNode("publicationNumber", mgr);
             if (publicationNumberNode != null && publicationNumberNode.HasChildNodes)
             {
-                PublicationNumber = publicationNumberNode.FirstChild.InnerText;
+                PublicationNumber = publicationNumberNode.InnerText;
             }
 
             //public string DataSetName { get; set; }
-            var dataSetNameNode = node.FirstChild.SelectSingleNode("dataSetName", mgr);
+            var dataSetNameNode = node.SelectSingleNode("dataSetName", mgr);
             if (dataSetNameNode != null && dataSetNameNode.HasChildNodes)
             {
-                DataSetName = dataSetNameNode.FirstChild.InnerText;
+                DataSetName = dataSetNameNode.InnerText;
             }
 
             //public string Version { get; set; }
-            var versionNode = node.FirstChild.SelectSingleNode("version", mgr);
+            var versionNode = node.SelectSingleNode("version", mgr);
             if (versionNode != null && versionNode.HasChildNodes)
             {
-                Version = versionNode.FirstChild.InnerText;
+                Version = versionNode.InnerText;
             }
 
             //public string ServiceStatus { get; set; }
-            var serviceStatusNode = node.FirstChild.SelectSingleNode("serviceStatus", mgr);
+            var serviceStatusNode = node.SelectSingleNode("serviceStatus", mgr);
             if (serviceStatusNode != null && serviceStatusNode.HasChildNodes)
             {
-                ServiceStatus = serviceStatusNode.FirstChild.InnerText;
+                ServiceStatus = serviceStatusNode.InnerText;
             }
 
             //public string Keyword { get; set; }
-            var keywordsNode = node.FirstChild.SelectSingleNode("keyword", mgr);
+            var keywordsNode = node.SelectSingleNode("keyword", mgr);
             if (keywordsNode != null && keywordsNode.HasChildNodes)
             {
-                Keyword = keywordsNode.FirstChild.InnerText;
+                Keyword = keywordsNode.InnerText;
             }
 
             //public string ServiceDesign { get; set; }
-            var serviceDesignNode = node.FirstChild.SelectSingleNode("serviceDesign", mgr);
+            var serviceDesignNode = node.SelectSingleNode("serviceDesign", mgr);
             if (serviceDesignNode != null && serviceDesignNode.HasChildNodes)
             {
-                ServiceDesign = serviceDesignNode.FirstChild.InnerText;
+                ServiceDesign = serviceDesignNode.InnerText;
             }
 
             //public string ISBN { get; set; }
-            var isbnNode = node.FirstChild.SelectSingleNode("ISBN", mgr);
+            var isbnNode = node.SelectSingleNode("ISBN", mgr);
             if (isbnNode != null && isbnNode.HasChildNodes)
             {
-                ISBN = isbnNode.FirstChild.InnerText;
+                ISBN = isbnNode.InnerText;
             }
 
             //public string TypeOfProductFormat { get; set; }
-            var typeOfProductFormatNode = node.FirstChild.SelectSingleNode("typeOfProductFormat", mgr);
+            var typeOfProductFormatNode = node.SelectSingleNode("typeOfProductFormat", mgr);
             if (typeOfProductFormatNode != null && typeOfProductFormatNode.HasChildNodes)
             {
-                TypeOfProductFormat = typeOfProductFormatNode.FirstChild.InnerText;
+                TypeOfProductFormat = typeOfProductFormatNode.InnerText;
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

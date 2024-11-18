@@ -43,11 +43,7 @@ namespace S1XViewer.Model
                 RawXmlData = xmlDocument
             };
 
-            XmlNamespaceManager nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
-            nsmgr.AddNamespace("gml", "http://www.opengis.net/gml/3.2");
-            nsmgr.AddNamespace("S128", "http://www.iho.int/S127/gml/1.0");
-            nsmgr.AddNamespace("s100", "http://www.iho.int/s100gml/1.0");
-            nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
+            XmlNamespaceManager nsmgr = GetAllNamespaces(xmlDocument);
 
             string invertLonLatString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
             if (!bool.TryParse(invertLonLatString, out bool invertLonLat))
@@ -70,12 +66,12 @@ namespace S1XViewer.Model
             // retrieve imembers
             var informationFeatures = await Task.Run(() =>
             {
-                XmlNodeList imemberNodes = xmlDocument.GetElementsByTagName("imember");
+                XmlNodeList iMemberNodes = xmlDocument.GetElementsByTagName("imember");
                 var localInfoFeaturesList = new List<IInformationFeature>();
 
-                foreach (XmlNode imemberNode in imemberNodes)
+                foreach (XmlNode iMemberNode in iMemberNodes)
                 {
-                    var feature = _featureFactory.FromXml(imemberNode, nsmgr).DeepClone();
+                    var feature = _featureFactory.FromXml(iMemberNode, nsmgr).DeepClone();
                     if (feature is IInformationFeature informationFeature)
                     {
                         localInfoFeaturesList.Add(informationFeature);
@@ -165,11 +161,7 @@ namespace S1XViewer.Model
                 RawXmlData = xmlDocument
             };
 
-            XmlNamespaceManager nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
-            nsmgr.AddNamespace("gml", "http://www.opengis.net/gml/3.2");
-            nsmgr.AddNamespace("S128", "http://www.iho.int/S127/gml/1.0");
-            nsmgr.AddNamespace("s100", "http://www.iho.int/s100gml/1.0");
-            nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
+            XmlNamespaceManager nsmgr = GetAllNamespaces(xmlDocument);
 
             // retrieve boundingbox
             var boundingBoxNodes = xmlDocument.GetElementsByTagName("gml:boundedBy");

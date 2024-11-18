@@ -27,21 +27,33 @@ namespace S1XViewer.Types.Features
             base.FromXml(node, mgr);
 
             //public string ChartNumber { get; set; }
-            var chartNumberNode = node.FirstChild.SelectSingleNode("chartNumber", mgr);
+            var chartNumberNode = node.SelectSingleNode("chartNumber", mgr);
+            if (chartNumberNode == null)
+            {
+                chartNumberNode = node.SelectSingleNode("S128:chartNumber", mgr);
+            }
             if (chartNumberNode != null && chartNumberNode.HasChildNodes)
             {
                 ChartNumber = chartNumberNode.FirstChild.InnerText;
             }
 
             //public string DistributionStatus { get; set; }
-            var distributionStatusNode = node.FirstChild.SelectSingleNode("distributionStatus", mgr);
+            var distributionStatusNode = node.SelectSingleNode("distributionStatus", mgr);
+            if (distributionStatusNode == null)
+            {
+                distributionStatusNode = node.SelectSingleNode("S128:distributionStatus", mgr);
+            }
             if (distributionStatusNode != null && distributionStatusNode.HasChildNodes)
             {
                 DistributionStatus = distributionStatusNode.FirstChild.InnerText;
             }
 
             //public string CompilationScale { get; set; }
-            var compilationScaleNodes = node.FirstChild.SelectNodes("compilationScale", mgr);
+            var compilationScaleNodes = node.SelectNodes("compilationScale", mgr);
+            if (compilationScaleNodes != null)
+            {
+                compilationScaleNodes = node.SelectNodes("S128:compilationScale", mgr);
+            }
             if (compilationScaleNodes != null && compilationScaleNodes.Count > 0)
             {
                 var compilationScales = new List<string>();
@@ -56,28 +68,44 @@ namespace S1XViewer.Types.Features
             }
 
             //public string SpecificUsage { get; set; }
-            var specificUsageNode = node.FirstChild.SelectSingleNode("specificUsage", mgr);
+            var specificUsageNode = node.SelectSingleNode("specificUsage", mgr);
+            if (specificUsageNode == null)
+            {
+                specificUsageNode = node.SelectSingleNode("S128:specificUsage", mgr);
+            }
             if (specificUsageNode != null && specificUsageNode.HasChildNodes)
             {
                 SpecificUsage = specificUsageNode.FirstChild.InnerText;
             }
 
             //public string ProducerCode { get; set; }
-            var producerCodeNode = node.FirstChild.SelectSingleNode("producerCode", mgr);
+            var producerCodeNode = node.SelectSingleNode("producerCode", mgr);
+            if (producerCodeNode == null)
+            {
+                producerCodeNode = node.SelectSingleNode("S128:producerCode", mgr);
+            }
             if (producerCodeNode != null && producerCodeNode.HasChildNodes)
             {
                 ProducerCode = producerCodeNode.FirstChild.InnerText;
             }
 
             //public string OriginalChartNumber { get; set; }
-            var originalChartNumberNode = node.FirstChild.SelectSingleNode("originalChartNumber", mgr);
+            var originalChartNumberNode = node.SelectSingleNode("originalChartNumber", mgr);
+            if (originalChartNumberNode == null)
+            {
+                originalChartNumberNode = node.SelectSingleNode("S128:originalChartNumber", mgr);
+            }
             if (originalChartNumberNode != null && originalChartNumberNode.HasChildNodes)
             {
                 OriginalChartNumber = originalChartNumberNode.FirstChild.InnerText;
             }
 
             //public string ProducerNation { get; set; }
-            var producerNationNode = node.FirstChild.SelectSingleNode("producerNation", mgr);
+            var producerNationNode = node.SelectSingleNode("producerNation", mgr);
+            if (producerNationNode == null)
+            {
+                producerNationNode = node.SelectSingleNode("S128:producerNation", mgr);
+            }
             if (producerNationNode != null && producerNationNode.HasChildNodes)
             {
                 ProducerNation = producerNationNode.FirstChild.InnerText;

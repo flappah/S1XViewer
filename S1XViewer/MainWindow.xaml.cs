@@ -4,11 +4,9 @@ using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Hydrography;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.Rasters;
-using Esri.ArcGISRuntime.Toolkit.UI.Controls;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
 using Microsoft.Win32;
-using Microsoft.Windows.Themes;
 using S1XViewer.Base;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
@@ -19,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Globalization; 
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +27,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Xml;
-using Xceed.Wpf.AvalonDock.Themes;
 using static S1XViewer.Model.Interfaces.IDataParser;
 
 namespace S1XViewer
@@ -209,8 +206,8 @@ namespace S1XViewer
             if (myMapView != null)
             {
                 myMapView.Map = null;
-                myMapView = null; 
-            }      
+                myMapView = null;
+            }
 
             this.Close();
         }
@@ -232,7 +229,7 @@ namespace S1XViewer
                 return;
             }
 
-            var selectedFilename = ((RibbonMenuItem)sender).Tag.ToString() ?? string.Empty;            
+            var selectedFilename = ((RibbonMenuItem)sender).Tag.ToString() ?? string.Empty;
             comboboxColorSchemes.IsEnabled = false;
 
             if (string.IsNullOrEmpty(selectedFilename) == false)
@@ -332,13 +329,16 @@ namespace S1XViewer
 
             if (openFileDialog.ShowDialog() == true)
             {
-                buttonForward.IsEnabled = false;
-                buttonForward.Tag = "";
-                buttonBackward.IsEnabled = false;
-                buttonBackward.Tag = "";
-                textBoxTimeValue.Text = string.Empty;
-                textBoxTimeValue.Tag = "";
-                comboboxColorSchemes.IsEnabled = false;
+                _syncContext?.Post(new SendOrPostCallback(o =>
+                {
+                    buttonForward.IsEnabled = false;
+                    buttonForward.Tag = "";
+                    buttonBackward.IsEnabled = false;
+                    buttonBackward.Tag = "";
+                    textBoxTimeValue.Text = string.Empty;
+                    textBoxTimeValue.Tag = "";
+                    comboboxColorSchemes.IsEnabled = false;
+                }), null);
 
                 var currentFolder = openFileDialog.FileName.Substring(0, openFileDialog.FileName.LastIndexOf(@"\"));
                 if (String.IsNullOrEmpty(currentFolder) == false)
@@ -390,8 +390,10 @@ namespace S1XViewer
                     _ = LoadENCFile(selectedFilename);
                 }
 
-                buttonRefresh.Tag = selectedFilename;
-                buttonRefresh.IsEnabled = true;
+                _syncContext?.Post(new SendOrPostCallback(o =>
+                {
+                    buttonRefresh.Tag = selectedFilename;
+                }), null);
             }
         }
 
@@ -419,13 +421,16 @@ namespace S1XViewer
 
             if (openFileDialog.ShowDialog() == true)
             {
-                buttonForward.IsEnabled = false;
-                buttonForward.Tag = "";
-                buttonBackward.IsEnabled = false;
-                buttonBackward.Tag = "";
-                textBoxTimeValue.Text = string.Empty;
-                textBoxTimeValue.Tag = "";
-                comboboxColorSchemes.IsEnabled = false;
+                _syncContext?.Post(new SendOrPostCallback(o =>
+                {
+                    buttonForward.IsEnabled = false;
+                    buttonForward.Tag = "";
+                    buttonBackward.IsEnabled = false;
+                    buttonBackward.Tag = "";
+                    textBoxTimeValue.Text = string.Empty;
+                    textBoxTimeValue.Tag = "";
+                    comboboxColorSchemes.IsEnabled = false;
+                }), null);
 
                 var currentFolder = openFileDialog.FileName.Substring(0, openFileDialog.FileName.LastIndexOf(@"\"));
                 if (String.IsNullOrEmpty(currentFolder) == false)
@@ -444,7 +449,7 @@ namespace S1XViewer
                     }
                     catch (Exception)
                     {
-                        MessageBox.Show($"Invalid exchangeset file or invalid XML contents! '{selectedFilename.LastPart(@"\\")}'");
+                        MessageBox.Show($"Invalid exchange-set file or invalid XML contents! '{selectedFilename.LastPart(@"\\")}'");
                     }
                 }
                 else if (selectedFilename.ToUpper().Contains(".XML") || selectedFilename.ToUpper().Contains(".GML"))
@@ -492,8 +497,10 @@ namespace S1XViewer
                     _ = LoadENCFile(selectedFilename);
                 }
 
-                buttonRefresh.Tag = selectedFilename;
-                buttonRefresh.IsEnabled = true;
+                _syncContext?.Post(new SendOrPostCallback(o =>
+                {
+                    buttonRefresh.Tag = selectedFilename;
+                }), null);
             }
         }
 
@@ -540,21 +547,24 @@ namespace S1XViewer
             }
 
             var featureRendererFactory = _container.Resolve<IFeatureRendererManager>();
-            featureRendererFactory.Clear();            
+            featureRendererFactory.Clear();
 
             var optionsStorage = _container.Resolve<IOptionsStorage>();
-            string basemap = optionsStorage.Retrieve("comboBoxBasemap");
-            BasemapStyle basemapStyle;
-            if (string.IsNullOrEmpty(basemap) == true)
+            string baseMap = optionsStorage.Retrieve("comboBoxBasemap");
+            BasemapStyle baseMapStyle;
+            if (string.IsNullOrEmpty(baseMap) == true)
             {
-                basemapStyle = BasemapStyle.ArcGISTopographic;
+                baseMapStyle = BasemapStyle.ArcGISTopographic;
             }
             else
             {
-                basemapStyle = Enum.Parse<BasemapStyle>(basemap);
+                baseMapStyle = Enum.Parse<BasemapStyle>(baseMap);
             }
-            myMapView.Map = new Map(basemapStyle);
 
+            if (myMapView != null && myMapView.Map != null)
+            {
+                myMapView.Map = new Map(baseMapStyle);
+            }
         }
 
         /// <summary>
@@ -649,7 +659,7 @@ namespace S1XViewer
 
         /// <summary>
         ///     For navigation through HDF5 timeseries. Method relies on the stored values in the Tag properties of the
-        ///     backward, forward and textinput controls for proper functioning!
+        ///     backward, forward and text input controls for proper functioning!
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1144,10 +1154,13 @@ namespace S1XViewer
                         selectDateTimeWindow.ShowDialog();
                         selectedDateTime = selectDateTimeWindow.SelectedDateTime;
 
-                        buttonBackward.Tag = beginTime.ToUniversalTime();
-                        buttonForward.Tag = endTime.ToUniversalTime();
-                        textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
-                        textBoxTimeValue.Tag = $"{selectedFilename}#{productStandard}#{selectedDateTime}#{optionalVersion}";
+                        _syncContext?.Post(new SendOrPostCallback(o =>
+                        {
+                            buttonBackward.Tag = beginTime.ToUniversalTime();
+                            buttonForward.Tag = endTime.ToUniversalTime();
+                            textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
+                            textBoxTimeValue.Tag = $"{selectedFilename}#{productStandard}#{selectedDateTime}#{optionalVersion}";
+                        }), null);
                     }
                 }
 
@@ -1339,10 +1352,13 @@ namespace S1XViewer
                         selectDateTimeWindow.ShowDialog();
                         selectedDateTime = selectDateTimeWindow.SelectedDateTime;
 
-                        buttonBackward.Tag = timeframePresentInFile.start.ToUniversalTime();
-                        buttonForward.Tag = timeframePresentInFile.end.ToUniversalTime();
-                        textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
-                        textBoxTimeValue.Tag = $"{fileName}#{productStandard}#{selectedDateTime}";
+                        _syncContext?.Post(new SendOrPostCallback(o =>
+                        {
+                            buttonBackward.Tag = timeframePresentInFile.start.ToUniversalTime();
+                            buttonForward.Tag = timeframePresentInFile.end.ToUniversalTime();
+                            textBoxTimeValue.Text = ((DateTime)selectedDateTime).ToString("yy-MM-dd HH:mm");
+                            textBoxTimeValue.Tag = $"{fileName}#{productStandard}#{selectedDateTime}";
+                        }), null);
                     }
                 }
 
@@ -1389,6 +1405,9 @@ namespace S1XViewer
                         // contains raster data display them using a RasterLayer
                         _syncContext?.Post(new SendOrPostCallback(async o =>
                         {
+                            buttonRefresh.IsEnabled = productStandard == "S102";
+                            buttonEditColorScheme.IsEnabled = productStandard == "S102";
+
                             if (o != null)
                             {
                                 CreateRasterCollection((IS1xxDataPackage)o);
@@ -1876,9 +1895,9 @@ namespace S1XViewer
             int i = 0;
             while (dataPackage.GeoFeatures[i++].Geometry == null && i < dataPackage.GeoFeatures.Length) ;
             SpatialReference? horizontalCRS = SpatialReferences.Wgs84;
-            if (i - 1 < dataPackage.GeoFeatures.Length)
+            if (i < dataPackage.GeoFeatures.Length)
             {
-                horizontalCRS = dataPackage.GeoFeatures[i].Geometry.SpatialReference;
+                horizontalCRS = dataPackage.GeoFeatures[i].Geometry?.SpatialReference;
             }
 
             var featureRendererManager = _container.Resolve<IFeatureRendererManager>();

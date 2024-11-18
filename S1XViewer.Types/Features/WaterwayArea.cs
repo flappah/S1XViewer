@@ -66,14 +66,14 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var periodicDateRangeNodes = node.FirstChild.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
@@ -86,14 +86,14 @@ namespace S1XViewer.Types.Features
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var fixedDateRangeNode = node.FirstChild.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
                 FixedDateRange.FromXml(fixedDateRangeNode, mgr);
             }
 
-            var featureNameNodes = node.FirstChild.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes("featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
@@ -106,14 +106,14 @@ namespace S1XViewer.Types.Features
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndication = node.FirstChild.SelectSingleNode("sourceIndication", mgr);
+            var sourceIndication = node.SelectSingleNode("sourceIndication", mgr);
             if (sourceIndication != null && sourceIndication.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
                 SourceIndication.FromXml(sourceIndication, mgr);
             }
 
-            var textContentNodes = node.FirstChild.SelectNodes("textContent", mgr);
+            var textContentNodes = node.SelectNodes("textContent", mgr);
             if (textContentNodes != null && textContentNodes.Count > 0)
             {
                 var textContents = new List<TextContent>();
@@ -129,19 +129,19 @@ namespace S1XViewer.Types.Features
                 TextContent = textContents.ToArray();
             }
 
-            var dynamicResourceNode = node.FirstChild.SelectSingleNode("dynamicResource", mgr);
+            var dynamicResourceNode = node.SelectSingleNode("dynamicResource", mgr);
             if (dynamicResourceNode != null)
             {
                 DynamicResource = dynamicResourceNode.FirstChild.InnerText;
             }
 
-            var siltationRateNode = node.FirstChild.SelectSingleNode("siltationRate", mgr);
+            var siltationRateNode = node.SelectSingleNode("siltationRate", mgr);
             if (siltationRateNode != null)
             {
                 SiltationRate = siltationRateNode.FirstChild.InnerText;
             }
 
-            var statusNodes = node.FirstChild.SelectNodes("status", mgr);
+            var statusNodes = node.SelectNodes("status", mgr);
             if (statusNodes != null && statusNodes.Count > 0)
             {
                 var statuses = new List<string>();
@@ -155,7 +155,7 @@ namespace S1XViewer.Types.Features
                 Status = statuses.ToArray();
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

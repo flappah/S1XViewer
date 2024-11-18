@@ -47,11 +47,7 @@ namespace S1XViewer.Model
                 RawXmlData = xmlDocument
             };
 
-            XmlNamespaceManager nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
-            nsmgr.AddNamespace("gml", "http://www.opengis.net/gml/3.2");
-            nsmgr.AddNamespace("S122", "http://www.iho.int/S122/gml/1.0");
-            nsmgr.AddNamespace("s100", "http://www.iho.int/s100gml/1.0");
-            nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
+            XmlNamespaceManager nsmgr = GetAllNamespaces(xmlDocument);
 
             string invertLonLatString = _optionsStorage.Retrieve("checkBoxInvertLonLat");
             if (!bool.TryParse(invertLonLatString, out bool invertLonLat))
@@ -170,11 +166,7 @@ namespace S1XViewer.Model
                 RawXmlData = xmlDocument
             };
 
-            XmlNamespaceManager nsmgr = new XmlNamespaceManager(xmlDocument.NameTable);
-            nsmgr.AddNamespace("gml", "http://www.opengis.net/gml/3.2");
-            nsmgr.AddNamespace("S122", "http://www.iho.int/S122/gml/1.0");
-            nsmgr.AddNamespace("s100", "http://www.iho.int/s100gml/1.0");
-            nsmgr.AddNamespace("xlink", "http://www.w3.org/1999/xlink");
+            XmlNamespaceManager nsmgr = GetAllNamespaces(xmlDocument);
 
             // retrieve boundingbox
             var boundingBoxNodes = xmlDocument.GetElementsByTagName("gml:boundedBy");

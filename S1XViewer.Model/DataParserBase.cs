@@ -3,6 +3,7 @@ using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types.Interfaces;
 using System.Xml;
+using System.Xml.XPath;
 
 namespace S1XViewer.Model
 {
@@ -41,6 +42,33 @@ namespace S1XViewer.Model
             }
 
             return defaultCRSString;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="xDoc"></param>
+        /// <returns></returns>
+        protected XmlNamespaceManager GetAllNamespaces(XmlDocument xDoc)
+        {
+            XmlNamespaceManager result = new XmlNamespaceManager(xDoc.NameTable);
+
+            IDictionary<string, string> localNamespaces = null;
+            XPathNavigator xNav = xDoc.CreateNavigator();
+            while (xNav.MoveToFollowing(XPathNodeType.Element))
+            {
+                localNamespaces = xNav.GetNamespacesInScope(XmlNamespaceScope.Local);
+                foreach (var localNamespace in localNamespaces)
+                {
+                    string prefix = localNamespace.Key;
+                    if (string.IsNullOrEmpty(prefix))
+                        prefix = "DEFAULT";
+
+                    result.AddNamespace(prefix, localNamespace.Value);
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

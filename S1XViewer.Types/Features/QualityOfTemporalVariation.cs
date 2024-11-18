@@ -51,27 +51,27 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var featureObjectIdentifierNode = node.FirstChild.SelectSingleNode("s100:featureObjectIdentifier", mgr);
+            var featureObjectIdentifierNode = node.SelectSingleNode("S100:featureObjectIdentifier", mgr);
             if (featureObjectIdentifierNode != null && featureObjectIdentifierNode.HasChildNodes)
             {
                 FeatureObjectIdentifier = new FeatureObjectIdentifier();
                 FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr);
             }
 
-            var categoryOfTemporalVariation = node.FirstChild.SelectSingleNode("categoryOfTemporalVariation", mgr);
+            var categoryOfTemporalVariation = node.SelectSingleNode("categoryOfTemporalVariation", mgr);
             if (categoryOfTemporalVariation != null)
             {
                 CategoryOfTemporalVariation = categoryOfTemporalVariation.InnerText;
             }
 
-            var informationNodes = node.FirstChild.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes("information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
@@ -87,7 +87,7 @@ namespace S1XViewer.Types.Features
                 Information = informations.ToArray();
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

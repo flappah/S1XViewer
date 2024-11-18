@@ -95,17 +95,20 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 && node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
             base.FromXml(node, mgr);
 
             //public IProductSpecification ProductSpecification { get; set; }
-            var productSpecificationNode = node.FirstChild.SelectSingleNode("productSpecification", mgr);
+            var productSpecificationNode = node.SelectSingleNode("productSpecification", mgr);
+            if (productSpecificationNode == null)
+            {
+                productSpecificationNode = node.SelectSingleNode("S128:productSpecification", mgr);
+            }
             if (productSpecificationNode != null && productSpecificationNode.HasChildNodes)
             {
                 ProductSpecification = new ProductSpecification();
@@ -113,7 +116,11 @@ namespace S1XViewer.Types.Features
             }
 
             //public string[] DatasetName { get; set; }
-            var datasetNameNodes = node.FirstChild.SelectNodes("datasetName", mgr);
+            var datasetNameNodes = node.SelectNodes("datasetName", mgr);
+            if (datasetNameNodes == null)
+            {
+                datasetNameNodes = node.SelectNodes("S128:datasetName", mgr);
+            }
             if (datasetNameNodes != null && datasetNameNodes.Count > 0)
             {
                 var dataSetNames = new List<string>();
@@ -121,7 +128,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (datasetNameNode != null && datasetNameNode.HasChildNodes)
                     {
-                        var dataSetName = datasetNameNode.FirstChild.InnerText;
+                        var dataSetName = datasetNameNode.InnerText;
                         dataSetNames.Add(dataSetName);
                     }
                 }
@@ -130,20 +137,28 @@ namespace S1XViewer.Types.Features
             }
 
             //public string TnpUpdate { get; set; }
-            var tnpUpdateNode = node.FirstChild.SelectSingleNode("tnpUpdate", mgr);
+            var tnpUpdateNode = node.SelectSingleNode("tnpUpdate", mgr);
+            if (tnpUpdateNode == null)
+            {
+                node.SelectSingleNode("S128:tnpUpdate", mgr);
+            }
             if (tnpUpdateNode != null && tnpUpdateNode.HasChildNodes)
             {
-                TnpUpdate = tnpUpdateNode.FirstChild.InnerText;
+                TnpUpdate = tnpUpdateNode.InnerText;
             }
 
             //public string TypeOfProductFormat { get; set; }
-            var typeOfProductFormatNode = node.FirstChild.SelectSingleNode("typeOfProductFormat", mgr);
+            var typeOfProductFormatNode = node.SelectSingleNode("typeOfProductFormat", mgr);
+            if (typeOfProductFormatNode == null)
+            {
+                typeOfProductFormatNode = node.SelectSingleNode("S128:typeOfProductFormat", mgr);
+            }
             if (typeOfProductFormatNode != null && typeOfProductFormatNode.HasChildNodes)
             {
-                TypeOfProductFormat = typeOfProductFormatNode.FirstChild.InnerText;
+                TypeOfProductFormat = typeOfProductFormatNode.InnerText;
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

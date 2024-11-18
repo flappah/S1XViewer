@@ -21,13 +21,20 @@ namespace S1XViewer.Types
         /// <param name="node">XmlNode</param>
         /// <param name="mgr">XmlNamespaceManager</param>
         /// <returns>IFeature</returns>
-        public S1XViewer.Types.Interfaces.IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public S1XViewer.Types.Interfaces.IFeature? FromXml(XmlNode node, XmlNamespaceManager mgr, bool firstChildIsFeature = true)
         {
             var featureTypeString = "";
             if (node != null)
             {
-                // determine the typestring of the feature we're looking for
-                featureTypeString = (node.HasChildNodes ? node.ChildNodes[0].Name : "").LastPart(char.Parse(":"));
+                // determine the type string of the feature we're looking for
+                if (firstChildIsFeature)
+                {
+                    featureTypeString = (node.HasChildNodes ? node.ChildNodes[0].Name : "").LastPart(char.Parse(":"));
+                }
+                else
+                {
+                    featureTypeString = node.Name.LastPart(char.Parse(":"));
+                }
 
                 // look for the feature in the collection of features Autofac initialized and inserted in the Features property
                 var locatedFeature =
@@ -36,19 +43,26 @@ namespace S1XViewer.Types
                 // if there's a feature, start XML parsing it and return the feature
                 if (locatedFeature != null)
                 {
-                    // just to make sure to have a copy of the autofac feature
+                    // just to make sure to have a copy of the Autofac feature
                     if (locatedFeature.DeepClone() is S1XViewer.Types.Interfaces.IFeature clonedFeature)
                     {
                         // clear the feature of the original content
                         clonedFeature.Clear();
                         // and parse xml content into it
-                        clonedFeature.FromXml(node, mgr);
+                        if ((firstChildIsFeature || node.Name.Equals("member") || node.Name.Equals("imember")) && node.FirstChild != null)
+                        {
+                            clonedFeature.FromXml(node.FirstChild, mgr);
+                        }
+                        else
+                        {
+                            clonedFeature.FromXml(node, mgr);
+                        }
                         return clonedFeature;
                     }
                 }
             }
 
-            throw new Exception($"Featuretype '{featureTypeString}' not found!");
+            return null;
         }
     }
 }

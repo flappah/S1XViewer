@@ -70,34 +70,34 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var featureObjectIdentifierNode = node.FirstChild.SelectSingleNode("s100:featureObjectIdentifier", mgr);
+            var featureObjectIdentifierNode = node.SelectSingleNode("S100:featureObjectIdentifier", mgr);
             if (featureObjectIdentifierNode != null && featureObjectIdentifierNode.HasChildNodes)
             {
                 FeatureObjectIdentifier = new FeatureObjectIdentifier();
                 FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr);
             }
 
-            var dataAssessment = node.FirstChild.SelectSingleNode("dataAssessment", mgr);
+            var dataAssessment = node.SelectSingleNode("dataAssessment", mgr);
             if (dataAssessment != null)
             {
                 DataAssessment = dataAssessment.InnerText;
             }
 
-            var sourceIndicationNode = node.FirstChild.SelectSingleNode("sourceIndication", mgr);
+            var sourceIndicationNode = node.SelectSingleNode("sourceIndication", mgr);
             if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
                 SourceIndication.FromXml(sourceIndicationNode, mgr);
             }
 
-            var horizontalDistanceUncertaintyNodes = node.FirstChild.SelectNodes("horizontalDistanceUncertainty", mgr);
+            var horizontalDistanceUncertaintyNodes = node.SelectNodes("horizontalDistanceUncertainty", mgr);
             if (horizontalDistanceUncertaintyNodes != null && horizontalDistanceUncertaintyNodes.Count > 0)
             {
                 var distanceUncertainties = new List<string>();
@@ -111,33 +111,33 @@ namespace S1XViewer.Types.Features
                 HorizontalDistanceUncertainty = distanceUncertainties.ToArray();
             }
 
-            var horizontalPositionalUncertaintyNode = node.FirstChild.SelectSingleNode("horizontalPositionalUncertainty", mgr);
+            var horizontalPositionalUncertaintyNode = node.SelectSingleNode("horizontalPositionalUncertainty", mgr);
             if (horizontalPositionalUncertaintyNode != null && horizontalPositionalUncertaintyNode.HasChildNodes)
             {
                 HorizontalPositionalUncertainty = new HorizontalPositionalUncertainty();
                 HorizontalPositionalUncertainty.FromXml(horizontalPositionalUncertaintyNode, mgr);
             }
 
-            var directionUncertaintyNode = node.FirstChild.SelectSingleNode("directionUncertainty", mgr);
+            var directionUncertaintyNode = node.SelectSingleNode("directionUncertainty", mgr);
             if (directionUncertaintyNode != null && directionUncertaintyNode.HasChildNodes)
             {
                 DirectionUncertainty = directionUncertaintyNode.FirstChild.InnerText;
             }
 
-            var surveyDateRangeNode = node.FirstChild.SelectSingleNode("surveyDateRange", mgr);
+            var surveyDateRangeNode = node.SelectSingleNode("surveyDateRange", mgr);
             if (surveyDateRangeNode != null && surveyDateRangeNode.HasChildNodes)
             {
                 SurveyDateRange = new SurveyDateRange();
                 SurveyDateRange.FromXml(surveyDateRangeNode, mgr);
             }
 
-            var categoryOfTemporalVariation = node.FirstChild.SelectSingleNode("categoryOfTemporalVariation", mgr);
+            var categoryOfTemporalVariation = node.SelectSingleNode("categoryOfTemporalVariation", mgr);
             if (categoryOfTemporalVariation != null)
             {
                 CategoryOfTemporalVariation = categoryOfTemporalVariation.InnerText;
             }
 
-            var informationNodes = node.FirstChild.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes("information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
@@ -153,7 +153,7 @@ namespace S1XViewer.Types.Features
                 Information = informations.ToArray();
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

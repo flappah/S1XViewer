@@ -91,21 +91,21 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var fixedDateRangeNode = node.FirstChild.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
                 FixedDateRange.FromXml(fixedDateRangeNode, mgr);
             }
 
-            var periodicDateRangeNodes = node.FirstChild.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
@@ -118,7 +118,7 @@ namespace S1XViewer.Types.Features
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var featureNameNodes = node.FirstChild.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes("featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
@@ -131,7 +131,7 @@ namespace S1XViewer.Types.Features
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndicationNodes = node.FirstChild.SelectNodes("sourceIndication", mgr);
+            var sourceIndicationNodes = node.SelectNodes("sourceIndication", mgr);
             if (sourceIndicationNodes != null && sourceIndicationNodes.Count > 0)
             {
                 var sourceIndications = new List<SourceIndication>();
@@ -147,25 +147,25 @@ namespace S1XViewer.Types.Features
                 SourceIndication = sourceIndications.ToArray();
             }
 
-            var callNameNode = node.FirstChild.SelectSingleNode("callName", mgr);
+            var callNameNode = node.SelectSingleNode("callName", mgr);
             if (callNameNode != null && callNameNode.HasChildNodes)
             {
                 CallName = callNameNode.FirstChild.InnerText;
             }
 
-            var callSignNode = node.FirstChild.SelectSingleNode("callSign", mgr);
+            var callSignNode = node.SelectSingleNode("callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
                 CallSign = callSignNode.FirstChild.InnerText;
             }
 
-            var categoryOfCommPrefNode = node.FirstChild.SelectSingleNode("categoryOfCommPref", mgr);
+            var categoryOfCommPrefNode = node.SelectSingleNode("categoryOfCommPref", mgr);
             if (categoryOfCommPrefNode != null && categoryOfCommPrefNode.HasChildNodes)
             {
                 CategoryOfCommPref = categoryOfCommPrefNode.FirstChild.InnerText;
             }
 
-            var communicationChannelNodes = node.FirstChild.SelectNodes("communicationChannel", mgr);
+            var communicationChannelNodes = node.SelectNodes("communicationChannel", mgr);
             if (communicationChannelNodes != null && communicationChannelNodes.Count > 0)
             {
                 var channels = new List<string>();
@@ -181,19 +181,19 @@ namespace S1XViewer.Types.Features
                 CommunicationChannel = channels.ToArray();
             }
 
-            var contactInstructionsNode = node.FirstChild.SelectSingleNode("contactInstructions", mgr);
+            var contactInstructionsNode = node.SelectSingleNode("contactInstructions", mgr);
             if (contactInstructionsNode != null && contactInstructionsNode.HasChildNodes)
             {
                 ContactInstructions = contactInstructionsNode.FirstChild.InnerText;
             }
 
-            var mmsiCodeNode = node.FirstChild.SelectSingleNode("mMSICode", mgr);
+            var mmsiCodeNode = node.SelectSingleNode("mMSICode", mgr);
             if (mmsiCodeNode != null && mmsiCodeNode.HasChildNodes)
             {
                 MMsiCode = mmsiCodeNode.FirstChild.InnerText;
             }
 
-            var contactAddressNodes = node.FirstChild.SelectNodes("contactAddress", mgr);
+            var contactAddressNodes = node.SelectNodes("contactAddress", mgr);
             if (contactAddressNodes != null && contactAddressNodes.Count > 0)
             {
                 var contactAddresses = new List<ContactAddress>();
@@ -209,7 +209,7 @@ namespace S1XViewer.Types.Features
                 ContactAddress = contactAddresses.ToArray();
             }
 
-            var informationNodes = node.FirstChild.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes("information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
@@ -225,7 +225,7 @@ namespace S1XViewer.Types.Features
                 Information = informations.ToArray();
             }
 
-            var frequencyPairNodes = node.FirstChild.SelectNodes("frequencyPair", mgr);
+            var frequencyPairNodes = node.SelectNodes("frequencyPair", mgr);
             if (frequencyPairNodes != null && frequencyPairNodes.Count > 0)
             {
                 var frequencyPairs = new List<FrequencyPair>();
@@ -241,7 +241,7 @@ namespace S1XViewer.Types.Features
                 FrequencyPair = frequencyPairs.ToArray();
             }
 
-            var onlineResourceNodes = node.FirstChild.SelectNodes("onlineResource", mgr);
+            var onlineResourceNodes = node.SelectNodes("onlineResource", mgr);
             if (onlineResourceNodes != null && onlineResourceNodes.Count > 0)
             {
                 var onlineResources = new List<OnlineResource>();
@@ -257,7 +257,7 @@ namespace S1XViewer.Types.Features
                 OnlineResource = onlineResources.ToArray();
             }
 
-            var radioCommunicationNodes = node.FirstChild.SelectNodes("radiocommunications", mgr);
+            var radioCommunicationNodes = node.SelectNodes("radiocommunications", mgr);
             if (radioCommunicationNodes != null && radioCommunicationNodes.Count > 0)
             {
                 var radioCommunications = new List<RadioCommunications>();
@@ -273,7 +273,7 @@ namespace S1XViewer.Types.Features
                 RadioCommunications = radioCommunications.ToArray();
             }
 
-            var teleCommunicationNodes = node.FirstChild.SelectNodes("telecommunications", mgr);
+            var teleCommunicationNodes = node.SelectNodes("telecommunications", mgr);
             if (teleCommunicationNodes != null && teleCommunicationNodes.Count > 0)
             {
                 var teleCommunications = new List<Telecommunications>();
@@ -289,7 +289,7 @@ namespace S1XViewer.Types.Features
                 Telecommunications = teleCommunications.ToArray();
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

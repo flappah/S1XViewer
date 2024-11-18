@@ -1,8 +1,11 @@
-﻿using S1XViewer.Model.Interfaces;
+﻿using S1XViewer.Base;
+using S1XViewer.Model.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
 using System.Data;
 using System.Xml;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace S1XViewer.Model
 {
@@ -37,10 +40,27 @@ namespace S1XViewer.Model
             }
 
             string s12xTypeString = string.Empty;
+            string version = string.Empty;
             if (String.IsNullOrEmpty(UseStandard) == true)
             {
                 string namespaceName = xmlDocument.DocumentElement?.Name ?? string.Empty;
                 s12xTypeString = namespaceName.Substring(0, namespaceName.IndexOf(":"));
+
+                if (xmlDocument.DocumentElement?.Attributes.Count > 0)
+                {
+                    foreach(XmlAttribute attr in xmlDocument.DocumentElement.Attributes)
+                    {
+                        if (attr.Name.Equals("xmlns:S128"))
+                        {
+                            version = attr.Value.LastPart("/").ToString();
+                            if (version.Equals("1.0"))
+                            {
+                                version = "";
+                            }
+                            break;
+                        }
+                    }
+                }
             }
             else
             {
@@ -58,8 +78,8 @@ namespace S1XViewer.Model
                 return new NullDataParser();
             }
 
-            var locatedDataParser =
-                DataParsers.ToList().Find(tp => tp.GetType().Name.Contains(s12xType + "DataParser"));
+            IDataParser? locatedDataParser =
+                DataParsers.ToList().Find(tp => tp.GetType().Name.Contains($"{s12xType}{(String.IsNullOrEmpty(version) == false ? $"V{version.Replace(".","")}" : "")}DataParser"));
 
             if (locatedDataParser != null)
             {
@@ -70,7 +90,7 @@ namespace S1XViewer.Model
         }
 
         /// <summary>
-        ///     Retrieves a data package parser based on the datacoding format and the standard that is set in UseStandard
+        ///     Retrieves a data package parser based on the data coding format and the standard that is set in UseStandard
         /// </summary>
         /// <param name="dataCodingFormat"></param>
         /// <returns></returns>
@@ -87,7 +107,7 @@ namespace S1XViewer.Model
                 throw new Exception("No IHO standard specified!");
             }
 
-            IDataParser locatedDataParser =
+            IDataParser? locatedDataParser =
                 DataParsers.ToList().Find(tp => tp.GetType().Name.Contains($"{UseStandard}DCF{dataCodingFormat}{(String.IsNullOrEmpty(version) == false ? $"V{version}" : "")}DataParser"));
 
             if (locatedDataParser != null)

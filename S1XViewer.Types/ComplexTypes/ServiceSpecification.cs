@@ -40,13 +40,13 @@ namespace S1XViewer.Types.ComplexTypes
             var nameNode = node.SelectSingleNode("name");
             if (nameNode != null && nameNode.HasChildNodes)
             {
-                Name = node.FirstChild.InnerText;
+                Name = node.InnerText;
             }
 
             var versionNode = node.SelectSingleNode("version");
             if (versionNode != null && versionNode.HasChildNodes)
             {
-                Version = node.FirstChild.InnerText;
+                Version = node.InnerText;
             }
 
             return this;

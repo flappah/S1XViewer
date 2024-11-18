@@ -68,21 +68,21 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var fixedDateRangeNode = node.FirstChild.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
                 FixedDateRange.FromXml(fixedDateRangeNode, mgr);
             }
 
-            var periodicDateRangeNodes = node.FirstChild.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
@@ -95,7 +95,7 @@ namespace S1XViewer.Types.Features
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var featureNameNodes = node.FirstChild.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes("featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
@@ -108,7 +108,7 @@ namespace S1XViewer.Types.Features
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndicationNodes = node.FirstChild.SelectNodes("sourceIndication", mgr);
+            var sourceIndicationNodes = node.SelectNodes("sourceIndication", mgr);
             if (sourceIndicationNodes != null && sourceIndicationNodes.Count > 0)
             {
                 var sourceIndications = new List<SourceIndication>();
@@ -124,7 +124,7 @@ namespace S1XViewer.Types.Features
                 SourceIndication = sourceIndications.ToArray();
             }
 
-            var categoryOfShipReportNodes = node.FirstChild.SelectNodes("categoryOfShipReport");
+            var categoryOfShipReportNodes = node.SelectNodes("categoryOfShipReport");
             if (categoryOfShipReportNodes != null && categoryOfShipReportNodes.Count > 0)
             {
                 var categories = new List<string>();
@@ -138,13 +138,13 @@ namespace S1XViewer.Types.Features
                 CategoryOfShipReport = categories.ToArray();
             }
 
-            var imoFormatForReportingNode = node.FirstChild.SelectSingleNode("imoFormatForReporting", mgr);
+            var imoFormatForReportingNode = node.SelectSingleNode("imoFormatForReporting", mgr);
             if (imoFormatForReportingNode != null && imoFormatForReportingNode.HasChildNodes)
             {
                 ImoFormatForReporting = imoFormatForReportingNode.FirstChild.InnerText;
             }
 
-            var noticeTimeNodes = node.FirstChild.SelectNodes("noticeTime");
+            var noticeTimeNodes = node.SelectNodes("noticeTime");
             if (noticeTimeNodes != null && noticeTimeNodes.Count > 0)
             {
                 var noticeTimes = new List<NoticeTime>();
@@ -160,14 +160,14 @@ namespace S1XViewer.Types.Features
                 NoticeTime = noticeTimes.ToArray();
             }
 
-            var textContentNode = node.FirstChild.SelectSingleNode("textContent", mgr);
+            var textContentNode = node.SelectSingleNode("textContent", mgr);
             if (textContentNode != null && textContentNode.HasChildNodes)
             {
                 TextContent = new TextContent();
                 TextContent.FromXml(textContentNode, mgr);
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

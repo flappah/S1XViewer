@@ -49,40 +49,40 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var featureObjectIdentifierNode = node.FirstChild.SelectSingleNode("s100:featureObjectIdentifier", mgr);
+            var featureObjectIdentifierNode = node.SelectSingleNode("S100:featureObjectIdentifier", mgr);
             if (featureObjectIdentifierNode != null && featureObjectIdentifierNode.HasChildNodes)
             {
                 FeatureObjectIdentifier = new FeatureObjectIdentifier();
                 FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr);
             }
 
-            var foidNode = node.FirstChild.SelectSingleNode("s100:featureObjectIdentifier", mgr);
+            var foidNode = node.SelectSingleNode("S100:featureObjectIdentifier", mgr);
             if (foidNode != null && foidNode.HasChildNodes)
             {
                 FeatureObjectIdentifier = new FeatureObjectIdentifier();
                 FeatureObjectIdentifier.FromXml(foidNode, mgr);
             }
 
-            var maximumDisplayScaleNode = node.FirstChild.SelectSingleNode("maximumDisplayScale", mgr);
+            var maximumDisplayScaleNode = node.SelectSingleNode("maximumDisplayScale", mgr);
             if (maximumDisplayScaleNode != null)
             {
                 MaximumDisplayScale = maximumDisplayScaleNode.InnerText;
             }
 
-            var minimumDisplayScaleNode = node.FirstChild.SelectSingleNode("minimumDisplayScale", mgr);
+            var minimumDisplayScaleNode = node.SelectSingleNode("minimumDisplayScale", mgr);
             if (minimumDisplayScaleNode != null)
             {
                 MinimumDisplayScale = minimumDisplayScaleNode.InnerText;
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();

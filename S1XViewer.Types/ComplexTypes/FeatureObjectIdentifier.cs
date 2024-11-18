@@ -32,19 +32,19 @@ namespace S1XViewer.Types.ComplexTypes
         {
             if (node != null && node.HasChildNodes)
             {
-                var agencyNode = node.SelectSingleNode("s100:agency", mgr);
+                var agencyNode = node.SelectSingleNode("S100:agency", mgr);
                 if (agencyNode != null)
                 {
                     Agency = agencyNode.FirstChild.InnerText;
                 }
 
-                var featureIdentificationNumberNode = node.SelectSingleNode("s100:featureIdentificationNumber", mgr);
+                var featureIdentificationNumberNode = node.SelectSingleNode("S100:featureIdentificationNumber", mgr);
                 if (featureIdentificationNumberNode != null)
                 {
                     FeatureIdentificationNumber = featureIdentificationNumberNode.FirstChild.InnerText;
                 }
 
-                var featureIdentificationSubdivisionNode = node.SelectSingleNode("s100:featureIdentificationSubdivision", mgr);
+                var featureIdentificationSubdivisionNode = node.SelectSingleNode("S100:featureIdentificationSubdivision", mgr);
                 if (featureIdentificationSubdivisionNode != null)
                 {
                     FeatureIdentificationSubdivision = featureIdentificationSubdivisionNode.FirstChild.InnerText;

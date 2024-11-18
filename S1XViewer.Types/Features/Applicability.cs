@@ -76,21 +76,21 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.FirstChild?.Attributes?.Count > 0 &&
-                    node.FirstChild?.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&
+                    node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.FirstChild.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"].InnerText;
                 }
             }
 
-            var fixedDateRangeNode = node.FirstChild.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
                 FixedDateRange.FromXml(fixedDateRangeNode, mgr);
             }
 
-            var periodicDateRangeNodes = node.FirstChild.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
@@ -103,7 +103,7 @@ namespace S1XViewer.Types.Features
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var featureNameNodes = node.FirstChild.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes("featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
@@ -116,7 +116,7 @@ namespace S1XViewer.Types.Features
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndicationNodes = node.FirstChild.SelectNodes("sourceIndication", mgr);
+            var sourceIndicationNodes = node.SelectNodes("sourceIndication", mgr);
             if (sourceIndicationNodes != null && sourceIndicationNodes.Count > 0)
             {
                 var sourceIndications = new List<SourceIndication>();
@@ -132,7 +132,7 @@ namespace S1XViewer.Types.Features
                 SourceIndication = sourceIndications.ToArray();
             }
             
-            var informationNodes = node.FirstChild.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes("information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
@@ -145,13 +145,13 @@ namespace S1XViewer.Types.Features
                 Information = informations.ToArray();
             }
 
-            var ballastNode = node.FirstChild.SelectSingleNode("ballast", mgr);
+            var ballastNode = node.SelectSingleNode("ballast", mgr);
             if (ballastNode != null && ballastNode.HasChildNodes)
             {
                 Ballast = ballastNode.FirstChild.InnerText;
             }
 
-            var categoryOfCargoNodes = node.FirstChild.SelectNodes("categoryOfCargo", mgr);
+            var categoryOfCargoNodes = node.SelectNodes("categoryOfCargo", mgr);
             if (categoryOfCargoNodes != null && categoryOfCargoNodes.Count > 0)
             {
                 var categoriesOfCargo = new List<string>();
@@ -165,7 +165,7 @@ namespace S1XViewer.Types.Features
                 CategoryOfCargo = categoriesOfCargo.ToArray();
             }
 
-            var categoryOfDangerousOrHazardousCargoNodes = node.FirstChild.SelectNodes("categoryOfDangerousOrHazardousCargo");
+            var categoryOfDangerousOrHazardousCargoNodes = node.SelectNodes("categoryOfDangerousOrHazardousCargo");
             if (categoryOfDangerousOrHazardousCargoNodes != null && categoryOfDangerousOrHazardousCargoNodes.Count > 0)
             {
                 var categoriesOfCargo = new List<string>();
@@ -179,31 +179,31 @@ namespace S1XViewer.Types.Features
                 CategoryOfDangerousOrHazardousCargo = categoriesOfCargo.ToArray();
             }
 
-            var categoryOfVesselNode = node.FirstChild.SelectSingleNode("categoryOfVessel", mgr);
+            var categoryOfVesselNode = node.SelectSingleNode("categoryOfVessel", mgr);
             if (categoryOfVesselNode != null && categoryOfVesselNode.HasChildNodes)
             {
                 CategoryOfVessel = categoryOfVesselNode.FirstChild.InnerText;
             }
 
-            var categoryOfVesselRegistryNode = node.FirstChild.SelectSingleNode("categoryOfVesselRegistry", mgr);
+            var categoryOfVesselRegistryNode = node.SelectSingleNode("categoryOfVesselRegistry", mgr);
             if (categoryOfVesselRegistryNode != null && categoryOfVesselRegistryNode.HasChildNodes)
             {
                 CategoryOfVesselRegistry = categoryOfVesselRegistryNode.FirstChild.InnerText;
             }
             
-            var logicalConnectivesNode = node.FirstChild.SelectSingleNode("logicalConnectives", mgr);
+            var logicalConnectivesNode = node.SelectSingleNode("logicalConnectives", mgr);
             if (logicalConnectivesNode != null && logicalConnectivesNode.HasChildNodes)
             {
                 LogicalConnectives = logicalConnectivesNode.FirstChild.InnerText;
             }
 
-            var thicknessOfIceCapabilityNode = node.FirstChild.SelectSingleNode("thicknessOfIceCapability", mgr);
+            var thicknessOfIceCapabilityNode = node.SelectSingleNode("thicknessOfIceCapability", mgr);
             if (thicknessOfIceCapabilityNode != null && thicknessOfIceCapabilityNode.HasChildNodes)
             {
                 ThicknessOfIceCapability = thicknessOfIceCapabilityNode.FirstChild.InnerText;
             }
 
-            var vesselsMeasurementsNodes = node.FirstChild.SelectNodes("vesselsMeasurements", mgr);
+            var vesselsMeasurementsNodes = node.SelectNodes("vesselsMeasurements", mgr);
             if (vesselsMeasurementsNodes != null && vesselsMeasurementsNodes.Count > 0)
             {
                 var measurements = new List<VesselsMeasurement>();
@@ -220,13 +220,13 @@ namespace S1XViewer.Types.Features
                 VesselsMeasurements = measurements.ToArray();
             }
 
-            var vesselPerformanceNode = node.FirstChild.SelectSingleNode("vesselPerformance", mgr);
+            var vesselPerformanceNode = node.SelectSingleNode("vesselPerformance", mgr);
             if (vesselPerformanceNode != null && vesselPerformanceNode.HasChildNodes)
             {
                 VesselPerformance = vesselPerformanceNode.FirstChild.InnerText;
             }
 
-            var linkNodes = node.FirstChild.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
             if (linkNodes != null && linkNodes.Count > 0)
             {
                 var links = new List<Link>();
