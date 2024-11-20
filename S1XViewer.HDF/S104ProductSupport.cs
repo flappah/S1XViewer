@@ -1,6 +1,8 @@
 ﻿using HDF.PInvoke;
 using HDF5CSharp.DataTypes;
+using PureHDF;
 using S1XViewer.HDF.Interfaces;
+using S1XViewer.Types.ComplexTypes;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -137,7 +139,25 @@ namespace S1XViewer.HDF
         }
 
         /// <summary>
-        /// 
+        ///     Read string attribute productSpecification to generate the product version
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public override string GetProductVersion(string fileName)
+        {
+            using (var file = H5File.OpenRead(fileName))
+            {
+                var group = file.Group("/");
+                var attribute = group.Attribute("productSpecification");
+                var data = attribute.ReadString();
+                var version = data.First().Replace("INT.IHO.S-104.", "");
+                return version;
+            }
+        }
+
+        /// <summary>
+        ///     Read enumeration typeOfHorizontalCRS. Enumerations are a bit of a strange thing so the underlying
+        ///     framework is used to read the enumeration as an UINT8
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>

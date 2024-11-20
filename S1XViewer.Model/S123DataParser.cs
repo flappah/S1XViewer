@@ -72,7 +72,7 @@ namespace S1XViewer.Model
 
                 foreach (XmlNode imemberNode in imemberNodes)
                 {
-                    IFeature feature = _featureFactory.FromXml(imemberNode, nsmgr).DeepClone();
+                    IFeature? feature = _featureFactory.FromXml(imemberNode, nsmgr)?.DeepClone();
                     if (feature is IInformationFeature informationFeature)
                     {
                         localInfoFeaturesList.Add(informationFeature);
@@ -94,8 +94,7 @@ namespace S1XViewer.Model
                     var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
                     Progress?.Invoke(percentage);
 
-                    IFeature feature = _featureFactory.FromXml(memberNode, nsmgr).DeepClone();
-
+                    IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr)?.DeepClone();
                     if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
                     {
                         XmlNode? geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
@@ -174,10 +173,9 @@ namespace S1XViewer.Model
             // retrieve imembers
             XmlNodeList imemberNodes = xmlDocument.GetElementsByTagName("imember");
             var informationFeatures = new List<IInformationFeature>();
-
             foreach (XmlNode imemberNode in imemberNodes)
             {
-                var feature = _featureFactory.FromXml(imemberNode, nsmgr).DeepClone();
+                IFeature? feature = _featureFactory.FromXml(imemberNode, nsmgr)?.DeepClone();
                 if (feature is IInformationFeature informationFeature)
                 {
                     informationFeatures.Add(informationFeature);
@@ -190,8 +188,7 @@ namespace S1XViewer.Model
             XmlNodeList memberNodes = xmlDocument.GetElementsByTagName("member");
             foreach (XmlNode memberNode in memberNodes)
             {
-                var feature = _featureFactory.FromXml(memberNode, nsmgr).DeepClone();
-
+                IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr)?.DeepClone();
                 if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
                 {
                     var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");

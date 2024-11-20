@@ -89,5 +89,11 @@ namespace S1XViewer.HDF
         /// <returns></returns>
         public abstract short GetDataCodingFormat(string fileName);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public abstract string GetProductVersion(string fileName);
     }
 }

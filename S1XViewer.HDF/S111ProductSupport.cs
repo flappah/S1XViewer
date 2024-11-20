@@ -1,5 +1,6 @@
 ﻿using HDF.PInvoke;
 using HDF5CSharp.DataTypes;
+using PureHDF;
 using S1XViewer.HDF.Interfaces;
 using System.Globalization;
 using System.Runtime.InteropServices;
@@ -39,22 +40,24 @@ namespace S1XViewer.HDF
             }
 
             return -1;
-
-            //var fileId = Hdf5.OpenFile(fileName);
-            //var groupId = Hdf5.CreateOrOpenGroup(fileId, "/SurfaceCurrent");
-            //byte dataCodingFormat = 0;
-            //try
-            //{
-            //    dataCodingFormat = Hdf5.ReadAttribute<byte>(groupId, "dataCodingFormat");
-            //}
-            //finally
-            //{
-            //    Hdf5.CloseGroup(groupId);
-            //    Hdf5.CloseFile(fileId);
-            //}
-
-            //return dataCodingFormat;
         }
+
+        /// <summary>
+        ///     Read string attribute productSpecification
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public override string GetProductVersion(string fileName)
+        {
+            using (var file = H5File.OpenRead(fileName))
+            {
+                var group = file.Group("/");
+                var attribute = group.Attribute("productSpecification");
+                var data = attribute.ReadString();
+                var version = data.First().Replace("INT.IHO.S-111.", "");
+                return version;
+            }
+        }    
 
         /// <summary>
         /// 

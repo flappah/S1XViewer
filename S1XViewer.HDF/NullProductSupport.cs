@@ -42,6 +42,16 @@ namespace S1XViewer.HDF
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
+        public override string GetProductVersion(string fileName)
+        {
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         public override short GetTypeOfHorizontalCRS(string fileName)
         {
             return -1;

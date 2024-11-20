@@ -1,5 +1,4 @@
-﻿using S1XViewer.Base;
-using S1XViewer.Model.Interfaces;
+﻿using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
@@ -78,7 +77,7 @@ namespace S1XViewer.Model
                         var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
                         Progress?.Invoke(percentage);
 
-                        var feature = _featureFactory.FromXml(memberNode, nsmgr, false)?.DeepClone();
+                        IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr, false)?.DeepClone();
                         if (feature != null)
                         {
                             if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)

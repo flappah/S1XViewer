@@ -53,6 +53,13 @@ namespace S1XViewer.HDF.Interfaces
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
+        string GetProductVersion(string fileName);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
         short GetTypeOfHorizontalCRS(string fileName);
 
 

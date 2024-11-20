@@ -1301,6 +1301,14 @@ namespace S1XViewer
                 IProductSupportFactory productSupportFactory = _container.Resolve<IProductSupportFactory>();
                 IProductSupportBase productSupport = productSupportFactory.Create(productStandard);
                 short dataCodingFormat = productSupport.GetDataCodingFormat(fileName);
+                if (String.IsNullOrEmpty(version))
+                {
+                    var productVersion = productSupport.GetProductVersion(fileName);                    
+                    if (String.IsNullOrEmpty(productVersion) == false && productVersion.Equals("1.0") == false)
+                    {
+                        version = productVersion.Replace(".", "");
+                    }
+                }
 
                 IDataPackageParser dataParser = _container.Resolve<IDataPackageParser>();
                 dataParser.UseStandard = productStandard;
@@ -1729,7 +1737,7 @@ namespace S1XViewer
                 return;
             }
 
-            if (dataPackage is IBitmapDataPackage bitmapDataPackage)
+            if (dataPackage is IBitmapDataPackage bitmapDataPackage && String.IsNullOrEmpty(bitmapDataPackage.TiffFileName) == false)
             {
                 var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
 

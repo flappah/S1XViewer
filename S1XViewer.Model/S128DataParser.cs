@@ -77,7 +77,7 @@ namespace S1XViewer.Model
 
                 foreach (XmlNode iMemberNode in iMemberNodes)
                 {
-                    var feature = _featureFactory.FromXml(iMemberNode, nsmgr)?.DeepClone();
+                    IFeature? feature = _featureFactory.FromXml(iMemberNode, nsmgr)?.DeepClone();
                     if (feature is IInformationFeature informationFeature)
                     {
                         localInfoFeaturesList.Add(informationFeature);
@@ -99,7 +99,7 @@ namespace S1XViewer.Model
                     var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
                     Progress?.Invoke(percentage);
                     
-                    var feature = _featureFactory.FromXml(memberNode, nsmgr)?.DeepClone();
+                    IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr)?.DeepClone();
                     if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
                     {
                         var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
@@ -185,7 +185,7 @@ namespace S1XViewer.Model
 
             foreach (XmlNode imemberNode in imemberNodes)
             {
-                var feature = _featureFactory.FromXml(imemberNode, nsmgr).DeepClone();
+                IFeature? feature = _featureFactory.FromXml(imemberNode, nsmgr)?.DeepClone();
                 if (feature is IInformationFeature informationFeature)
                 {
                     informationFeatures.Add(informationFeature);
@@ -198,8 +198,7 @@ namespace S1XViewer.Model
             XmlNodeList memberNodes = xmlDocument.GetElementsByTagName("member");
             foreach (XmlNode memberNode in memberNodes)
             {
-                var feature = _featureFactory.FromXml(memberNode, nsmgr).DeepClone();
-
+                IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr)?.DeepClone();
                 if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
                 {
                     var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");

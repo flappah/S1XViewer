@@ -1,5 +1,6 @@
 ﻿using HDF.PInvoke;
 using HDF5CSharp.DataTypes;
+using PureHDF;
 using S1XViewer.HDF.Interfaces;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -48,7 +49,23 @@ namespace S1XViewer.HDF
             }
 
             return -1;
+        }
 
+        /// <summary>
+        ///     Read string attribute productSpecification
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public override string GetProductVersion(string fileName)
+        {
+            using (var file = H5File.OpenRead(fileName))
+            {
+                var group = file.Group("/");
+                var attribute = group.Attribute("productSpecification");
+                var data = attribute.ReadString();
+                var version = data.First().Replace("INT.IHO.S-102.", "");
+                return version;
+            }
         }
 
         /// <summary>

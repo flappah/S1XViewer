@@ -78,7 +78,7 @@ namespace S1XViewer.Model
                         var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
                         Progress?.Invoke(percentage);
 
-                        var feature = _featureFactory.FromXml(memberNode, nsmgr, false)?.DeepClone();
+                        IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr, false)?.DeepClone();
                         if (feature != null)
                         {
                             if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
