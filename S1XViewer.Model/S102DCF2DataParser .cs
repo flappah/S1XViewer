@@ -228,7 +228,7 @@ namespace S1XViewer.Model
 
             dataPackage.BoundingBox = _geometryBuilderFactory.Create("Envelope", new double[] { westBoundLongitude, eastBoundLongitude }, new double[] { southBoundLatitude, northBoundLatitude }, (int)horizontalCRS);
 
-            // retrieve values for undefined datacells
+            // retrieve values for undefined data cells
             double nillValueDepth = 1000000;
             double nillValueUncertainty = 1000000;
             var featureMetaInfoElements = _datasetReader.ReadCompound<BathymetryCoverageInformationInstance>(hdf5FileName, "/Group_F/BathymetryCoverage");

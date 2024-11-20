@@ -171,8 +171,8 @@ namespace S1XViewer.Model.Geometry
                     var linearRingNodes = exteriorNode.ChildNodes;
                     foreach (XmlNode linearRingNode in linearRingNodes)
                     {
-                        if (linearRingNode.HasChildNodes &&
-                            linearRingNode.ChildNodes[0].Name.ToUpper().Contains("POSLIST"))
+                        var posListNode = linearRingNode.SelectSingleNode("gml:posList", mgr);
+                        if (posListNode != null)
                         {
                             string[] splittedPositionArray =
                                 linearRingNode.ChildNodes[0].InnerText
@@ -219,6 +219,69 @@ namespace S1XViewer.Model.Geometry
 
                                 longitudes = null;
                                 latitudes = null;
+                            }
+                        }
+                        else
+                        {
+                            var posNodes = linearRingNode.SelectNodes("gml:pos", mgr);
+                            if (posNodes != null && posNodes.Count > 0)
+                            {
+                                var splittedPositionsList = new List<string>();
+                                foreach (XmlNode posNode in posNodes)
+                                {
+                                    string[] splittedPosition =
+                                        posNode.InnerText
+                                            .Replace("\t", " ")
+                                            .Replace("\n", " ")
+                                            .Replace("\r", " ")
+                                            .Split(new[] { " ", "," }, StringSplitOptions.RemoveEmptyEntries);
+
+                                    if (splittedPosition.Length == 2)
+                                    {
+                                        splittedPositionsList.AddRange(splittedPosition);
+                                    }
+                                }
+
+                                var splittedPositionsArray = splittedPositionsList.ToArray();
+                                if (((double)splittedPositionsArray.Length / 2.0) == Math.Abs(splittedPositionsArray.Length / 2.0))
+                                {
+                                    var latitudes = new double[splittedPositionsArray.Length];
+                                    var longitudes = new double[splittedPositionsArray.Length];
+
+                                    Parallel.For(0, splittedPositionsArray.Length, index =>
+                                    {
+                                        // try to avoid this overload since this one is quite a bit slower than the simple TryParse!
+                                        //if (double.TryParse(splittedPositionArray[index], NumberStyles.Float, new CultureInfo("en-US"), out double positionValue) == true)
+                                        if (double.TryParse(
+                                            splittedPositionsArray[index].Replace(splittedPositionsArray[index].Contains('.') ? "." : ",", currentCulture.NumberFormat.NumberDecimalSeparator),
+                                            out double positionValue) == true)
+                                        {
+                                            if (((BigInteger)index).IsEven)
+                                            {
+                                                latitudes[index] = positionValue;
+                                            }
+                                            else
+                                            {
+                                                longitudes[index] = positionValue;
+                                            }
+                                        }
+                                    });
+
+                                    for (int i = 0; i < latitudes.Length; i += 2)
+                                    {
+                                        if (InvertLonLat)
+                                        {
+                                            exteriorMapPoints.Add(new MapPoint(longitudes[i + 1], latitudes[i], spatialReferenceSystem));
+                                        }
+                                        else
+                                        {
+                                            exteriorMapPoints.Add(new MapPoint(latitudes[i], longitudes[i + 1], spatialReferenceSystem));
+                                        }
+                                    }
+
+                                    longitudes = null;
+                                    latitudes = null;
+                                }
                             }
                         }
 

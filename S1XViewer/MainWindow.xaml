@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:S1XViewer"
         xmlns:esri="http://schemas.esri.com/arcgis/runtime/2013" 
         mc:Ignorable="d"
-        Title="IHO S1xx standard Viewer" 
+        Title="IHO S1xx Standards Viewer" 
         Height="1000" Width="1280" 
         Icon="/Paomedia-Small-N-Flat-Map.ico"
         WindowStartupLocation="CenterOwner"       

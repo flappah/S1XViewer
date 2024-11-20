@@ -106,23 +106,23 @@ namespace S1XViewer.Model.Geometry
                     var lineStringNodes = segmentNode.ChildNodes;
                     foreach (XmlNode lineStringNode in lineStringNodes)
                     {
-                        if (lineStringNode.HasChildNodes &&
-                            lineStringNode.ChildNodes[0].Name.ToUpper().Contains("POSLIST"))
+                        var posListNode = lineStringNode.SelectSingleNode("gml:posList", mgr);
+                        if (posListNode != null)
                         {
-                            string[] splittedPositionArray =
+                            string[] splittedPositionsArray =
                                 lineStringNode.ChildNodes[0].InnerText
                                     .Replace("\t", " ")
                                     .Replace("\n", " ")
                                     .Replace("\r", " ")
                                     .Split(new[] { " ", "," }, StringSplitOptions.RemoveEmptyEntries);
 
-                            for (int i = 0; i < splittedPositionArray.Length; i += 2)
+                            for (int i = 0; i < splittedPositionsArray.Length; i += 2)
                             {
-                                if (!double.TryParse(splittedPositionArray[i], NumberStyles.Float, new CultureInfo("en-US"), out double x))
+                                if (!double.TryParse(splittedPositionsArray[i], NumberStyles.Float, new CultureInfo("en-US"), out double x))
                                 {
                                     x = 0.0;
                                 }
-                                if (!double.TryParse(splittedPositionArray[i + 1], NumberStyles.Float, new CultureInfo("en-US"), out double y))
+                                if (!double.TryParse(splittedPositionsArray[i + 1], NumberStyles.Float, new CultureInfo("en-US"), out double y))
                                 {
                                     y = 0.0;
                                 }
@@ -134,6 +134,50 @@ namespace S1XViewer.Model.Geometry
                                 else
                                 {
                                     curveMapPoints.Add(new MapPoint(x, y, SpatialReference.Create(_spatialReferenceSystem)));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var posNodes = lineStringNode.SelectNodes("gml:pos", mgr);
+                            if (posNodes != null && posNodes.Count > 0)
+                            {
+                                var splittedPositionsList = new List<string>();
+                                foreach (XmlNode posNode in posNodes)
+                                {
+                                    string[] splittedPosition =
+                                        posNode.InnerText
+                                            .Replace("\t", " ")
+                                            .Replace("\n", " ")
+                                            .Replace("\r", " ")
+                                            .Split(new[] { " ", "," }, StringSplitOptions.RemoveEmptyEntries);
+
+                                    if (splittedPosition.Length == 2)
+                                    {
+                                        splittedPositionsList.AddRange(splittedPosition);
+                                    }
+                                }
+
+                                var splittedPositionsArray = splittedPositionsList.ToArray();
+                                for (int i = 0; i < splittedPositionsArray.Length; i += 2)
+                                {
+                                    if (!double.TryParse(splittedPositionsArray[i], NumberStyles.Float, new CultureInfo("en-US"), out double x))
+                                    {
+                                        x = 0.0;
+                                    }
+                                    if (!double.TryParse(splittedPositionsArray[i + 1], NumberStyles.Float, new CultureInfo("en-US"), out double y))
+                                    {
+                                        y = 0.0;
+                                    }
+
+                                    if (InvertLonLat)
+                                    {
+                                        curveMapPoints.Add(new MapPoint(y, x, SpatialReference.Create(_spatialReferenceSystem)));
+                                    }
+                                    else
+                                    {
+                                        curveMapPoints.Add(new MapPoint(x, y, SpatialReference.Create(_spatialReferenceSystem)));
+                                    }
                                 }
                             }
                         }

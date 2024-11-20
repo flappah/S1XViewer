@@ -1264,7 +1264,6 @@ namespace S1XViewer
                 this.mainRibbon.Title += $"@ {((DateTime)selectedDateTime).ToString("yyyy-MM-dd HH:mm")} UTC";
             }
 
-            comboboxColorSchemes.IsEnabled = productStandard == "S102";
             dataGridFeatureProperties.ItemsSource = null;
             treeViewFeatures.Items.Clear();
 
@@ -1405,8 +1404,9 @@ namespace S1XViewer
                         // contains raster data display them using a RasterLayer
                         _syncContext?.Post(new SendOrPostCallback(async o =>
                         {
-                            buttonRefresh.IsEnabled = productStandard == "S102";
-                            buttonEditColorScheme.IsEnabled = productStandard == "S102";
+                            buttonRefresh.IsEnabled = productStandard.Equals("S102");
+                            buttonEditColorScheme.IsEnabled = productStandard.Equals("S102");
+                            comboboxColorSchemes.IsEnabled = productStandard.Equals("S102");
 
                             if (o != null)
                             {
@@ -1921,7 +1921,7 @@ namespace S1XViewer
             //Parallel.ForEach(dataPackage.GeoFeatures, feature =>
             foreach (var feature in dataPackage.GeoFeatures)
             {
-                if (feature is IGeoFeature geoFeature)
+                if (feature is IGeoFeature geoFeature && geoFeature.Geometry != null)
                 {
                     (string type, Feature feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererManager, horizontalCRS);
 

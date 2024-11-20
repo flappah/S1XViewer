@@ -52,9 +52,15 @@ namespace S1XViewer.Model
             }
             _geometryBuilderFactory.InvertLonLat = invertLonLat;
 
-            var defaultCRSString = GetSrsName(xmlDocument.DocumentElement);
-            _geometryBuilderFactory.DefaultCRS = defaultCRSString;
-            dataPackage.DefaultCRS = int.Parse(defaultCRSString);
+            string horizontalCRS = GetSrsName(xmlDocument.DocumentElement);
+            string utmZone = "";
+            if (int.TryParse(horizontalCRS, out int horizontalCRSValue))
+            {
+                utmZone = FindUtmZone(horizontalCRSValue);
+            }
+
+            _geometryBuilderFactory.DefaultCRS = horizontalCRS;
+            dataPackage.DefaultCRS = int.Parse(horizontalCRS);
 
             // retrieve boundingbox
             var boundingBoxNodes = xmlDocument.GetElementsByTagName("gml:boundedBy");
@@ -71,7 +77,7 @@ namespace S1XViewer.Model
 
                 foreach (XmlNode iMemberNode in iMemberNodes)
                 {
-                    var feature = _featureFactory.FromXml(iMemberNode, nsmgr).DeepClone();
+                    var feature = _featureFactory.FromXml(iMemberNode, nsmgr)?.DeepClone();
                     if (feature is IInformationFeature informationFeature)
                     {
                         localInfoFeaturesList.Add(informationFeature);
@@ -93,8 +99,7 @@ namespace S1XViewer.Model
                     var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
                     Progress?.Invoke(percentage);
                     
-                    var feature = _featureFactory.FromXml(memberNode, nsmgr).DeepClone();
-
+                    var feature = _featureFactory.FromXml(memberNode, nsmgr)?.DeepClone();
                     if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
                     {
                         var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
@@ -116,6 +121,10 @@ namespace S1XViewer.Model
                             }
 
                             metaFeatures.Add(metaFeature);
+                        }
+                        else if (feature is IInformationFeature informationFeature && memberNode.HasChildNodes)
+                        {
+                            informationFeatures.Add(informationFeature);
                         }
                     }
                 }
