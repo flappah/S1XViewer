@@ -4,14 +4,15 @@ using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
-    public class ElectronicProduct : NavigationalProduct, IElectronicProduct, IS128Feature
+    public class S100Service : CatalogueElement, IS100Service, IS128Feature
     {
         public bool CompressionFlag { get; set; }
-        public string DatasetName { get; set; } = string.Empty;
         public string EncodingFormat { get; set; } = string.Empty;
-        public DateTime IssueDateTime { get; set; }
+        public string ServiceName { get; set; } = string.Empty;
+        public string ServiceStatus { get; set; } = string.Empty;
         public string TypeOfProductFormat { get; set; } = string.Empty;
         public IProductSpecification ProductSpecification { get; set; } = new ProductSpecification();
+        public IServiceSpecification ServiceSpecification { get; set; } = new ServiceSpecification();
 
         /// <summary>
         /// 
@@ -19,7 +20,7 @@ namespace S1XViewer.Types.Features
         /// <returns></returns>
         public override IFeature DeepClone()
         {
-            return new ElectronicProduct()
+            return new S100Service()
             {
                 Id = Id,
                 Geometry = Geometry,
@@ -32,11 +33,10 @@ namespace S1XViewer.Types.Features
                     ? new SourceIndication()
                     : SourceIndication.DeepClone() as ISourceIndication,
                 TextContent = TextContent == null ? new TextContent[0] : Array.ConvertAll(TextContent, tc => tc.DeepClone() as ITextContent),
-                               
+
                 TimeIntervalOfProduct = TimeIntervalOfProduct == null ? new TimeIntervalOfProduct() : TimeIntervalOfProduct.DeepClone() as ITimeIntervalOfProduct,
 
                 Classification = Classification,
-                
                 Information = Information == null
                     ? new IInformation[0]
                     : Array.ConvertAll(Information, i => i.DeepClone() as IInformation),
@@ -44,24 +44,13 @@ namespace S1XViewer.Types.Features
                     ? new ISupportFile[0]
                     : Array.ConvertAll(SupportFile, s => s.DeepClone() as ISupportFile),
 
-                ApproximateGridResolution = ApproximateGridResolution,
-                CompilationScale = CompilationScale == null ? new int[0] : Array.ConvertAll(CompilationScale, cs => cs),
-                DistributionStatus = DistributionStatus,
-                NavigationPurpose = NavigationPurpose == null ? new string[0] : Array.ConvertAll(NavigationPurpose, s => s),
-                OptimumDisplayScale = OptimumDisplayScale,
-                OriginalProductNumber = OriginalProductNumber,
-                ProducerNation = ProducerNation,
-                ProductNumber = ProductNumber,
-                SpecificUsage = SpecificUsage,
-                UpdateDate = UpdateDate,
-                UpdateNumber = UpdateNumber,
-
                 CompressionFlag = CompressionFlag,
-                DatasetName = DatasetName,
                 EncodingFormat = EncodingFormat,
-                IssueDateTime = IssueDateTime,
+                ServiceName = ServiceName,
+                ServiceStatus = ServiceStatus,
                 TypeOfProductFormat = TypeOfProductFormat,
                 ProductSpecification = ProductSpecification == null ? new ProductSpecification() : ProductSpecification.DeepClone() as IProductSpecification,
+                ServiceSpecification = ServiceSpecification == null ? new ServiceSpecification() : ServiceSpecification.DeepClone() as IServiceSpecification
             };
         }
 
@@ -75,7 +64,7 @@ namespace S1XViewer.Types.Features
         {
             if (node == null || !node.HasChildNodes) return this;
 
-            base.FromXml(node, mgr); // run the NavigationalProduct xml interpreter
+            base.FromXml(node, mgr); // run the CatalogueElements xml interpreter
 
             //public bool CompressionFlag { get; set; }
             var compressionFlagNode = node.SelectSingleNode("compressionFlag", mgr);
@@ -91,17 +80,6 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            //public string DatasetName { get; set; } = string.Empty;
-            var datasetNameNode = node.SelectSingleNode("datasetName", mgr);
-            if (datasetNameNode == null)
-            {
-                datasetNameNode = node.SelectSingleNode("S128:datasetName", mgr);
-            }
-            if (datasetNameNode != null && datasetNameNode.HasChildNodes)
-            {
-                DatasetName = datasetNameNode.FirstChild?.InnerText ?? string.Empty;
-            }
-
             //public string EncodingFormat { get; set; } = string.Empty;
             var encodingFormatNode = node.SelectSingleNode("encodingFormat", mgr);
             if (encodingFormatNode == null)
@@ -113,30 +91,26 @@ namespace S1XViewer.Types.Features
                 EncodingFormat = encodingFormatNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            //public DateTime IssueDateTime { get; set; }
-            var issueDateNode = node.SelectSingleNode("issueDate", mgr);
-            var issueTimeNode = node.SelectSingleNode("issueTime", mgr);
-            if (issueDateNode == null)
+            //public string ServiceName { get; set; } = string.Empty;
+            var serviceNameNode = node.SelectSingleNode("serviceName", mgr);
+            if (serviceNameNode == null)
             {
-                issueDateNode = node.SelectSingleNode("S128:issueDate", mgr);
+                serviceNameNode = node.SelectSingleNode("S128:serviceName", mgr);
             }
-            if (issueTimeNode == null)
+            if (serviceNameNode != null && serviceNameNode.HasChildNodes)
             {
-                issueTimeNode = node.SelectSingleNode("S128:issueTime", mgr);
+                ServiceName = serviceNameNode.FirstChild?.InnerText ?? string.Empty;
             }
-            if (issueDateNode != null && issueDateNode.HasChildNodes)
+
+            //public string ServiceStatus { get; set; } = string.Empty;
+            var serviceStatusNode = node.SelectSingleNode("serviceStatus", mgr);
+            if (serviceStatusNode == null)
             {
-                var issueDate = issueDateNode.FirstChild?.InnerText ?? string.Empty;
-
-                if (issueTimeNode != null && issueTimeNode.HasChildNodes)
-                {
-                    var issueTime = issueTimeNode.FirstChild?.InnerText ?? string.Empty;
-
-                    if (DateTime.TryParse($"{issueDate}T{issueTime}", out DateTime dateTimeValue))
-                    {
-                        IssueDateTime = dateTimeValue;
-                    }
-                }
+                serviceStatusNode = node.SelectSingleNode("S128:serviceStatus", mgr);
+            }
+            if (serviceStatusNode != null && serviceStatusNode.HasChildNodes)
+            {
+                ServiceStatus = serviceStatusNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string TypeOfProductFormat { get; set; } = string.Empty;
@@ -160,6 +134,18 @@ namespace S1XViewer.Types.Features
             {
                 ProductSpecification = new ProductSpecification();
                 ProductSpecification.FromXml(productSpecificationNode, mgr);
+            }
+
+            //public IServiceSpecification ServiceSpecification { get; set; } = new ServiceSpecification();
+            var serviceSpecificationNode = node.SelectSingleNode("serviceSpecification", mgr);
+            if (serviceSpecificationNode == null)
+            {
+                serviceSpecificationNode = node.SelectSingleNode("S128:serviceSpecification", mgr);
+            }
+            if (serviceSpecificationNode != null && serviceSpecificationNode.HasChildNodes)
+            {
+                ServiceSpecification = new ServiceSpecification();
+                ServiceSpecification.FromXml(serviceSpecificationNode, mgr);
             }
 
             return this;

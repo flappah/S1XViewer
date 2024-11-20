@@ -2,8 +2,6 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
@@ -23,15 +21,23 @@ namespace S1XViewer.Types.Features
         {
             return new CatalogueOfNauticalProduct
             {
+                Id = Id,
+                Geometry = Geometry,
                 FeatureName = FeatureName == null
                     ? new IFeatureName[] { new FeatureName() }
                     : Array.ConvertAll(FeatureName, fn => fn.DeepClone() as IFeatureName),
+                FixedDateRange = FixedDateRange == null ? new DateRange() : FixedDateRange.DeepClone() as IDateRange,
+                PeriodicDateRange = PeriodicDateRange == null ? new DateRange[0] : Array.ConvertAll(PeriodicDateRange, pdr => pdr as IDateRange),
+                SourceIndication = SourceIndication == null
+                    ? new SourceIndication()
+                    : SourceIndication.DeepClone() as ISourceIndication,
+                TextContent = TextContent == null ? new TextContent[0] : Array.ConvertAll(TextContent, tc => tc.DeepClone() as ITextContent),
+                EditionNumber = EditionNumber,
+                IssueDate = IssueDate,
+                MarineResourceName = MarineResourceName,
                 Graphic = Graphic == null
                     ? new IGraphic[0]
                     : Array.ConvertAll(Graphic, g => g.DeepClone() as IGraphic),
-                IssueDate = IssueDate,
-                EditionNumber = EditionNumber,
-                MarineResourceName = MarineResourceName,
                 Links = Links == null
                     ? new ILink[0]
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
@@ -56,7 +62,7 @@ namespace S1XViewer.Types.Features
             {
                 if (node.Attributes?.Count > 0 && node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"]?.InnerText ?? string.Empty;
                 }
             }
 

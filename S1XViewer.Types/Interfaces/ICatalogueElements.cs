@@ -14,7 +14,6 @@
         string ProductType { get; set; }
         string Purpose { get; set; }
         string SoundingDatum { get; set; }
-        string TimeIntervalOfProduct { get; set; }
         string UpdateDate { get; set; }
         string UpdateNumber { get; set; }
         string VerticalDatum { get; set; }
