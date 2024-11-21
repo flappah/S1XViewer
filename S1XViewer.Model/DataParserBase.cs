@@ -10,6 +10,9 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.XPath;
 using GeoAPI.Geometries;
+using Esri.ArcGISRuntime.Geometry;
+using System.Globalization;
+using System.Windows.Media.Animation;
 
 namespace S1XViewer.Model
 {
@@ -160,7 +163,7 @@ namespace S1XViewer.Model
 
             return result;
         }
-
+        
         /// <summary>
         ///     Parses specified XMLDocument. Async version
         /// </summary>

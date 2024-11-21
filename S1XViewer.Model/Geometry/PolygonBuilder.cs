@@ -175,7 +175,7 @@ namespace S1XViewer.Model.Geometry
                         if (posListNode != null)
                         {
                             string[] splittedPositionArray =
-                                linearRingNode.ChildNodes[0].InnerText
+                                posListNode.InnerText
                                     .Replace("\t", " ")
                                     .Replace("\n", " ")
                                     .Replace("\r", " ")
@@ -353,12 +353,68 @@ namespace S1XViewer.Model.Geometry
 
                 if (segments.Count > 0)
                 {
+                    if (IsPositionInAnySegmentInverted(segments))
+                    {
+                        segments = InvertPositionsInSegments(segments);
+                    }
+
                     var polygon = new Polygon(segments, spatialReferenceSystem);
                     return polygon;
                 }
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="segments"></param>
+        /// <returns></returns>
+        private bool IsPositionInAnySegmentInverted(List<List<MapPoint>> segments)
+        {
+            foreach (List<MapPoint> interiorMapPoints in segments)
+            {
+                foreach (MapPoint mapPoint in interiorMapPoints)
+                {
+                    if (mapPoint.Y > 90.0)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Invert the surface
+        /// </summary>
+        /// <param name="segments"></param>
+        /// <returns></returns>
+        private List<List<MapPoint>> InvertPositionsInSegments(List<List<MapPoint>> segments)
+        {
+            var invertedSegments = new List<List<MapPoint>>();
+
+            foreach (List<MapPoint> interiorMapPoints in segments)
+            {
+                var interiorSegment = new List<MapPoint>();
+                foreach (MapPoint mapPoint in interiorMapPoints)
+                {
+                    if (mapPoint.Y > 90.0)
+                    {
+                        interiorSegment.Add(new MapPoint(mapPoint.Y, mapPoint.X));
+                    }
+                    else
+                    {
+                        interiorSegment.Add(new MapPoint(mapPoint.X, mapPoint.Y));
+                    }
+                }
+
+                invertedSegments.Add(interiorSegment);
+            }
+
+            return invertedSegments;
         }
     }
 }

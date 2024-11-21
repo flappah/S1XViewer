@@ -39,7 +39,7 @@ namespace S1XViewer.Model.Geometry
                 geometryTypeString = node.Name.LastPart(char.Parse(":"));
             }
 
-            var locatedBuilder =
+            IGeometryBuilder? locatedBuilder =
                 Builders.ToList().Find(tp => tp.GetType().ToString().Contains($"{geometryTypeString}Builder"));
 
             if (locatedBuilder != null)

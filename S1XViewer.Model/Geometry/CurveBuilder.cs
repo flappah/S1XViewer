@@ -96,7 +96,7 @@ namespace S1XViewer.Model.Geometry
                 }
             }
 
-            var segmentNodes = node.FirstChild.SelectNodes("gml:segments", mgr);
+            var segmentNodes = node.FirstChild?.SelectNodes("gml:segments", mgr);
             if (segmentNodes != null && segmentNodes.Count > 0)
             {
                 var segments = new List<List<MapPoint>>();
@@ -188,12 +188,71 @@ namespace S1XViewer.Model.Geometry
 
                 if (segments.Count > 0)
                 {
+                    if (IsPositionInAnySegmentInverted(segments))
+                    {
+                        segments = InvertPositionsInSegments(segments);
+                    }
+
                     var polyline = new Polyline(segments, SpatialReference.Create(_spatialReferenceSystem));
                     return polyline;
                 }
             }
 
             return null;
+        }
+
+        /// <summary>
+        ///     Method tries to resolve if any position in the supplied segments is inverted
+        ///     Now this method is by no means complete. It only does a basic check if the 
+        ///     Y variable is larger than 90.0 which means it HAS to be a longitude. If so
+        ///     true is returned
+        /// </summary>
+        /// <param name="segments"></param>
+        /// <returns></returns>
+        private bool IsPositionInAnySegmentInverted(List<List<MapPoint>> segments)
+        {
+            foreach (List<MapPoint> interiorMapPoints in segments)
+            {
+                foreach (MapPoint mapPoint in interiorMapPoints)
+                {
+                    if (mapPoint.Y > 90.0)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Invert the surface
+        /// </summary>
+        /// <param name="segments"></param>
+        /// <returns></returns>
+        private List<List<MapPoint>> InvertPositionsInSegments(List<List<MapPoint>> segments)
+        {
+            var invertedSegments = new List<List<MapPoint>>();
+
+            foreach (List<MapPoint> interiorMapPoints in segments)
+            {
+                var interiorSegment = new List<MapPoint>();
+                foreach (MapPoint mapPoint in interiorMapPoints)
+                {
+                    if (mapPoint.Y > 90.0)
+                    {
+                        interiorSegment.Add(new MapPoint(mapPoint.Y, mapPoint.X));
+                    }
+                    else
+                    {
+                        interiorSegment.Add(new MapPoint(mapPoint.X, mapPoint.Y));
+                    }
+                }
+
+                invertedSegments.Add(interiorSegment);
+            }
+
+            return invertedSegments;
         }
     }
 }

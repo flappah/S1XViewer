@@ -69,42 +69,46 @@ namespace S1XViewer.Model
 
             await Task.Run(() =>
             {
-                XmlNodeList? memberNodes = xmlDocument.GetElementsByTagName("members");
-                if (memberNodes != null) { 
-                short i = 0;
+                XmlNodeList? memberNodes = xmlDocument.DocumentElement.SelectNodes("S128:members", nsmgr);
+                if (memberNodes != null)
+                {
+                    short i = 0;
                     foreach (XmlNode memberNode in memberNodes)
                     {
-                        var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
-                        Progress?.Invoke(percentage);
-
-                        IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr, false)?.DeepClone();
-                        if (feature != null)
+                        if (memberNode.FirstChild != null)
                         {
-                            if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
-                            {
-                                var geometryOfMemberNode = memberNode.SelectSingleNode("S128:geometry", nsmgr);
-                                if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
-                                {
-                                    geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
-                                }
+                            var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
+                            Progress?.Invoke(percentage);
 
-                                geoFeatures.Add(geoFeature);
-                            }
-                            else
+                            IFeature? feature = _featureFactory.FromXml(memberNode.FirstChild, nsmgr, false)?.DeepClone();
+                            if (feature != null)
                             {
-                                if (feature is IMetaFeature metaFeature && memberNode.HasChildNodes)
+                                if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
                                 {
-                                    var geometryOfMemberNode = memberNode.SelectSingleNode("S128:geometry", nsmgr);
+                                    var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("S128:geometry", nsmgr);
                                     if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                                     {
-                                        metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                        geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
                                     }
 
-                                    metaFeatures.Add(metaFeature);
+                                    geoFeatures.Add(geoFeature);
                                 }
-                                else if (feature is IInformationFeature infoFeature && memberNode.HasChildNodes)
+                                else
                                 {
-                                    informationFeatures.Add(infoFeature);
+                                    if (feature is IMetaFeature metaFeature && memberNode.HasChildNodes)
+                                    {
+                                        var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("S128:geometry", nsmgr);
+                                        if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
+                                        {
+                                            metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                        }
+
+                                        metaFeatures.Add(metaFeature);
+                                    }
+                                    else if (feature is IInformationFeature infoFeature && memberNode.HasChildNodes)
+                                    {
+                                        informationFeatures.Add(infoFeature);
+                                    }
                                 }
                             }
                         }
