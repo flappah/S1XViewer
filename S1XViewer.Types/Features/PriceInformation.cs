@@ -10,7 +10,7 @@ namespace S1XViewer.Types.Features
 {
     public class PriceInformation : InformationFeatureBase, IPriceInformation, IS128Feature
     {
-        public IPayment Payment { get; set; }
+        public IPayment Payment { get; set; } = new Payment();
 
         /// <summary>
         /// 
@@ -28,7 +28,7 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
                     ? new ISourceIndication[0]
@@ -37,7 +37,7 @@ namespace S1XViewer.Types.Features
                     ? null
                     : Payment.DeepClone() as IPayment,
                 Links = Links == null
-                    ? new ILink[0]
+                    ? Array.Empty<ILink>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }

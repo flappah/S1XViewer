@@ -40,17 +40,17 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
                     ? new SourceIndication()
                     : SourceIndication.DeepClone() as ISourceIndication,
                 TextContent = TextContent == null
-                    ? new TextContent[0]
+                    ? Array.Empty<TextContent>()
                     : Array.ConvertAll(TextContent, t => t.DeepClone() as ITextContent),
                 Geometry = Geometry,
                 Links = Links == null
-                    ? new ILink[0]
+                    ? Array.Empty<ILink>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink),
                 AvailableBerthingLength = AvailableBerthingLength,
                 BollardDescription = BollardDescription,

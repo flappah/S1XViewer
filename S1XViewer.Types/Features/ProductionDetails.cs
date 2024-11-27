@@ -149,19 +149,19 @@ namespace S1XViewer.Types.Features
             var callNameNode = node.SelectSingleNode("callName", mgr);
             if (callNameNode != null && callNameNode.HasChildNodes)
             {
-                CallName = callNameNode.FirstChild.InnerText;
+                CallName = callNameNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var callSignNode = node.SelectSingleNode("callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
-                CallSign = callSignNode.FirstChild.InnerText;
+                CallSign = callSignNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var categoryOfCommPrefNode = node.SelectSingleNode("categoryOfCommPref", mgr);
             if (categoryOfCommPrefNode != null && categoryOfCommPrefNode.HasChildNodes)
             {
-                CategoryOfCommPref = categoryOfCommPrefNode.FirstChild.InnerText;
+                CategoryOfCommPref = categoryOfCommPrefNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var communicationChannelNodes = node.SelectNodes("communicationChannel", mgr);
@@ -172,7 +172,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (communicationChannelNode != null && communicationChannelNode.HasChildNodes)
                     {
-                        channels.Add(communicationChannelNode.FirstChild.InnerText);
+                        channels.Add(communicationChannelNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
 
@@ -183,13 +183,13 @@ namespace S1XViewer.Types.Features
             var contactInstructionsNode = node.SelectSingleNode("contactInstructions", mgr);
             if (contactInstructionsNode != null && contactInstructionsNode.HasChildNodes)
             {
-                ContactInstructions = contactInstructionsNode.FirstChild.InnerText;
+                ContactInstructions = contactInstructionsNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var mmsiCodeNode = node.SelectSingleNode("mMSICode", mgr);
             if (mmsiCodeNode != null && mmsiCodeNode.HasChildNodes)
             {
-                MMsiCode = mmsiCodeNode.FirstChild.InnerText;
+                MMsiCode = mmsiCodeNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var contactAddressNodes = node.SelectNodes("contactAddress", mgr);

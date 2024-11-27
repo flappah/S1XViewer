@@ -1,18 +1,15 @@
-﻿using S1XViewer.Base;
-using S1XViewer.Types.ComplexTypes;
+﻿using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
     public class CoastguardStation : GeoFeatureBase, ICoastguardStation, IS123Feature
     {
-        public string[] CommunicationsChannel { get; set; }
-        public string IsMRCC { get; set; }
-        public string[] Status { get; set; }
+        public string[] CommunicationsChannel { get; set; } = Array.Empty<string>();
+        public string IsMRCC { get; set; } = string.Empty;
+        public string[] Status { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// 
@@ -30,24 +27,24 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
                     ? new SourceIndication()
                     : SourceIndication.DeepClone() as ISourceIndication,
                 TextContent = TextContent == null
-                    ? new TextContent[0]
+                    ? Array.Empty<TextContent>()
                     : Array.ConvertAll(TextContent, t => t.DeepClone() as ITextContent),
                 Geometry = Geometry,
                 CommunicationsChannel = CommunicationsChannel == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(CommunicationsChannel, f => f),
                 IsMRCC = IsMRCC,
                 Status = Status == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(Status, f => f),
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }
@@ -66,70 +63,7 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            if (node.HasChildNodes)
-            {
-                if (node.Attributes?.Count > 0 &&
-                    node.Attributes.Contains("gml:id") == true)
-                {
-                    Id = node.Attributes["gml:id"].InnerText;
-                }
-            }
-
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
-            if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
-            {
-                var dateRanges = new List<DateRange>();
-                foreach (XmlNode periodicDateRangeNode in periodicDateRangeNodes)
-                {
-                    var newDateRange = new DateRange();
-                    newDateRange.FromXml(periodicDateRangeNode, mgr);
-                    dateRanges.Add(newDateRange);
-                }
-                PeriodicDateRange = dateRanges.ToArray();
-            }
-
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
-            if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
-            {
-                FixedDateRange = new DateRange();
-                FixedDateRange.FromXml(fixedDateRangeNode, mgr);
-            }
-
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
-            if (featureNameNodes != null && featureNameNodes.Count > 0)
-            {
-                var featureNames = new List<FeatureName>();
-                foreach (XmlNode featureNameNode in featureNameNodes)
-                {
-                    var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
-                    featureNames.Add(newFeatureName);
-                }
-                FeatureName = featureNames.ToArray();
-            }
-
-            var sourceIndication = node.SelectSingleNode("sourceIndication", mgr);
-            if (sourceIndication != null && sourceIndication.HasChildNodes)
-            {
-                SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndication, mgr);
-            }
-
-            var textContentNodes = node.SelectNodes("textContent", mgr);
-            if (textContentNodes != null && textContentNodes.Count > 0)
-            {
-                var textContents = new List<TextContent>();
-                foreach (XmlNode textContentNode in textContentNodes)
-                {
-                    if (textContentNode != null && textContentNode.HasChildNodes)
-                    {
-                        var content = new TextContent();
-                        content.FromXml(textContentNode, mgr);
-                        textContents.Add(content);
-                    }
-                }
-                TextContent = textContents.ToArray();
-            }
+            base.FromXml(node, mgr);
 
             var communicationsChannelNodes = node.SelectNodes("communicationsChannel", mgr);
             if (communicationsChannelNodes != null && communicationsChannelNodes.Count > 0)
@@ -139,7 +73,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (communicationsChannelNode != null && communicationsChannelNode.HasChildNodes)
                     {
-                        var communication = communicationsChannelNode.FirstChild.InnerText;
+                        var communication = communicationsChannelNode.FirstChild?.InnerText ?? string.Empty;
                         communications.Add(communication);
                     }
                 }
@@ -151,7 +85,7 @@ namespace S1XViewer.Types.Features
             var ismrccNode = node.SelectSingleNode("isMRCC", mgr);
             if (ismrccNode != null && ismrccNode.HasChildNodes)
             {
-                IsMRCC = ismrccNode.FirstChild.InnerText;
+                IsMRCC = ismrccNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var statusNodes = node.SelectNodes("status", mgr);
@@ -162,26 +96,13 @@ namespace S1XViewer.Types.Features
                 {
                     if (statusNode != null && statusNode.HasChildNodes)
                     {
-                        var status = statusNode.FirstChild.InnerText;
+                        var status = statusNode.FirstChild?.InnerText ?? string.Empty;
                         statuses.Add(status);
                     }
                 }
 
                 statuses.Sort();
                 Status = statuses.ToArray();
-            }
-
-            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
-            if (linkNodes != null && linkNodes.Count > 0)
-            {
-                var links = new List<Link>();
-                foreach (XmlNode linkNode in linkNodes)
-                {
-                    var newLink = new Link();
-                    newLink.FromXml(linkNode, mgr);
-                    links.Add(newLink);
-                }
-                Links = links.ToArray();
             }
 
             return this;

@@ -1,18 +1,17 @@
 ﻿using S1XViewer.Types.Interfaces;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
     public abstract class AbstractChartProduct : CatalogueElements, IAbstractChartProduct
     {
-        public string ChartNumber { get; set; }
-        public string DistributionStatus { get; set; }
-        public string[] CompilationScale { get; set; }
-        public string SpecificUsage { get; set; }
-        public string ProducerCode { get; set; }
-        public string OriginalChartNumber { get; set; }
-        public string ProducerNation { get; set; }
+        public string ChartNumber { get; set; } = string.Empty;
+        public string DistributionStatus { get; set; } = string.Empty;
+        public string[] CompilationScale { get; set; } = Array.Empty<string>();
+        public string SpecificUsage { get; set; } = string.Empty;
+        public string ProducerCode { get; set; } = string.Empty;
+        public string OriginalChartNumber { get; set; } = string.Empty;
+        public string ProducerNation { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -34,7 +33,7 @@ namespace S1XViewer.Types.Features
             }
             if (chartNumberNode != null && chartNumberNode.HasChildNodes)
             {
-                ChartNumber = chartNumberNode.FirstChild.InnerText;
+                ChartNumber = chartNumberNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string DistributionStatus { get; set; }
@@ -45,7 +44,7 @@ namespace S1XViewer.Types.Features
             }
             if (distributionStatusNode != null && distributionStatusNode.HasChildNodes)
             {
-                DistributionStatus = distributionStatusNode.FirstChild.InnerText;
+                DistributionStatus = distributionStatusNode?.InnerText ?? string.Empty;
             }
 
             //public string CompilationScale { get; set; }
@@ -75,7 +74,7 @@ namespace S1XViewer.Types.Features
             }
             if (specificUsageNode != null && specificUsageNode.HasChildNodes)
             {
-                SpecificUsage = specificUsageNode.FirstChild.InnerText;
+                SpecificUsage = specificUsageNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string ProducerCode { get; set; }
@@ -86,7 +85,7 @@ namespace S1XViewer.Types.Features
             }
             if (producerCodeNode != null && producerCodeNode.HasChildNodes)
             {
-                ProducerCode = producerCodeNode.FirstChild.InnerText;
+                ProducerCode = producerCodeNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string OriginalChartNumber { get; set; }
@@ -97,7 +96,7 @@ namespace S1XViewer.Types.Features
             }
             if (originalChartNumberNode != null && originalChartNumberNode.HasChildNodes)
             {
-                OriginalChartNumber = originalChartNumberNode.FirstChild.InnerText;
+                OriginalChartNumber = originalChartNumberNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string ProducerNation { get; set; }
@@ -108,7 +107,7 @@ namespace S1XViewer.Types.Features
             }
             if (producerNationNode != null && producerNationNode.HasChildNodes)
             {
-                ProducerNation = producerNationNode.FirstChild.InnerText;
+                ProducerNation = producerNationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

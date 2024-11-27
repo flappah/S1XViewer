@@ -8,11 +8,17 @@ using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
-    public class WaterwayArea : GeoFeatureBase, IWaterwayArea, IS127Feature
+    public class WaterwayArea : Layout, IWaterwayArea, IS127Feature, IS131Feature
     {
-        public string DynamicResource { get; set; }
-        public string SiltationRate { get; set; }
-        public string[] Status { get; set; }
+        public string DynamicResource { get; set; } = string.Empty;
+        public string SiltationRate { get; set; } = string.Empty;
+        public string[] Status { get; set; } = Array.Empty<string>();
+
+        //S131
+        public string CategoryOfPortSection { get; set; } = string.Empty;
+        public IDepthsDescription DepthsDescription { get; set; } = new DepthsDescription();
+        public string LocationByText { get; set; } = string.Empty;
+        public IMarkedBy MarkedBy { get; set; } = new MarkedBy();
 
         /// <summary>
         /// 
@@ -39,14 +45,18 @@ namespace S1XViewer.Types.Features
                     ? new TextContent[0]
                     : Array.ConvertAll(TextContent, t => t.DeepClone() as ITextContent),
                 Geometry = Geometry,
+                Links = Links == null
+                    ? new Link[0]
+                    : Array.ConvertAll(Links, l => l.DeepClone() as ILink),
                 DynamicResource = DynamicResource,
                 SiltationRate = SiltationRate,
                 Status = Status == null
                     ? new string[0]
                     : Array.ConvertAll(Status, s => s),
-                Links = Links == null
-                    ? new Link[0]
-                    : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
+                CategoryOfPortSection = CategoryOfPortSection,
+                DepthsDescription = DepthsDescription == null ? new DepthsDescription() : DepthsDescription.DeepClone() as IDepthsDescription,
+                LocationByText = LocationByText,
+                MarkedBy = MarkedBy == null ? new MarkedBy() : MarkedBy.DeepClone() as IMarkedBy
             };
         }
 
@@ -64,81 +74,18 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            if (node.HasChildNodes)
-            {
-                if (node.Attributes?.Count > 0 &&
-                    node.Attributes.Contains("gml:id") == true)
-                {
-                    Id = node.Attributes["gml:id"].InnerText;
-                }
-            }
-
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
-            if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
-            {
-                var dateRanges = new List<DateRange>();
-                foreach (XmlNode periodicDateRangeNode in periodicDateRangeNodes)
-                {
-                    var newDateRange = new DateRange();
-                    newDateRange.FromXml(periodicDateRangeNode, mgr);
-                    dateRanges.Add(newDateRange);
-                }
-                PeriodicDateRange = dateRanges.ToArray();
-            }
-
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
-            if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
-            {
-                FixedDateRange = new DateRange();
-                FixedDateRange.FromXml(fixedDateRangeNode, mgr);
-            }
-
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
-            if (featureNameNodes != null && featureNameNodes.Count > 0)
-            {
-                var featureNames = new List<FeatureName>();
-                foreach (XmlNode featureNameNode in featureNameNodes)
-                {
-                    var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
-                    featureNames.Add(newFeatureName);
-                }
-                FeatureName = featureNames.ToArray();
-            }
-
-            var sourceIndication = node.SelectSingleNode("sourceIndication", mgr);
-            if (sourceIndication != null && sourceIndication.HasChildNodes)
-            {
-                SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndication, mgr);
-            }
-
-            var textContentNodes = node.SelectNodes("textContent", mgr);
-            if (textContentNodes != null && textContentNodes.Count > 0)
-            {
-                var textContents = new List<TextContent>();
-                foreach (XmlNode textContentNode in textContentNodes)
-                {
-                    if (textContentNode != null && textContentNode.HasChildNodes)
-                    {
-                        var content = new TextContent();
-                        content.FromXml(textContentNode, mgr);
-                        textContents.Add(content);
-                    }
-                }
-                TextContent = textContents.ToArray();
-            }
+            base.FromXml(node, mgr);
 
             var dynamicResourceNode = node.SelectSingleNode("dynamicResource", mgr);
             if (dynamicResourceNode != null)
             {
-                DynamicResource = dynamicResourceNode.FirstChild.InnerText;
+                DynamicResource = dynamicResourceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var siltationRateNode = node.SelectSingleNode("siltationRate", mgr);
             if (siltationRateNode != null)
             {
-                SiltationRate = siltationRateNode.FirstChild.InnerText;
+                SiltationRate = siltationRateNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var statusNodes = node.SelectNodes("status", mgr);
@@ -147,25 +94,38 @@ namespace S1XViewer.Types.Features
                 var statuses = new List<string>();
                 foreach (XmlNode statusNode in statusNodes)
                 {
-                    if (statusNode != null && statusNode.HasChildNodes)
+                    if (statusNode != null && statusNode.HasChildNodes && String.IsNullOrEmpty(statusNode.FirstChild?.InnerText) == false)
                     {
-                        statuses.Add(statusNode.FirstChild.InnerText);
+                        statuses.Add(statusNode.FirstChild?.InnerText);
                     }
                 }
                 Status = statuses.ToArray();
             }
 
-            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
-            if (linkNodes != null && linkNodes.Count > 0)
+            var categoryOfPortSectionNode = node.SelectSingleNode("categoryOfPortSection", mgr);
+            if (categoryOfPortSectionNode != null)
             {
-                var links = new List<Link>();
-                foreach (XmlNode linkNode in linkNodes)
-                {
-                    var newLink = new Link();
-                    newLink.FromXml(linkNode, mgr);
-                    links.Add(newLink);
-                }
-                Links = links.ToArray();
+                CategoryOfPortSection = categoryOfPortSectionNode.FirstChild?.InnerText ?? string.Empty;
+            }
+
+            var depthsDescriptionNode = node.SelectSingleNode("depthsDescription", mgr);
+            if (depthsDescriptionNode != null && depthsDescriptionNode.HasChildNodes)
+            {
+                DepthsDescription = new DepthsDescription();
+                DepthsDescription.FromXml(depthsDescriptionNode, mgr);
+            }
+
+            var locationByTextNode = node.SelectSingleNode("locationByText", mgr);
+            if (locationByTextNode != null && locationByTextNode.HasChildNodes)
+            {
+                LocationByText = locationByTextNode.FirstChild?.InnerText ?? string.Empty;
+            }
+
+            var markedByNode = node.SelectSingleNode("markedBy", mgr);
+            if (markedByNode != null && markedByNode.HasChildNodes)
+            {
+                MarkedBy = new MarkedBy();
+                MarkedBy.FromXml(markedByNode, mgr);
             }
 
             return this;

@@ -12,17 +12,17 @@ namespace S1XViewer.Types
                 .Where(tp => tp.GetInterfaces().ToList().Select(e => e?.FullName?.EndsWith(".IFeature")) != null)
                 .InstancePerLifetimeScope();
 
-            List<Type> abstractContreteTypes =
+            List<Type> abstractConcreteTypes =
                 ThisAssembly.GetTypes().ToList()
                     .Where(tp => tp.IsInterface == false && tp.IsAbstract == false)
                     .Distinct()
                     .ToList();
 
             List<Type> featureTypes = new List<Type>();
-            foreach (var type in abstractContreteTypes)
+            foreach (Type type in abstractConcreteTypes)
             {
                 var interfaces = type.GetInterfaces().ToList();
-                foreach (var intf in interfaces)
+                foreach (Type? intf in interfaces)
                 {
                     if (intf.FullName?.EndsWith(".IFeature") == true)
                     {

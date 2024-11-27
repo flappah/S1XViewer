@@ -1,7 +1,6 @@
 ﻿using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Symbology;
-using S1XViewer.Base;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
@@ -12,15 +11,14 @@ namespace S1XViewer.Types.Features
 {
     public class Sounding : GeoFeatureBase, ISounding, IS102Feature
     {
-        public double Value { get; set; }
-        public string[] QualityOfVerticalMeasurement { get; set; } = new string[0]; 
-        public DateTime ReportedDate { get; set; }
-        public string Status { get; set; } = string.Empty;
-        public string[] TechniqueOfVerticalMeasurement { get; set; } = new string[0];
-        public IVerticalUncertainty? VerticalUncertainty { get; set; }
+        public float Value { get; set; } = 0.0f;
+        public string[] QualityOfVerticalMeasurement { get; set; } = Array.Empty<string>(); 
+        public string Status { get; set; } = string.Empty; 
+        public string[] TechniqueOfVerticalMeasurement { get; set; } = Array.Empty<string>();
+        public IVerticalUncertainty? VerticalUncertainty { get; set; } = new VerticalUncertainty();
         
         /// <summary>
-        ///     Renders the featur for use in ArcGIS Runtime
+        ///     Renders the feature for use in ArcGIS Runtime
         /// </summary>
         /// <param name="featureTable"></param>
         /// <returns></returns>
@@ -80,31 +78,30 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id ?? "",
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
                     ? new SourceIndication()
                     : SourceIndication.DeepClone() as ISourceIndication,
                 TextContent = TextContent == null
-                    ? new TextContent[0]
+                    ? Array.Empty<TextContent>()
                     : Array.ConvertAll(TextContent, t => t.DeepClone() as ITextContent),
                 Geometry = Geometry,
                 QualityOfVerticalMeasurement = QualityOfVerticalMeasurement == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(QualityOfVerticalMeasurement, s => s),
                 ReportedDate = ReportedDate,
                 Status= Status,
                 TechniqueOfVerticalMeasurement = TechniqueOfVerticalMeasurement == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(TechniqueOfVerticalMeasurement, s => s),
                 VerticalUncertainty = VerticalUncertainty == null 
                     ? new VerticalUncertainty()
                     : VerticalUncertainty.DeepClone() as IVerticalUncertainty,
                 Value = Value,
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
-
             };
         }
 
@@ -122,87 +119,62 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            if (node.HasChildNodes)
+            base.FromXml(node, mgr);
+
+            var valueNode = node.SelectSingleNode("value", mgr);
+            if (valueNode != null && valueNode.HasChildNodes)
             {
-                if (node.Attributes?.Count > 0 &&
-                    node.Attributes.Contains("gml:id") == true)
+                if (float.TryParse(valueNode.FirstChild?.InnerText, out float valueValue))
                 {
-                    Id = node.Attributes["gml:id"].InnerText;
+                    Value = valueValue;
                 }
             }
 
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
-            if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
+            var qualityOfVerticalMeasurementNodes = node.SelectNodes("qualityOfVerticalMeasurement", mgr);
+            if (qualityOfVerticalMeasurementNodes != null && qualityOfVerticalMeasurementNodes.Count > 0)
             {
-                var dateRanges = new List<DateRange>();
-                foreach (XmlNode periodicDateRangeNode in periodicDateRangeNodes)
+                var measurements = new List<string>();
+                foreach (XmlNode qualityOfVerticalMeasurementNode in qualityOfVerticalMeasurementNodes)
                 {
-                    var newDateRange = new DateRange();
-                    newDateRange.FromXml(periodicDateRangeNode, mgr);
-                    dateRanges.Add(newDateRange);
-                }
-                PeriodicDateRange = dateRanges.ToArray();
-            }
-
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
-            if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
-            {
-                FixedDateRange = new DateRange();
-                FixedDateRange.FromXml(fixedDateRangeNode, mgr);
-            }
-
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
-            if (featureNameNodes != null && featureNameNodes.Count > 0)
-            {
-                var featureNames = new List<FeatureName>();
-                foreach (XmlNode featureNameNode in featureNameNodes)
-                {
-                    var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
-                    featureNames.Add(newFeatureName);
-                }
-                FeatureName = featureNames.ToArray();
-            }
-
-            var sourceIndication = node.SelectSingleNode("sourceIndication", mgr);
-            if (sourceIndication != null && sourceIndication.HasChildNodes)
-            {
-                SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndication, mgr);
-            }
-
-            var textContentNodes = node.SelectNodes("textContent", mgr);
-            if (textContentNodes != null && textContentNodes.Count > 0)
-            {
-                var textContents = new List<TextContent>();
-                foreach (XmlNode textContentNode in textContentNodes)
-                {
-                    if (textContentNode != null && textContentNode.HasChildNodes)
+                    if (qualityOfVerticalMeasurementNode != null && qualityOfVerticalMeasurementNode.HasChildNodes)
                     {
-                        var content = new TextContent();
-                        content.FromXml(textContentNode, mgr);
-                        textContents.Add(content);
+                        var measurement = qualityOfVerticalMeasurementNode.FirstChild?.InnerText ?? string.Empty;
+                        measurements.Add(measurement);
                     }
                 }
-                TextContent = textContents.ToArray();
+
+                measurements.Sort();
+                QualityOfVerticalMeasurement = measurements.ToArray();
             }
 
-
-            // TODO: implement remaining XML data decoding!!!!!
-
-
-
-            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
-            if (linkNodes != null && linkNodes.Count > 0)
+            var statusNode = node.SelectSingleNode("status", mgr);
+            if (statusNode != null && statusNode.HasChildNodes)
             {
-                var links = new List<Link>();
-                foreach (XmlNode linkNode in linkNodes)
+                Status = statusNode.FirstChild?.InnerText ?? string.Empty;
+            }
+
+            var techniqueOfVerticalMeasurementNodes = node.SelectNodes("techniqueOfVerticalMeasurement", mgr);
+            if (techniqueOfVerticalMeasurementNodes != null && techniqueOfVerticalMeasurementNodes.Count > 0)
+            {
+                var measurements = new List<string>();
+                foreach (XmlNode techniqueOfVerticalMeasurementNode in techniqueOfVerticalMeasurementNodes)
                 {
-                    var newLink = new Link();
-                    newLink.FromXml(linkNode, mgr);
-                    links.Add(newLink);
+                    if (techniqueOfVerticalMeasurementNode != null && techniqueOfVerticalMeasurementNode.HasChildNodes)
+                    {
+                        var measurement = techniqueOfVerticalMeasurementNode.FirstChild?.InnerText ?? string.Empty;
+                        measurements.Add(measurement);
+                    }
                 }
-                Links = links.ToArray();
+
+                measurements.Sort();
+                TechniqueOfVerticalMeasurement = measurements.ToArray();
+            }
+
+            var verticalUncertaintyNode = node.SelectSingleNode("verticalUncertainty", mgr);
+            if (verticalUncertaintyNode != null && verticalUncertaintyNode.HasChildNodes)
+            {
+                VerticalUncertainty = new VerticalUncertainty();
+                VerticalUncertainty.FromXml(node, mgr);
             }
 
             return this;

@@ -1,21 +1,18 @@
-﻿using S1XViewer.Base;
-using S1XViewer.Types.ComplexTypes;
+﻿using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
     public class RadioStation : GeoFeatureBase, IRadioStation, IS123Feature
     {
-        public string CallSign { get; set; }
-        public string CategoryOfRadioStation { get; set; }
-        public string EstimatedRangeOffTransmission { get; set; }
-        public IOrientation Orientation { get; set; }
-        public IRadioStationCommunicationDescription[] RadioStationCommunicationDescription { get; set; }
-        public string Status { get; set; }
+        public string CallSign { get; set; } = string.Empty;
+        public string CategoryOfRadioStation { get; set; } = string.Empty;
+        public string EstimatedRangeOffTransmission { get; set; } = string.Empty;
+        public IOrientation Orientation { get; set; } = new Orientation();
+        public IRadioStationCommunicationDescription[] RadioStationCommunicationDescription { get; set; } = Array.Empty<RadioStationCommunicationDescription>();
+        public string Status { get; set; } = string.Empty;
 
         /// <summary>
         ///     Deep clones the object
@@ -33,13 +30,13 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
                     ? new SourceIndication()
                     : SourceIndication.DeepClone() as ISourceIndication,
                 TextContent = TextContent == null
-                    ? new TextContent[0]
+                    ? Array.Empty<TextContent>()
                     : Array.ConvertAll(TextContent, t => t.DeepClone() as ITextContent),
                 Geometry = Geometry,
                 CallSign = CallSign,
@@ -49,11 +46,11 @@ namespace S1XViewer.Types.Features
                     ? new Orientation()
                     : Orientation.DeepClone() as IOrientation,
                 RadioStationCommunicationDescription = RadioStationCommunicationDescription == null
-                    ? new RadioStationCommunicationDescription[0]
+                    ? Array.Empty<RadioStationCommunicationDescription>()
                     : Array.ConvertAll(RadioStationCommunicationDescription, rcd => rcd.DeepClone() as IRadioStationCommunicationDescription),
                 Status = Status,
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }
@@ -72,87 +69,24 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            if (node.HasChildNodes)
-            {
-                if (node.Attributes?.Count > 0 &&
-                    node.Attributes.Contains("gml:id") == true)
-                {
-                    Id = node.Attributes["gml:id"].InnerText;
-                }
-            }
-
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
-            if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
-            {
-                var dateRanges = new List<DateRange>();
-                foreach (XmlNode periodicDateRangeNode in periodicDateRangeNodes)
-                {
-                    var newDateRange = new DateRange();
-                    newDateRange.FromXml(periodicDateRangeNode, mgr);
-                    dateRanges.Add(newDateRange);
-                }
-                PeriodicDateRange = dateRanges.ToArray();
-            }
-
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
-            if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
-            {
-                FixedDateRange = new DateRange();
-                FixedDateRange.FromXml(fixedDateRangeNode, mgr);
-            }
-
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
-            if (featureNameNodes != null && featureNameNodes.Count > 0)
-            {
-                var featureNames = new List<FeatureName>();
-                foreach (XmlNode featureNameNode in featureNameNodes)
-                {
-                    var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
-                    featureNames.Add(newFeatureName);
-                }
-                FeatureName = featureNames.ToArray();
-            }
-
-            var sourceIndication = node.SelectSingleNode("sourceIndication", mgr);
-            if (sourceIndication != null && sourceIndication.HasChildNodes)
-            {
-                SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndication, mgr);
-            }
-
-            var textContentNodes = node.SelectNodes("textContent", mgr);
-            if (textContentNodes != null && textContentNodes.Count > 0)
-            {
-                var textContents = new List<TextContent>();
-                foreach (XmlNode textContentNode in textContentNodes)
-                {
-                    if (textContentNode != null && textContentNode.HasChildNodes)
-                    {
-                        var content = new TextContent();
-                        content.FromXml(textContentNode, mgr);
-                        textContents.Add(content);
-                    }
-                }
-                TextContent = textContents.ToArray();
-            }
+            base.FromXml(node, mgr);
 
             var callSignNode = node.SelectSingleNode("callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
-                CallSign = callSignNode.FirstChild.InnerText;
+                CallSign = callSignNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var categoryOfRadioStationNode = node.SelectSingleNode("categoryOfRadioStation", mgr);
             if (categoryOfRadioStationNode != null && categoryOfRadioStationNode.HasChildNodes)
             {
-                CategoryOfRadioStation = categoryOfRadioStationNode.FirstChild.InnerText;
+                CategoryOfRadioStation = categoryOfRadioStationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var estimatedRangeOffTransmissionNode = node.SelectSingleNode("estimatedRangeOffTransmission", mgr);
             if (estimatedRangeOffTransmissionNode != null && estimatedRangeOffTransmissionNode.HasChildNodes)
             {
-                EstimatedRangeOffTransmission = estimatedRangeOffTransmissionNode.FirstChild.InnerText;
+                EstimatedRangeOffTransmission = estimatedRangeOffTransmissionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var orientationNode = node.SelectSingleNode("orientation", mgr);
@@ -181,20 +115,7 @@ namespace S1XViewer.Types.Features
             var statusNode = node.SelectSingleNode("status", mgr);
             if (statusNode != null && statusNode.HasChildNodes)
             {
-                Status = statusNode.FirstChild.InnerText;
-            }
-
-            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
-            if (linkNodes != null && linkNodes.Count > 0)
-            {
-                var links = new List<Link>();
-                foreach (XmlNode linkNode in linkNodes)
-                {
-                    var newLink = new Link();
-                    newLink.FromXml(linkNode, mgr);
-                    links.Add(newLink);
-                }
-                Links = links.ToArray();
+                Status = statusNode.FirstChild?.InnerText ?? string.Empty;  
             }
 
             return this;

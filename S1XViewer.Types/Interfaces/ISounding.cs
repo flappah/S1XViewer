@@ -2,7 +2,7 @@
 {
     public interface ISounding : IGeoFeature
     {
-        double Value { get; set; }
+        float Value { get; set; }
         string[] QualityOfVerticalMeasurement { get; set; }
         DateTime ReportedDate { get; set; }
         string Status { get; set; }

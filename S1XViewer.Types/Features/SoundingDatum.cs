@@ -24,12 +24,12 @@ namespace S1XViewer.Types.Features
                     : FeatureObjectIdentifier,
                 VerticalDatum = VerticalDatum,
                 Information = Information == null
-                    ? new IInformation[0]
+                    ? Array.Empty<Information>()
                     : Array.ConvertAll(Information, i => i.DeepClone() as IInformation),
                 Geometry = Geometry,
                 Id = Id,
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }

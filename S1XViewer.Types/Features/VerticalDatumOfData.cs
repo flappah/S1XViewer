@@ -9,7 +9,7 @@ namespace S1XViewer.Types.Features
     public class VerticalDatumOfData : MetaFeatureBase, IS131Feature, IVerticalDatumOfData
     {
         public string VerticalDatum { get; set; } = string.Empty;
-        public IInformation[] Information { get; set; } = new Information[0];
+        public IInformation[] Information { get; set; } = Array.Empty<Information>();
 
         /// <summary>
         /// 
@@ -24,12 +24,12 @@ namespace S1XViewer.Types.Features
                     : FeatureObjectIdentifier,
                 VerticalDatum = VerticalDatum,
                 Information = Information == null
-                    ? new IInformation[0]
+                    ? Array.Empty<IInformation>()
                     : Array.ConvertAll(Information, i => i.DeepClone() as IInformation),
                 Geometry = Geometry,
                 Id = Id,
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }

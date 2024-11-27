@@ -2,15 +2,13 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
     public class PermissionType : InformationFeatureBase, IPermissionType, IS122Feature, IS123Feature
     {
-        public string CategoryOfRelationship { get; set; }
+        public string CategoryOfRelationship { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -28,14 +26,14 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
-                    ? new SourceIndication[0]
+                    ? Array.Empty<SourceIndication>()
                     : Array.ConvertAll(SourceIndication, s => s.DeepClone() as ISourceIndication),
                 CategoryOfRelationship = CategoryOfRelationship,
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }

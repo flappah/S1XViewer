@@ -2,8 +2,6 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
@@ -26,23 +24,23 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
                     ? new SourceIndication[0]
                     : Array.ConvertAll(SourceIndication, s => s.DeepClone() as ISourceIndication),
                 CategoryOfAuthority = CategoryOfAuthority ?? "",
                 Graphic = Graphic == null
-                    ? new Graphic[0]
+                    ? Array.Empty<Graphic>()
                     : Array.ConvertAll(Graphic, g => g.DeepClone() as IGraphic),
                 RxnCode = RxnCode == null
-                    ? new RxnCode[0]
+                    ? Array.Empty<RxnCode>()
                     : Array.ConvertAll(RxnCode, r => r.DeepClone() as IRxnCode),
                 TextContent = TextContent == null
-                    ? new TextContent[0]
+                    ? Array.Empty<TextContent>()
                     : Array.ConvertAll(TextContent, t => t.DeepClone() as ITextContent),
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }

@@ -2,17 +2,15 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
     public class SpatialQualityPoints : InformationFeatureBase, ISpatialQualityPoints, IS127Feature
     {
-        public string CategoryOfTemporalVariation { get; set; }
-        public string QualityOfHorizontalMeasurement { get; set; }
-        public IHorizontalPositionalUncertainty HorizontalPositionalUncertainty { get; set; }
+        public string CategoryOfTemporalVariation { get; set; } = string.Empty;
+        public string QualityOfHorizontalMeasurement { get; set; } = string.Empty;
+        public IHorizontalPositionalUncertainty HorizontalPositionalUncertainty { get; set; } = new HorizontalPositionalUncertainty();
 
         /// <summary>
         /// 
@@ -30,10 +28,10 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
-                    ? new SourceIndication[0]
+                    ? Array.Empty<SourceIndication>()
                     : Array.ConvertAll(SourceIndication, s => s.DeepClone() as ISourceIndication),
                 CategoryOfTemporalVariation = CategoryOfTemporalVariation,
                 QualityOfHorizontalMeasurement = QualityOfHorizontalMeasurement,
@@ -41,7 +39,7 @@ namespace S1XViewer.Types.Features
                     ? new HorizontalPositionalUncertainty()
                     : HorizontalPositionalUncertainty.DeepClone() as IHorizontalPositionalUncertainty,
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }

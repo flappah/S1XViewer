@@ -14,7 +14,6 @@ namespace S1XViewer.Model
 
         private readonly IGeometryBuilderFactory _geometryBuilderFactory;
         private readonly IFeatureFactory _featureFactory;
-        private readonly IOptionsStorage _optionsStorage;
 
         /// <summary>
         ///     For autofac initialization

@@ -10,10 +10,10 @@ namespace S1XViewer.Types.Features
 {
     public class ShipReport : InformationFeatureBase, IShipReport, IS122Feature, IS127Feature
     {
-        public string[] CategoryOfShipReport { get; set; }
-        public string ImoFormatForReporting { get; set; }
-        public INoticeTime[] NoticeTime { get; set; }
-        public ITextContent TextContent { get; set; }
+        public string[] CategoryOfShipReport { get; set; } = new string[0];
+        public string ImoFormatForReporting { get; set; } = string.Empty;
+        public INoticeTime[] NoticeTime { get; set; } = new NoticeTime[0];
+        public ITextContent TextContent { get; set; } = new TextContent();
 
         /// <summary>
         /// 
@@ -31,23 +31,23 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
-                    ? new SourceIndication[0]
+                    ? Array.Empty<SourceIndication>()
                     : Array.ConvertAll(SourceIndication, s => s.DeepClone() as ISourceIndication),
                 CategoryOfShipReport = CategoryOfShipReport == null
                     ? new string[0]
                     : Array.ConvertAll(CategoryOfShipReport, s => s),
                 ImoFormatForReporting = ImoFormatForReporting,
                 NoticeTime = NoticeTime == null
-                    ? new NoticeTime[0]
+                    ? Array.Empty<NoticeTime>()
                     : Array.ConvertAll(NoticeTime, nt => nt.DeepClone() as INoticeTime),
                 TextContent = TextContent == null
                     ? new TextContent()
                     : TextContent.DeepClone() as ITextContent,
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }

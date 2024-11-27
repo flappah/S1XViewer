@@ -1,6 +1,5 @@
 ﻿using Esri.ArcGISRuntime.Data;
 using Esri.ArcGISRuntime.Geometry;
-using OSGeo.OGR;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using System.Xml;
@@ -75,11 +74,11 @@ namespace S1XViewer.Types
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var sourceIndicationNodes = node.SelectNodes("sourceIndication", mgr);
-            if (sourceIndicationNodes != null && sourceIndicationNodes.Count > 0)
+            var sourceIndicationNode = node.SelectSingleNode("sourceIndication", mgr);
+            if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(node, mgr);
+                SourceIndication.FromXml(sourceIndicationNode, mgr);
             }
 
             var textContentNodes = node.SelectNodes("textContent", mgr);

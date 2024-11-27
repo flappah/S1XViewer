@@ -10,8 +10,8 @@ namespace S1XViewer.Types.Features
 {
     public class ServiceHours : InformationFeatureBase, IServiceHours, IS122Feature, IS123Feature, IS127Feature
     {
-        public IScheduleByDoW[] ScheduleByDoW { get; set; }
-        public IInformation[] Information { get; set; }
+        public IScheduleByDoW[] ScheduleByDoW { get; set; } = new ScheduleByDoW[0];
+        public IInformation[] Information { get; set; } = new Information[0];
 
         /// <summary>
         /// 
@@ -29,19 +29,19 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, pdr => pdr.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
-                    ? new SourceIndication[0]
+                    ? Array.Empty<SourceIndication>()
                     : Array.ConvertAll(SourceIndication, si => si.DeepClone() as ISourceIndication),
                 ScheduleByDoW = ScheduleByDoW == null 
-                    ? new ScheduleByDoW[0]
+                    ? Array.Empty<ScheduleByDoW>()
                     : Array.ConvertAll(ScheduleByDoW, sdow => sdow.DeepClone() as IScheduleByDoW),
                 Information = Information == null
-                    ? new Information[0]
+                    ? Array.Empty<Information>()
                     : Array.ConvertAll(Information, i => i.DeepClone() as IInformation),
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }

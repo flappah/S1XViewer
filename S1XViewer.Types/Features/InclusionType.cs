@@ -10,7 +10,7 @@ namespace S1XViewer.Types.Features
 {
     public class InclusionType : InformationFeatureBase, IInclusionType, IS122Feature, IS123Feature
     {
-        public string Membership { get; set; }
+        public string Membership { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -28,14 +28,14 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
-                    ? new SourceIndication[0]
+                    ? Array.Empty<SourceIndication>()
                     : Array.ConvertAll(SourceIndication, s => s.DeepClone() as ISourceIndication),
                 Membership = Membership,
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }
@@ -56,7 +56,7 @@ namespace S1XViewer.Types.Features
 
             if (node.HasChildNodes)
             {
-                if (node.Attributes?.Count > 0 &&                    node.Attributes.Contains("gml:id") == true)
+                if (node.Attributes?.Count > 0 &&  node.Attributes.Contains("gml:id") == true)
                 {
                     Id = node.Attributes["gml:id"].InnerText;
                 }
@@ -114,7 +114,7 @@ namespace S1XViewer.Types.Features
             var membershipNode = node.SelectSingleNode("membership", mgr);
             if (membershipNode != null && membershipNode.HasChildNodes)
             {
-                Membership = membershipNode.FirstChild.InnerText;
+                Membership = membershipNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);

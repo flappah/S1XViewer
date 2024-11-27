@@ -1,22 +1,19 @@
-﻿using S1XViewer.Base;
-using S1XViewer.Types.ComplexTypes;
+﻿using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
     public class RadioCallingInPoint : GeoFeatureBase, IRadioCallingInPoint, IS127Feature
     {
-        public string CallSign { get; set; }
-        public string[] CommunicationChannel { get; set; }
-        public string[] CategoryOfCargo { get; set; }
-        public string CategoryOfVessel { get; set; }
-        public IOrientation[] Orientation { get; set; }
-        public string[] Status { get; set; }
-        public string TrafficFlow { get; set; }
+        public string CallSign { get; set; } = string.Empty;
+        public string[] CommunicationChannel { get; set; } = Array.Empty<string>();
+        public string[] CategoryOfCargo { get; set; } = Array.Empty<string>();
+        public string CategoryOfVessel { get; set; } = string.Empty;
+        public IOrientation[] Orientation { get; set; } = Array.Empty<IOrientation>();
+        public string[] Status { get; set; }= Array.Empty<string>();
+        public string TrafficFlow { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -34,32 +31,32 @@ namespace S1XViewer.Types.Features
                     : FixedDateRange.DeepClone() as IDateRange,
                 Id = Id,
                 PeriodicDateRange = PeriodicDateRange == null
-                    ? new DateRange[0]
+                    ? Array.Empty<DateRange>()
                     : Array.ConvertAll(PeriodicDateRange, p => p.DeepClone() as IDateRange),
                 SourceIndication = SourceIndication == null
                     ? new SourceIndication()
                     : SourceIndication.DeepClone() as ISourceIndication,
                 TextContent = TextContent == null
-                    ? new TextContent[0]
+                    ? Array.Empty<TextContent>()
                     : Array.ConvertAll(TextContent, t => t.DeepClone() as ITextContent),
                 Geometry = Geometry,
                 CallSign = CallSign,
                 CommunicationChannel = CommunicationChannel == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(CommunicationChannel, s => s),
                 CategoryOfCargo = CategoryOfCargo == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(CategoryOfCargo, s => s),
                 CategoryOfVessel = CategoryOfVessel,
                 Orientation = Orientation == null
-                    ? new Orientation[0]
+                    ? Array.Empty<Orientation>()
                     : Array.ConvertAll(Orientation, o => o.DeepClone() as IOrientation),
                 Status = Status == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(Status, s => s),
                 TrafficFlow = TrafficFlow,
                 Links = Links == null
-                    ? new Link[0]
+                    ? Array.Empty<Link>()
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }
@@ -78,75 +75,12 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            if (node.HasChildNodes)
-            {
-                if (node.Attributes?.Count > 0 &&
-                    node.Attributes.Contains("gml:id") == true)
-                {
-                    Id = node.Attributes["gml:id"].InnerText;
-                }
-            }
-
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
-            if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
-            {
-                var dateRanges = new List<DateRange>();
-                foreach (XmlNode periodicDateRangeNode in periodicDateRangeNodes)
-                {
-                    var newDateRange = new DateRange();
-                    newDateRange.FromXml(periodicDateRangeNode, mgr);
-                    dateRanges.Add(newDateRange);
-                }
-                PeriodicDateRange = dateRanges.ToArray();
-            }
-
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
-            if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
-            {
-                FixedDateRange = new DateRange();
-                FixedDateRange.FromXml(fixedDateRangeNode, mgr);
-            }
-
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
-            if (featureNameNodes != null && featureNameNodes.Count > 0)
-            {
-                var featureNames = new List<FeatureName>();
-                foreach (XmlNode featureNameNode in featureNameNodes)
-                {
-                    var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
-                    featureNames.Add(newFeatureName);
-                }
-                FeatureName = featureNames.ToArray();
-            }
-
-            var sourceIndication = node.SelectSingleNode("sourceIndication", mgr);
-            if (sourceIndication != null && sourceIndication.HasChildNodes)
-            {
-                SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndication, mgr);
-            }
-
-            var textContentNodes = node.SelectNodes("textContent", mgr);
-            if (textContentNodes != null && textContentNodes.Count > 0)
-            {
-                var textContents = new List<TextContent>();
-                foreach (XmlNode textContentNode in textContentNodes)
-                {
-                    if (textContentNode != null && textContentNode.HasChildNodes)
-                    {
-                        var content = new TextContent();
-                        content.FromXml(textContentNode, mgr);
-                        textContents.Add(content);
-                    }
-                }
-                TextContent = textContents.ToArray();
-            }
+            base.FromXml(node, mgr);
 
             var callSignNode = node.SelectSingleNode("callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
-                CallSign = callSignNode.FirstChild.InnerText;
+                CallSign = callSignNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var communicationChannelNodes = node.SelectNodes("communicationChannel", mgr);
@@ -157,7 +91,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (communicationChannelNode != null && communicationChannelNode.HasChildNodes)
                     {
-                        channels.Add(communicationChannelNode.FirstChild.InnerText);
+                        channels.Add(communicationChannelNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 CommunicationChannel = channels.ToArray();
@@ -171,7 +105,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (categoryOfCargoNode != null && categoryOfCargoNode.HasChildNodes)
                     {
-                        categories.Add(categoryOfCargoNode.FirstChild.InnerText);
+                        categories.Add(categoryOfCargoNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 CategoryOfCargo = categories.ToArray();
@@ -180,7 +114,7 @@ namespace S1XViewer.Types.Features
             var categoryOfVesselNode = node.SelectSingleNode("categoryOfVessel", mgr);
             if (categoryOfVesselNode != null && categoryOfVesselNode.HasChildNodes)
             {
-                CategoryOfVessel = categoryOfVesselNode.FirstChild.InnerText;
+                CategoryOfVessel = categoryOfVesselNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var orientationNodes = node.SelectNodes("orientation", mgr);
@@ -207,7 +141,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (statusNode != null && statusNode.HasChildNodes)
                     {
-                        statuses.Add(statusNode.FirstChild.InnerText);
+                        statuses.Add(statusNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 Status = statuses.ToArray();
@@ -216,20 +150,7 @@ namespace S1XViewer.Types.Features
             var trafficFlowNode = node.SelectSingleNode("trafficFlow", mgr);
             if (trafficFlowNode != null && trafficFlowNode.HasChildNodes)
             {
-                TrafficFlow = trafficFlowNode.FirstChild.InnerText;
-            }
-
-            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
-            if (linkNodes != null && linkNodes.Count > 0)
-            {
-                var links = new List<Link>();
-                foreach (XmlNode linkNode in linkNodes)
-                {
-                    var newLink = new Link();
-                    newLink.FromXml(linkNode, mgr);
-                    links.Add(newLink);
-                }
-                Links = links.ToArray();
+                TrafficFlow = trafficFlowNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;
