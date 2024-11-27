@@ -2,45 +2,44 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
-    public class QualityOfTemporalVariation : DataQuality, IQualityOfTemporalVariation, IS127Feature
+    public class SoundingDatum : MetaFeatureBase, ISoundingDatum, IS131Feature
     {
-        public string CategoryOfTemporalVariation { get; set; } = string.Empty;
+        public string VerticalDatum { get; set; } = string.Empty;
+        public IInformation[] Information { get; set; } = new Information[0];
 
         /// <summary>
-        ///     Deep clones the object
+        /// 
         /// </summary>
-        /// <returns>IComplexType</returns>
+        /// <returns></returns>
         public override IFeature DeepClone()
         {
-            return new QualityOfTemporalVariation
+            return new SoundingDatum()
             {
-                Information = Information == null 
-                    ? new IInformation[0]
-                    : Array.ConvertAll(Information, i => i.DeepClone() as IInformation),
-                CategoryOfTemporalVariation = CategoryOfTemporalVariation,
                 FeatureObjectIdentifier = FeatureObjectIdentifier == null
                     ? new FeatureObjectIdentifier()
-                    : FeatureObjectIdentifier.DeepClone() as IFeatureObjectIdentifier,
+                    : FeatureObjectIdentifier,
+                VerticalDatum = VerticalDatum,
+                Information = Information == null
+                    ? new IInformation[0]
+                    : Array.ConvertAll(Information, i => i.DeepClone() as IInformation),
                 Geometry = Geometry,
                 Id = Id,
                 Links = Links == null
-                    ? new ILink[0]
+                    ? new Link[0]
                     : Array.ConvertAll(Links, l => l.DeepClone() as ILink)
             };
         }
 
         /// <summary>
-        ///     Reads the data from an XML dom
+        /// 
         /// </summary>
-        /// <param name="node">current node to use as a starting point for reading</param>
-        /// <param name="mgr">xml namespace manager</param>
-        /// <returns>IFeature</returns>
+        /// <param name="node"></param>
+        /// <param name="mgr"></param>
+        /// <returns></returns>
         public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
         {
             if (node == null)
@@ -65,26 +64,33 @@ namespace S1XViewer.Types.Features
                 FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr);
             }
 
-            var categoryOfTemporalVariation = node.SelectSingleNode("categoryOfTemporalVariation", mgr);
-            if (categoryOfTemporalVariation != null)
+            var foidNode = node.SelectSingleNode("S100:featureObjectIdentifier", mgr);
+            if (foidNode != null && foidNode.HasChildNodes)
             {
-                CategoryOfTemporalVariation = categoryOfTemporalVariation.InnerText;
+                FeatureObjectIdentifier = new FeatureObjectIdentifier();
+                FeatureObjectIdentifier.FromXml(foidNode, mgr);
+            }
+
+            var verticalDatumNode = node.SelectSingleNode("verticalDatum", mgr);
+            if (verticalDatumNode != null)
+            {
+                VerticalDatum = verticalDatumNode.InnerText;
             }
 
             var informationNodes = node.SelectNodes("information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
-                var informationItems = new List<Information>();
+                var informations = new List<Information>();
                 foreach (XmlNode informationNode in informationNodes)
                 {
                     if (informationNode != null && informationNode.HasChildNodes)
                     {
                         var newInformation = new Information();
                         newInformation.FromXml(informationNode, mgr);
-                        informationItems.Add(newInformation);
+                        informations.Add(newInformation);
                     }
                 }
-                Information = informationItems.ToArray();
+                Information = informations.ToArray();
             }
 
             var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
@@ -97,7 +103,6 @@ namespace S1XViewer.Types.Features
                     newLink.FromXml(linkNode, mgr);
                     links.Add(newLink);
                 }
-
                 Links = links.ToArray();
             }
 

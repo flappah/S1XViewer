@@ -5,9 +5,9 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class FeatureName : ComplexTypeBase, IFeatureName
     {
-        public string DisplayName { get; set; }
-        public string Language { get; set; }
-        public string Name { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+        public string Language { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// 

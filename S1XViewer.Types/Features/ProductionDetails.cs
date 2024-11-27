@@ -2,25 +2,24 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
     public class ProductionDetails : InformationFeatureBase, IProductionDetails, IS128Feature
     {
-        public string CallName { get; set; }
-        public string CallSign { get; set; }
-        public string CategoryOfCommPref { get; set; }
-        public string[] CommunicationChannel { get; set; }
-        public IContactAddress[] ContactAddress { get; set; }
-        public string ContactInstructions { get; set; }
-        public IFrequencyPair[] FrequencyPair { get; set; }
-        public IInformation[] Information { get; set; }
-        public string MMsiCode { get; set; }
-        public IOnlineResource[] OnlineResource { get; set; }
-        public IRadioCommunications[] RadioCommunications { get; set; }
-        public ITelecommunications[] Telecommunications { get; set; }
+        public string CallName { get; set; } = string.Empty;
+        public string CallSign { get; set; } = string.Empty;
+        public string CategoryOfCommPref { get; set; } = string.Empty;
+        public string[] CommunicationChannel { get; set; } = Array.Empty<string>();
+        public IContactAddress[] ContactAddress { get; set; } = Array.Empty<IContactAddress>();
+        public string ContactInstructions { get; set; } = string.Empty;
+        public IFrequencyPair[] FrequencyPair { get; set; } = Array.Empty<FrequencyPair>();
+        public IInformation[] Information { get; set; } = Array.Empty<Information>();
+        public string MMsiCode { get; set; } = string.Empty;
+        public IOnlineResource[] OnlineResource { get; set; } = Array.Empty<OnlineResource>();
+        public IRadioCommunications[] RadioCommunications { get; set; } = Array.Empty<RadioCommunications>();
+        public ITelecommunications[] Telecommunications { get; set; } = Array.Empty<Telecommunications>();
 
         /// <summary>
         /// 

@@ -5,8 +5,8 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class DateRange : ComplexTypeBase, IDateRange
     {
-        public string StartMonthDay { get; set; }
-        public string EndMonthDay { get; set; }
+        public string StartMonthDay { get; set; } = string.Empty;
+        public string EndMonthDay { get; set; } = string.Empty;
 
         /// <summary>
         /// 

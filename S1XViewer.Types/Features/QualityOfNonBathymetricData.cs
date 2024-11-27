@@ -8,14 +8,16 @@ using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
-    public class QualityOfNonBathymetricData : QualityOfTemporalVariation, IQualityOfNonBathymetricData, IS122Feature, IS123Feature, IS127Feature
+    public class QualityOfNonBathymetricData : QualityOfTemporalVariation, IQualityOfNonBathymetricData, IS122Feature, IS123Feature, IS127Feature, IS131Feature
     {
-        public string DataAssessment { get; set; }
-        public ISourceIndication SourceIndication { get; set; }
-        public string[] HorizontalDistanceUncertainty { get; set; }
-        public IHorizontalPositionalUncertainty HorizontalPositionalUncertainty { get; set; }
-        public string DirectionUncertainty { get; set; }
-        public ISurveyDateRange SurveyDateRange { get; set; }
+        public string DataAssessment { get; set; } = string.Empty;
+        public ISourceIndication SourceIndication { get; set; } = new SourceIndication();
+        public string[] HorizontalDistanceUncertainty { get; set; } = new string[0];
+        public IHorizontalPositionalUncertainty HorizontalPositionalUncertainty { get; set; } = new HorizontalPositionalUncertainty();
+        public string DirectionUncertainty { get; set; }  = string.Empty;
+        public float OrientationUncertainty { get; set; } = 0.0f;
+        public ISurveyDateRange SurveyDateRange { get; set; } = new SurveyDateRange();
+        public IVerticalUncertainty VerticalUncertainty { get; set; } = new VerticalUncertainty();
 
         /// <summary>
         /// 
@@ -43,6 +45,7 @@ namespace S1XViewer.Types.Features
                     ? new HorizontalPositionalUncertainty()
                     : HorizontalPositionalUncertainty.DeepClone() as IHorizontalPositionalUncertainty,
                 DirectionUncertainty = DirectionUncertainty,
+                OrientationUncertainty = OrientationUncertainty,
                 SurveyDateRange = SurveyDateRange == null   
                     ? new SurveyDateRange()
                     : SurveyDateRange.DeepClone() as ISurveyDateRange,
@@ -68,33 +71,12 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            if (node.HasChildNodes)
-            {
-                if (node.Attributes?.Count > 0 &&
-                    node.Attributes.Contains("gml:id") == true)
-                {
-                    Id = node.Attributes["gml:id"].InnerText;
-                }
-            }
-
-            var featureObjectIdentifierNode = node.SelectSingleNode("S100:featureObjectIdentifier", mgr);
-            if (featureObjectIdentifierNode != null && featureObjectIdentifierNode.HasChildNodes)
-            {
-                FeatureObjectIdentifier = new FeatureObjectIdentifier();
-                FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr);
-            }
+            base.FromXml(node, mgr);
 
             var dataAssessment = node.SelectSingleNode("dataAssessment", mgr);
             if (dataAssessment != null)
             {
                 DataAssessment = dataAssessment.InnerText;
-            }
-
-            var sourceIndicationNode = node.SelectSingleNode("sourceIndication", mgr);
-            if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
-            {
-                SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndicationNode, mgr);
             }
 
             var horizontalDistanceUncertaintyNodes = node.SelectNodes("horizontalDistanceUncertainty", mgr);
@@ -105,7 +87,11 @@ namespace S1XViewer.Types.Features
                 {
                     if (horizontalDistanceUncertaintyNode != null && horizontalDistanceUncertaintyNode.HasChildNodes)
                     {
-                        distanceUncertainties.Add(horizontalDistanceUncertaintyNode.FirstChild.InnerText);
+                        if (horizontalDistanceUncertaintyNode.FirstChild != null)
+                        {
+                            distanceUncertainties.Add(horizontalDistanceUncertaintyNode.FirstChild.InnerText);
+
+                        }
                     }
                 }
                 HorizontalDistanceUncertainty = distanceUncertainties.ToArray();
@@ -121,7 +107,30 @@ namespace S1XViewer.Types.Features
             var directionUncertaintyNode = node.SelectSingleNode("directionUncertainty", mgr);
             if (directionUncertaintyNode != null && directionUncertaintyNode.HasChildNodes)
             {
-                DirectionUncertainty = directionUncertaintyNode.FirstChild.InnerText;
+                DirectionUncertainty = directionUncertaintyNode.FirstChild?.InnerText ?? string.Empty;
+            }
+
+            var orientationUncertaintyNode = node.SelectSingleNode("orientationUncertainty", mgr);
+            if (orientationUncertaintyNode != null && orientationUncertaintyNode.HasChildNodes)
+            {
+                if (float.TryParse(orientationUncertaintyNode.InnerText, out float orientationUncertaintyValue))
+                {
+                    OrientationUncertainty = orientationUncertaintyValue;
+                }
+            }
+
+            var verticalUncertaintyNode = node.SelectSingleNode("verticalUncertainty", mgr);
+            if (verticalUncertaintyNode != null && verticalUncertaintyNode.HasChildNodes)
+            {
+                VerticalUncertainty = new VerticalUncertainty();
+                VerticalUncertainty.FromXml(verticalUncertaintyNode, mgr); 
+            }
+
+            var sourceIndicationNode = node.SelectSingleNode("sourceIndication", mgr);
+            if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
+            {
+                SourceIndication = new SourceIndication();
+                SourceIndication.FromXml(sourceIndicationNode, mgr);
             }
 
             var surveyDateRangeNode = node.SelectSingleNode("surveyDateRange", mgr);
@@ -129,28 +138,6 @@ namespace S1XViewer.Types.Features
             {
                 SurveyDateRange = new SurveyDateRange();
                 SurveyDateRange.FromXml(surveyDateRangeNode, mgr);
-            }
-
-            var categoryOfTemporalVariation = node.SelectSingleNode("categoryOfTemporalVariation", mgr);
-            if (categoryOfTemporalVariation != null)
-            {
-                CategoryOfTemporalVariation = categoryOfTemporalVariation.InnerText;
-            }
-
-            var informationNodes = node.SelectNodes("information", mgr);
-            if (informationNodes != null && informationNodes.Count > 0)
-            {
-                var informations = new List<Information>();
-                foreach (XmlNode informationNode in informationNodes)
-                {
-                    if (informationNode != null && informationNode.HasChildNodes)
-                    {
-                        var newInformation = new Information();
-                        newInformation.FromXml(informationNode, mgr);
-                        informations.Add(newInformation);
-                    }
-                }
-                Information = informations.ToArray();
             }
 
             var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);

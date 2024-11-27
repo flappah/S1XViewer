@@ -1,18 +1,16 @@
 ﻿using S1XViewer.Types.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.ComplexTypes
 {
     public class SourceIndication : ComplexTypeBase, ISourceIndication
     {
-        public string CategoryOfAuthority { get; set; }
-        public string Country { get; set; }
-        public IFeatureName[] FeatureName { get; set; }
-        public string ReportedDate { get; set; }
-        public string Source { get; set; }
-        public string SourceType { get; set; }
+        public string CategoryOfAuthority { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public IFeatureName[] FeatureName { get; set; } = Array.Empty<FeatureName>();
+        public string ReportedDate { get; set; } = string.Empty;
+        public string Source { get; set; } = string.Empty;
+        public string SourceType { get; set; } = string.Empty;
 
         /// <summary>
         /// 

@@ -7,10 +7,10 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class TextContent : ComplexTypeBase, ITextContent
     {
-        public string CategoryOfText { get; set; }
-        public IInformation[] Information { get; set; }
-        public IOnlineResource OnlineResource { get; set; }
-        public ISourceIndication SourceIndication { get; set; }
+        public string CategoryOfText { get; set; } = string.Empty;
+        public IInformation[] Information { get; set; } = Array.Empty<Information>();
+        public IOnlineResource OnlineResource { get; set; } = new OnlineResource();
+        public ISourceIndication SourceIndication { get; set; } = new SourceIndication();
 
         /// <summary>
         /// 
@@ -44,7 +44,7 @@ namespace S1XViewer.Types.ComplexTypes
             var categoryOfTextNode = node.SelectSingleNode("categoryOfText", mgr);
             if (categoryOfTextNode != null && categoryOfTextNode.HasChildNodes)
             {
-                CategoryOfText = categoryOfTextNode.FirstChild.InnerText;
+                CategoryOfText = categoryOfTextNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var informationNodes = node.SelectNodes("information", mgr);

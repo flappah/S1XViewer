@@ -2,16 +2,14 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
-    public class DataCoverage : MetaFeatureBase, IDataCoverage, IS122Feature, IS123Feature, IS127Feature
+    public class DataCoverage : MetaFeatureBase, IDataCoverage, IS122Feature, IS123Feature, IS127Feature, IS131Feature
     {
-        public string MaximumDisplayScale { get; set; }
-        public string MinimumDisplayScale { get; set; }
+        public string MaximumDisplayScale { get; set; } = string.Empty;
+        public string MinimumDisplayScale { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -52,7 +50,7 @@ namespace S1XViewer.Types.Features
                 if (node.Attributes?.Count > 0 &&
                     node.Attributes.Contains("gml:id") == true)
                 {
-                    Id = node.Attributes["gml:id"].InnerText;
+                    Id = node.Attributes["gml:id"]?.InnerText ?? string.Empty;
                 }
             }
 

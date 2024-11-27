@@ -5,6 +5,6 @@ namespace S1XViewer.Types
 {
     public abstract class MetaFeatureBase : FeatureBase, IMetaFeature
     {
-        public Geometry Geometry { get; set; }
+        public Geometry? Geometry { get; set; }
     }
 }

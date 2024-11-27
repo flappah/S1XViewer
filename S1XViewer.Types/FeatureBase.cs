@@ -1,24 +1,79 @@
 ﻿using S1XViewer.Base;
+using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
+using S1XViewer.Types.Links;
 using System.Data;
 using System.Reflection;
 using System.Xml;
-using Windows.Media.Audio;
 
 namespace S1XViewer.Types
 {
     public abstract class FeatureBase : IFeature
     {
+        /* Viewer specific attributes */
         public bool FeatureToolWindow { get; set; } = false;
         public string FeatureToolWindowTemplate { get; set; } = string.Empty;
-         
-        public IFeatureObjectIdentifier FeatureObjectIdentifier { get; set; }
-        public string Id { get; set; }
-        public ILink[] Links { get; set; }
+
+        /* S100 specific */
+        public IFeatureObjectIdentifier FeatureObjectIdentifier { get; set; } = new FeatureObjectIdentifier();
+        public string Id { get; set; } = string.Empty;
+
+        /* for linking */
+        public ILink[] Links { get; set; } = Array.Empty<Link>();
 
         public abstract IFeature DeepClone();
 
-        public abstract IFeature FromXml(XmlNode node, XmlNamespaceManager mgr);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="mgr"></param>
+        /// <returns></returns>
+        public virtual IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        {
+            if (node == null)
+                return this;
+
+            if (mgr == null)
+                return this;
+
+            if (node.HasChildNodes)
+            {
+                if (node.Attributes?.Count > 0 && node.Attributes.Contains("gml:id") == true)
+                {
+                    Id = node.Attributes["gml:id"]?.InnerText ?? string.Empty;
+                }
+            }
+
+            var featureObjectIdentifierNode = node.SelectSingleNode("S100:featureObjectIdentifier", mgr);
+            if (featureObjectIdentifierNode != null && featureObjectIdentifierNode.HasChildNodes)
+            {
+                FeatureObjectIdentifier = new FeatureObjectIdentifier();
+                FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr);
+            }
+
+            var foidNode = node.SelectSingleNode("S100:featureObjectIdentifier", mgr);
+            if (foidNode != null && foidNode.HasChildNodes)
+            {
+                FeatureObjectIdentifier = new FeatureObjectIdentifier();
+                FeatureObjectIdentifier.FromXml(foidNode, mgr);
+            }
+
+            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
+            if (linkNodes != null && linkNodes.Count > 0)
+            {
+                var links = new List<Link>();
+                foreach (XmlNode linkNode in linkNodes)
+                {
+                    var newLink = new Link();
+                    newLink.FromXml(linkNode, mgr);
+                    links.Add(newLink);
+                }
+                Links = links.ToArray();
+            }
+
+            return this;
+        }
 
         /// <summary>
         /// 

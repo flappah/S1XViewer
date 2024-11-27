@@ -2,8 +2,6 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
@@ -11,11 +9,11 @@ namespace S1XViewer.Types.Features
     public class MarineProtectedArea : GeoFeatureBase, IMarineProtectedArea, IS122Feature
     {
         // data
-        public string CategoryOfMarineProtectedArea { get; set; }
-        public string[] CategoryOfRestrictedArea { get; set; }
-        public string Jurisdiction { get; set; }
-        public string[] Restriction { get; set; }
-        public string[] Status { get; set; }
+        public string CategoryOfMarineProtectedArea { get; set; } = string.Empty;
+        public string[] CategoryOfRestrictedArea { get; set; } = Array.Empty<string>();
+        public string Jurisdiction { get; set; } = string.Empty;
+        public string[] Restriction { get; set; } = Array.Empty<string>();
+        public string[] Status { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// 
