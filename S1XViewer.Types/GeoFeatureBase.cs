@@ -23,8 +23,17 @@ namespace S1XViewer.Types
         public string SourceType { get; set; } = string.Empty;
         public DateTime ReportedDate {  get; set; } = DateTime.MinValue;
 
-
+        /// <summary>
+        /// 
+        /// </summary>
         public Esri.ArcGISRuntime.Geometry.Geometry? Geometry { get; set; }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+
+        public abstract string GetSymbolName();
 
         /// <summary>
         ///
@@ -214,7 +223,7 @@ namespace S1XViewer.Types
             }
             else if (Geometry is Polyline)
             {
-                FeatureCollectionTable featureTable = featureRendererManager.Get("LineFeatures");
+                FeatureCollectionTable? featureTable = featureRendererManager.Get("LineFeatures");
                 if (featureTable != null)
                 {
                     Esri.ArcGISRuntime.Data.Feature lineFeature = featureTable.CreateFeature();
@@ -227,7 +236,7 @@ namespace S1XViewer.Types
             }
             else
             {
-                FeatureCollectionTable featureTable = featureRendererManager.Get("PolygonFeatures");
+                FeatureCollectionTable? featureTable = featureRendererManager.Get("PolygonFeatures");
                 if (featureTable != null)
                 {
                     Esri.ArcGISRuntime.Data.Feature polyFeature = featureTable.CreateFeature();

@@ -133,5 +133,72 @@ namespace S1XViewer.Types.Features
 
             return this;
         }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            var productAttribute = Product.ToList();
+
+            if (productAttribute.Count() == 1 &&
+                (productAttribute.Where(q => q.Trim().Equals("1")).Count() > 0 ||
+                productAttribute.Where(q => q.Trim().Equals("7")).Count() > 0 ||
+                productAttribute.Where(q => q.Trim().Equals("18")).Count() > 0 ||
+                productAttribute.Where(q => q.Trim().Equals("19")).Count() > 0))
+            {
+                switch (productAttribute.First())
+                {
+                    case "1":
+                        return "TRMOIL91";
+
+                    case "7":
+                        return "TRMCHE91";
+
+                    case "18":
+                        return "TRMLNG91";
+
+                    case "19":
+                        return "TRMLPG91";
+
+                    default:
+                        return "TRMGEN91";
+                }
+            }
+            else if (String.IsNullOrWhiteSpace(CategoryOfHarbourFacility.Trim()) == false)
+            {
+                switch(CategoryOfHarbourFacility.Trim())
+                {
+                    case "1":
+                        return "ROLROL01";
+
+                    case "3":
+                        return "TERMNL92";
+
+                    case "5":
+                        return "SMCFAC02";
+
+                    case "7":
+                        return "TRMTNK91";
+
+                    case "8":
+                        return "TERMNL93";
+
+                    case "10":
+                        return "TERCON91";
+
+                    case "11":
+                        return "TERMNL94";
+
+                    default:
+                        return "TRMGEN91";
+                }
+            }
+            else
+            {
+                return "TRMGEN91";
+            }
+        }
     }
 }

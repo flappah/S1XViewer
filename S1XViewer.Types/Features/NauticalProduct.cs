@@ -10,18 +10,18 @@ namespace S1XViewer.Types.Features
 {
     public class NauticalProduct : CatalogueElements, INauticalProduct, IS128Feature
     {
-        public IProductSpecification ProductSpecification { get; set; }
-        public IOnlineResource OnlineResource { get; set; }
+        public IProductSpecification ProductSpecification { get; set; } = new ProductSpecification();
+        public IOnlineResource OnlineResource { get; set; } = new OnlineResource();
         // TextContent is defined in GeoFeatureBase as an array. NauticalProducts uses only element 0!
-        public IServiceSpecification ServiceSpecification { get; set; }
-        public string PublicationNumber { get; set; }
-        public string DataSetName { get; set; }
-        public string Version { get; set; }
-        public string ServiceStatus { get; set; }
-        public string Keyword { get; set; }
-        public string ServiceDesign { get; set; }
-        public string ISBN { get; set; }
-        public string TypeOfProductFormat { get; set; }
+        public IServiceSpecification ServiceSpecification { get; set; } = new ServiceSpecification();
+        public string PublicationNumber { get; set; } = string.Empty;
+        public string DataSetName { get; set; } = string.Empty; 
+        public string Version { get; set; } = string.Empty;
+        public string ServiceStatus { get; set; } = string.Empty;
+        public string Keyword { get; set; } = string.Empty;
+        public string ServiceDesign { get; set; } = string.Empty;
+        public string ISBN { get; set; } = string.Empty;
+        public string TypeOfProductFormat { get; set; } = string.Empty;
 
         /// <summary>
         ///     Provides a deepcloned version of the object
@@ -210,6 +210,15 @@ namespace S1XViewer.Types.Features
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

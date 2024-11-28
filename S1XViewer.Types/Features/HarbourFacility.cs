@@ -76,5 +76,37 @@ namespace S1XViewer.Types.Features
 
             return this;
         }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("1")).Count() > 0)
+            {
+                return "ROLROL01";
+            }
+            else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("4")).Count() > 0)
+            {
+                return "HRBFAC09";
+            }
+            else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("5")).Count() > 0)
+            {
+                return "SMCFAC02";
+            }
+            else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("12")).Count() > 0)
+            {
+                return "SHPLFT92";
+            }
+            else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("13")).Count() > 0)
+            {
+                return "STRADC92";
+            }
+            else
+            {
+                return "CHINFO07";
+            }
+        }
     }
 }

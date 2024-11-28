@@ -98,5 +98,84 @@ namespace S1XViewer.Types.Features
 
             return this;
         }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            if (String.IsNullOrEmpty(CategoryOfPortSection) == false)
+            {
+                switch (CategoryOfPortSection.Trim())
+                {
+                    case "1":
+                        return "HRBSEC96";
+
+                    case "3":
+                        return "HRBSEC97";
+
+                    case "8":
+                        return "HRBSEC92";
+
+                    case "9":
+                        return "HRBSEC93";
+
+                    case "11":
+                        return "HRBSEC94";
+
+                    case "12":
+                        return "HRBSEC95";
+
+                    default:
+                        return "QUESMRK1";
+                }
+            }
+            else if (CategoryOfHarbourFacility.Length > 0) 
+            { 
+                if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("1")).Count() > 0) 
+                {
+                    return "ROLROL01";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("4")).Count() > 0)
+                {
+                    return "HRBFAC09";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("5")).Count() > 0)
+                {
+                    return "SMCFAC02";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("6")).Count() > 0)
+                {
+                    return "HRBFAC91";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("9")).Count() > 0)
+                {
+                    return "HRBFAC93";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("14")).Count() > 0)
+                {
+                    return "HRBFAC95";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("15")).Count() > 0)
+                {
+                    return "HRBFAC96";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("16")).Count() > 0)
+                {
+                    return "HRBFAC97";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("17")).Count() > 0)
+                {
+                    return "HRBFAC98";
+                }
+                else
+                {
+                    return "CHINFO07";
+                }
+            }
+
+            return "CHINFO07";
+        }
     }
 }

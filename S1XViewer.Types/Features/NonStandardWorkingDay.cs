@@ -64,7 +64,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (dateFixedNode != null && dateFixedNode.HasChildNodes)
                     {
-                        datesFixed.Add(dateFixedNode.FirstChild.InnerText);
+                        datesFixed.Add(dateFixedNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 DateFixed = datesFixed.ToArray();
@@ -78,7 +78,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (dateVariableNode != null && dateVariableNode.HasChildNodes)
                     {
-                        datesVariable.Add(dateVariableNode.FirstChild.InnerText);
+                        datesVariable.Add(dateVariableNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 DateVariable = datesVariable.ToArray();

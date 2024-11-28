@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace S1XViewer.Types.ComplexTypes
 {
-    public class LimitsDescription : ComplexTypeBase, IS131Feature, ILimitsDescription
+    public class LimitsDescription : ComplexTypeBase, ILimitsDescription
     {
         public ITextContent[] TextContent { get; set; } = Array.Empty<ITextContent>();
 

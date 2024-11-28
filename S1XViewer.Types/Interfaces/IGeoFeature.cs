@@ -13,6 +13,8 @@ namespace S1XViewer.Types.Interfaces
 
         Esri.ArcGISRuntime.Geometry.Geometry? Geometry { get; set; }
 
+        string GetSymbolName();
+
         (string type, Feature? feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS);
     }
 }

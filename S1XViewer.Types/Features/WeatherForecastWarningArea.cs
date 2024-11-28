@@ -67,22 +67,31 @@ namespace S1XViewer.Types.Features
             var categoryOfFrctAndWarningAreaNode = node.SelectSingleNode("categoryOfFrcstAndWarningArea", mgr);
             if (categoryOfFrctAndWarningAreaNode != null && categoryOfFrctAndWarningAreaNode.HasChildNodes)
             {
-                CategoryOfFrctAndWarningArea = categoryOfFrctAndWarningAreaNode.FirstChild.InnerText;
+                CategoryOfFrctAndWarningArea = categoryOfFrctAndWarningAreaNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var nationalityNode = node.SelectSingleNode("nationality", mgr);
             if (nationalityNode != null && nationalityNode.HasChildNodes)
             {
-                Nationality = nationalityNode.FirstChild.InnerText;
+                Nationality = nationalityNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var statusNode = node.SelectSingleNode("status", mgr);
             if (statusNode != null && statusNode.HasChildNodes)
             {
-                Status = statusNode.FirstChild.InnerText;
+                Status = statusNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

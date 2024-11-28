@@ -7,10 +7,10 @@ namespace S1XViewer.Types.Features
 {
     public class MilitaryPracticeArea : GeoFeatureBase, IMilitaryPracticeArea, IS127Feature
     {
-        public string[] CategoryOfMilitaryPracticeArea { get; set; }
-        public string Nationality { get; set; }
-        public string[] Restriction { get; set; }
-        public string[] Status { get; set; }
+        public string[] CategoryOfMilitaryPracticeArea { get; set; } = Array.Empty<string>();
+        public string Nationality { get; set; } = string.Empty;
+        public string[] Restriction { get; set; } = Array.Empty<string>();
+        public string[] Status { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// 
@@ -128,6 +128,15 @@ namespace S1XViewer.Types.Features
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

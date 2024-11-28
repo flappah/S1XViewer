@@ -2,8 +2,6 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features

@@ -64,22 +64,31 @@ namespace S1XViewer.Types.Features
             var txIdentCharNode = node.SelectSingleNode("txIdentChar", mgr);
             if (txIdentCharNode != null && txIdentCharNode.HasChildNodes)
             {
-                TxIdentChar = txIdentCharNode.FirstChild.InnerText;
+                TxIdentChar = txIdentCharNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var restrictionNode = node.SelectSingleNode("restriction", mgr);
             if (restrictionNode != null && restrictionNode.HasChildNodes)
             {
-                Restriction = restrictionNode.FirstChild.InnerText;
+                Restriction = restrictionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var statusNode = node.SelectSingleNode("status", mgr);
             if (statusNode != null && statusNode.HasChildNodes)
             {
-                Status = statusNode.FirstChild.InnerText;
+                Status = statusNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

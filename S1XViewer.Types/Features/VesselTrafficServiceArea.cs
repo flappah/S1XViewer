@@ -65,22 +65,31 @@ namespace S1XViewer.Types.Features
             var categoryOfVesselTrafficServiceNode = node.SelectSingleNode("categoryOfVesselTrafficService", mgr);
             if (categoryOfVesselTrafficServiceNode != null && categoryOfVesselTrafficServiceNode.HasChildNodes)
             {
-                CategoryOfVesselTrafficService = categoryOfVesselTrafficServiceNode.FirstChild.InnerText;
+                CategoryOfVesselTrafficService = categoryOfVesselTrafficServiceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var serviceAccessProcedureNode = node.SelectSingleNode("serviceAccessProcedure", mgr);
             if (serviceAccessProcedureNode != null)
             {
-                ServiceAccessProcedure = serviceAccessProcedureNode.FirstChild.InnerText;
+                ServiceAccessProcedure = serviceAccessProcedureNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var requirementsForMaintenanceOfListeningWatchNode = node.SelectSingleNode("requirementsForMaintenanceOfListeningWatch", mgr);
             if (requirementsForMaintenanceOfListeningWatchNode != null && requirementsForMaintenanceOfListeningWatchNode.HasChildNodes)
             {
-                RequirementsForMaintenanceOfListeningWatch = requirementsForMaintenanceOfListeningWatchNode.FirstChild.InnerText;
+                RequirementsForMaintenanceOfListeningWatch = requirementsForMaintenanceOfListeningWatchNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

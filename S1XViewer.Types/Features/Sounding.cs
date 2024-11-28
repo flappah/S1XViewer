@@ -22,7 +22,7 @@ namespace S1XViewer.Types.Features
         /// </summary>
         /// <param name="featureTable"></param>
         /// <returns></returns>
-        public override (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS)
+        public override (string type, Feature? feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS)
         {
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
@@ -30,7 +30,7 @@ namespace S1XViewer.Types.Features
             if (Geometry is Polygon polygon)
             {
                 var color = Color.Black;
-                foreach(ColorRampItem schemeItem in featureRendererManager.ColorRamp)
+                foreach (ColorRampItem schemeItem in featureRendererManager.ColorRamp)
                 {
                     if (schemeItem.Between(Value))
                     {
@@ -44,18 +44,21 @@ namespace S1XViewer.Types.Features
                 var simpleRenderer = new SimpleRenderer(sym);
 
                 var key = $"FilledPolyFeatures_{color.R.ToString()}{color.G.ToString()}{color.B.ToString()}";
-                var featureCollectionTable = featureRendererManager.Get(key);
+                FeatureCollectionTable? featureCollectionTable = featureRendererManager.Get(key);
                 if (featureCollectionTable == null)
                 {
                     featureCollectionTable = featureRendererManager.Create(key, new List<Field> { idField, nameField }, GeometryType.Polygon, horizontalCRS, false, simpleRenderer);
                 }
 
-                Feature polyFeature = featureCollectionTable.CreateFeature();
-                polyFeature.SetAttributeValue(idField, Id);
-                polyFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
-                polyFeature.Geometry = Geometry;
+                if (featureCollectionTable != null)
+                {
+                    Feature polyFeature = featureCollectionTable.CreateFeature();
+                    polyFeature.SetAttributeValue(idField, Id);
+                    polyFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
+                    polyFeature.Geometry = Geometry;
 
-                return (key, polyFeature, null);
+                    return (key, polyFeature, null);
+                }
             }
 
             return base.Render(featureRendererManager, horizontalCRS);

@@ -108,7 +108,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (restrictionNode != null && restrictionNode.HasChildNodes)
                     {
-                        restrictions.Add(restrictionNode.FirstChild.InnerText);
+                        restrictions.Add(restrictionNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
 
@@ -133,6 +133,15 @@ namespace S1XViewer.Types.Features
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

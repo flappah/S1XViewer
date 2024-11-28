@@ -32,7 +32,7 @@ namespace S1XViewer.Types.Features
         /// </summary>
         /// <param name="featureRendererManager"></param>
         /// <returns></returns>
-        public override (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS)
+        public override (string type, Feature? feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS)
         {
             if (featureRendererManager is null)
             {
@@ -53,13 +53,16 @@ namespace S1XViewer.Types.Features
                     graphic.Geometry = mapPoint;
                     graphic.Symbol = symbol;
 
-                    FeatureCollectionTable featureTable = featureRendererManager.Get("VectorFeatures");
-                    Feature pointFeature = featureTable.CreateFeature();
-                    pointFeature.SetAttributeValue(idField, Id);
-                    pointFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
-                    pointFeature.Geometry = Geometry;
+                    FeatureCollectionTable? featureTable = featureRendererManager.Get("VectorFeatures");
+                    if (featureTable != null)
+                    {
+                        Feature pointFeature = featureTable.CreateFeature();
+                        pointFeature.SetAttributeValue(idField, Id);
+                        pointFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
+                        pointFeature.Geometry = Geometry;
 
-                    return ("VectorFeatures", pointFeature, graphic);
+                        return ("VectorFeatures", pointFeature, graphic);
+                    }
                 }
             }
 

@@ -54,5 +54,14 @@ namespace S1XViewer.Types.Features
             base.FromXml(node, mgr);
             return this;
         }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
+        }
     }
 }

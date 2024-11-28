@@ -10,12 +10,12 @@ namespace S1XViewer.Types.Features
 {
     public class PaperChart : AbstractChartProduct, IPaperChart, IS128Feature
     {
-        public string FrameDimensions { get; set; }
-        public bool MainPanel { get; set; }
-        public string TypeOfPaper { get; set; }
-        public IPrintInformation PrintInformation { get; set; }
-        public IReferenceToNM ReferenceToNM { get; set; }
-        public string ISBN { get; set; }
+        public string FrameDimensions { get; set; } = string.Empty;
+        public bool MainPanel { get; set; } = false;
+        public string TypeOfPaper { get; set; } = string.Empty;
+        public IPrintInformation PrintInformation { get; set; } = new PrintInformation();
+        public IReferenceToNM ReferenceToNM { get; set; } = new ReferenceToNM();
+        public string ISBN { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -193,6 +193,15 @@ namespace S1XViewer.Types.Features
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

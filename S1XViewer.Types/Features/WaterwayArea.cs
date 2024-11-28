@@ -1,9 +1,6 @@
-﻿using S1XViewer.Base;
-using S1XViewer.Types.ComplexTypes;
+﻿using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
@@ -129,6 +126,15 @@ namespace S1XViewer.Types.Features
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

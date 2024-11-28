@@ -64,22 +64,31 @@ namespace S1XViewer.Types.Features
             var categoryOfRouteingMeasureNode = node.SelectSingleNode("categoryOfRouteingMeasure", mgr);
             if (categoryOfRouteingMeasureNode != null && categoryOfRouteingMeasureNode.HasChildNodes)
             {
-                CategoryOfRouteingMeasure = categoryOfRouteingMeasureNode.FirstChild.InnerText;
+                CategoryOfRouteingMeasure = categoryOfRouteingMeasureNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var categoryOfTrafficSeparationSchemeNode = node.SelectSingleNode("categoryOfTrafficSeparationScheme", mgr);
             if (categoryOfTrafficSeparationSchemeNode != null && categoryOfTrafficSeparationSchemeNode.HasChildNodes)
             {
-                CategoryOfTrafficSeparationScheme = categoryOfTrafficSeparationSchemeNode.FirstChild.InnerText;
+                CategoryOfTrafficSeparationScheme = categoryOfTrafficSeparationSchemeNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var categoryOfNavigationLineNode = node.SelectSingleNode("categoryOfNavigationLine", mgr);
             if (categoryOfNavigationLineNode != null && categoryOfNavigationLineNode.HasChildNodes)
             {
-                CategoryOfNavigationLine = categoryOfNavigationLineNode.FirstChild.InnerText;
+                CategoryOfNavigationLine = categoryOfNavigationLineNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

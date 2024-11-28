@@ -78,7 +78,7 @@ namespace S1XViewer.Types.Features
                 var categories = new List<string>();
                 foreach (XmlNode categoryOfPilotNode in categoryOfPilotNodes)
                 {
-                    var category = categoryOfPilotNode.FirstChild.InnerText;
+                    var category = categoryOfPilotNode.FirstChild?.InnerText ?? string.Empty;
                     categories.Add(category);
                 }
                 CategoryOfPilot = categories.ToArray();
@@ -87,19 +87,19 @@ namespace S1XViewer.Types.Features
             var pilotQualificationNode = node.SelectSingleNode("pilotQualification", mgr);
             if (pilotQualificationNode != null && pilotQualificationNode.HasChildNodes)
             {
-                PilotQualification = pilotQualificationNode.FirstChild.InnerText;
+                PilotQualification = pilotQualificationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var pilotRequestNode = node.SelectSingleNode("pilotRequest", mgr);
             if (pilotRequestNode != null && pilotRequestNode.HasChildNodes)
             {
-                PilotRequest = pilotRequestNode.FirstChild.InnerText;
+                PilotRequest = pilotRequestNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var remotePilotNode = node.SelectSingleNode("remotePilot", mgr);
             if (remotePilotNode != null && remotePilotNode.HasChildNodes)
             {
-                RemotePilot = remotePilotNode.FirstChild.InnerText;
+                RemotePilot = remotePilotNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var noticeTimeNode = node.SelectSingleNode("noticeTime", mgr);
@@ -110,6 +110,15 @@ namespace S1XViewer.Types.Features
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

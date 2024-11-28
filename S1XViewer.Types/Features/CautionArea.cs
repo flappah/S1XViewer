@@ -4,7 +4,6 @@ using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
-    [Serializable]
     public class CautionArea : GeoFeatureBase, ICautionArea, IS127Feature
     {
         public string Condition { get; set; }
@@ -72,6 +71,15 @@ namespace S1XViewer.Types.Features
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

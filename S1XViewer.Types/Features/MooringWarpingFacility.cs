@@ -98,5 +98,39 @@ namespace S1XViewer.Types.Features
 
             return this;
         }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            switch (CategoryOfMooringWarpingFacility.Trim())
+            {
+                case "1":
+                    return "MORFAC03";
+
+                case "2":
+                    return "MORFAC04";
+
+                case "3":
+                    return "PILPNT02";
+
+                case "4":
+                    return "MORFAC92";
+
+                case "5":
+                    return "PILPNT02";
+
+                case "6":
+                    return "MORFAC91";
+
+                case "7":
+                    return "BOYMOR11";
+
+                default:
+                    return "MORFAC03";
+            }
+        }
     }
 }

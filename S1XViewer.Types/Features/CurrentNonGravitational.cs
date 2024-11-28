@@ -19,7 +19,7 @@ namespace S1XViewer.Types.Features
         /// </summary>
         /// <param name="featureRendererManager"></param>
         /// <returns></returns>
-        public override (string type, Feature feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS)
+        public override (string type, Feature? feature, Esri.ArcGISRuntime.UI.Graphic? graphic) Render(IFeatureRendererManager featureRendererManager, SpatialReference? horizontalCRS)
         {
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
@@ -100,13 +100,16 @@ namespace S1XViewer.Types.Features
                     graphic.Geometry = lineGeometry;
                     graphic.Symbol = symbol;
 
-                    FeatureCollectionTable featureTable = featureRendererManager.Get("VectorFeatures");
-                    Feature vectorFeature = featureTable.CreateFeature();
-                    vectorFeature.SetAttributeValue(idField, Id);
-                    vectorFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
-                    vectorFeature.Geometry = Geometry;
+                    FeatureCollectionTable? featureTable = featureRendererManager.Get("VectorFeatures");
+                    if (featureTable != null)
+                    {
+                        Feature vectorFeature = featureTable.CreateFeature();
+                        vectorFeature.SetAttributeValue(idField, Id);
+                        vectorFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
+                        vectorFeature.Geometry = Geometry;
 
-                    return ("VectorFeatures", vectorFeature, graphic);
+                        return ("VectorFeatures", vectorFeature, graphic);
+                    }
                 }
             }
 
@@ -184,6 +187,15 @@ namespace S1XViewer.Types.Features
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

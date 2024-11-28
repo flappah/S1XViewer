@@ -75,7 +75,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (categoryOfLandmarkNode != null && categoryOfLandmarkNode.HasChildNodes)
                     {
-                        var category = categoryOfLandmarkNode.FirstChild.InnerText;
+                        var category = categoryOfLandmarkNode.FirstChild?.InnerText ?? string.Empty;
                         categories.Add(category);
                     }
                 }
@@ -90,7 +90,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (functionNode != null && functionNode.HasChildNodes)
                     {
-                        var function = functionNode.FirstChild.InnerText;
+                        var function = functionNode.FirstChild?.InnerText ?? string.Empty;
                         functions.Add(function);
                     }
                 }
@@ -105,7 +105,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (statusNode != null && statusNode.HasChildNodes)
                     {
-                        var status = statusNode.FirstChild.InnerText;
+                        var status = statusNode.FirstChild?.InnerText ?? string.Empty;
                         statuses.Add(status);
                     }
                 }
@@ -113,6 +113,15 @@ namespace S1XViewer.Types.Features
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     Generates the feature code necessary for portrayal
+        /// </summary>
+        /// <returns></returns>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }
