@@ -50,7 +50,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -58,46 +58,7 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
-
-            var categoryOfAuthorityNode = node.SelectSingleNode("categoryOfAuthority", mgr);
-            if (categoryOfAuthorityNode != null && categoryOfAuthorityNode.HasChildNodes)
-            {
-                CategoryOfAuthority = categoryOfAuthorityNode.FirstChild?.InnerText ?? string.Empty;    
-            }
-
-            var graphicNodes = node.SelectNodes("graphic", mgr);
-            if (graphicNodes != null && graphicNodes.Count > 0)
-            {
-                var graphics = new List<Graphic>();
-                foreach (XmlNode graphicNode in graphicNodes)
-                {
-                    if (graphicNode != null && graphicNode.HasChildNodes)
-                    {
-                        var newGraphic = new Graphic();
-                        newGraphic.FromXml(graphicNode, mgr);
-                        graphics.Add(newGraphic);
-                    }
-                }
-                Graphic = graphics.ToArray();
-            }
-
-            var rxnCodeNodes = node.SelectNodes("rxnCode");
-            if (rxnCodeNodes != null && rxnCodeNodes.Count > 0)
-            {
-                var rxnCodes = new List<RxnCode>();
-                foreach (XmlNode rxnCodeNode in rxnCodeNodes)
-                {
-                    if (rxnCodeNode != null && rxnCodeNode.HasChildNodes)
-                    {
-                        var newRxnCode = new RxnCode();
-                        newRxnCode.FromXml(rxnCodeNode, mgr);
-                        rxnCodes.Add(newRxnCode);
-                    }
-                }
-                RxnCode = rxnCodes.ToArray();
-            }
-
+            base.FromXml(node, mgr, nameSpacePrefix);
             return this;
         }
     }

@@ -5,9 +5,9 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class RxnCode : ComplexTypeBase, IRxnCode
     {
-        public string CategoryOfRxn { get; set; }
-        public string ActionOrActivity { get; set; }
-        public string Headline { get; set; }
+        public string CategoryOfRxn { get; set; } = string.Empty;
+        public string ActionOrActivity { get; set; } = string.Empty;
+        public string Headline { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -29,24 +29,24 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var categoryOfRxnNode = node.SelectSingleNode("categoryOfRxn", mgr);
+            var categoryOfRxnNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfRxn", mgr);
             if (categoryOfRxnNode != null && categoryOfRxnNode.HasChildNodes)
             {
-                CategoryOfRxn = categoryOfRxnNode.FirstChild.InnerText;
+                CategoryOfRxn = categoryOfRxnNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var actionOrActivityNode = node.SelectSingleNode("actionOrActivity");
+            var actionOrActivityNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}actionOrActivity", mgr);
             if (actionOrActivityNode != null && actionOrActivityNode.HasChildNodes)
             {
-                ActionOrActivity = actionOrActivityNode.FirstChild.InnerText;
+                ActionOrActivity = actionOrActivityNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var headlineNode = node.SelectSingleNode("headline");
+            var headlineNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}headline", mgr);
             if (headlineNode != null && headlineNode.HasChildNodes)
             {
-                Headline = headlineNode.FirstChild.InnerText;
+                Headline = headlineNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

@@ -1,6 +1,4 @@
-﻿using System.Xml;
-
-namespace S1XViewer.Types.Interfaces
+﻿namespace S1XViewer.Types.Interfaces
 {
     public interface INavigationalProduct : ICatalogueElement
     {
@@ -15,7 +13,5 @@ namespace S1XViewer.Types.Interfaces
         string SpecificUsage { get; set; }
         string UpdateDate { get; set; }
         string UpdateNumber { get; set; }
-
-        IFeature FromXml(XmlNode node, XmlNamespaceManager mgr);
     }
 }

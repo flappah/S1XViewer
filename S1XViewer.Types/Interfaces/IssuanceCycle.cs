@@ -27,14 +27,10 @@ namespace S1XViewer.Types.Interfaces
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             //public IPeriodicDateRange PeriodicDateRange { get; set; } = new PeriodicDateRange();
-            var periodicDateRangeNode = node.SelectSingleNode("periodicDateRange", mgr);
-            if (periodicDateRangeNode == null)
-            {
-                periodicDateRangeNode = node.SelectSingleNode("S128:periodicDateRange", mgr);
-            }
+            var periodicDateRangeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}periodicDateRange", mgr);
             if (periodicDateRangeNode != null && periodicDateRangeNode.HasChildNodes)
             {
                 PeriodicDateRange = new PeriodicDateRange();
@@ -42,11 +38,7 @@ namespace S1XViewer.Types.Interfaces
             }
 
             //public ITimeIntervalOfCycle TimeIntervalOfCycle { get; set; } = new TimeIntervalOfCycle();
-            var timeIntervalOfCycleNode = node.SelectSingleNode("timeIntervalOfCycle", mgr);
-            if (timeIntervalOfCycleNode == null)
-            {
-                timeIntervalOfCycleNode = node.SelectSingleNode("S128:timeIntervalOfCycle", mgr);
-            }
+            var timeIntervalOfCycleNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}timeIntervalOfCycle", mgr);
             if (timeIntervalOfCycleNode != null && timeIntervalOfCycleNode.HasChildNodes)
             {
                 TimeIntervalOfCycle = new TimeIntervalOfCycle();

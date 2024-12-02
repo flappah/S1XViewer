@@ -12,7 +12,7 @@ namespace S1XViewer.Types
     public abstract class ComplexTypeBase : IComplexType
     {
         public abstract IComplexType DeepClone();
-        public abstract IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr);
+        public abstract IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "");
 
         /// <summary>
         /// Returns the properties of the current object in a dictionary of strings

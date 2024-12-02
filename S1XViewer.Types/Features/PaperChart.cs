@@ -89,7 +89,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -105,25 +105,17 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
             //public string FrameDimensions { get; set; }
-            var frameDimensionsNode = node.SelectSingleNode("frameDimensions", mgr);
-            if (frameDimensionsNode == null)
-            {
-                frameDimensionsNode = node.SelectSingleNode("S128:frameDimensions", mgr);
-            }
+            var frameDimensionsNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}frameDimensions", mgr);
             if (frameDimensionsNode != null && frameDimensionsNode.HasChildNodes)
             {
                 FrameDimensions = frameDimensionsNode.InnerText;
             }
 
             //public bool MainPanel { get; set; }
-            var mainPanelNode = node.SelectSingleNode("mainPanel", mgr);
-            if (mainPanelNode == null)
-            {
-                mainPanelNode = node.SelectSingleNode("S128:mainPanel", mgr);
-            }
+            var mainPanelNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}mainPanel", mgr);
             if (mainPanelNode != null && mainPanelNode.HasChildNodes)
             {
                 MainPanel = false; // default value is false
@@ -134,46 +126,30 @@ namespace S1XViewer.Types.Features
             }
 
             //public string TypeOfPaper { get; set; }
-            var typeOfPaperNode = node.SelectSingleNode("typeOfPaper", mgr);
-            if (typeOfPaperNode == null)
-            {
-                typeOfPaperNode = node.SelectSingleNode("S128:typeOfPaper", mgr);
-            }
+            var typeOfPaperNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}typeOfPaper", mgr);
             if (typeOfPaperNode != null && typeOfPaperNode.HasChildNodes)
             {
                 TypeOfPaper = typeOfPaperNode.InnerText;
             }
 
             //public IPrintInformation PrintInformation { get; set; }
-            var printInformationNode = node.SelectSingleNode("printInformation", mgr);
-            if (printInformationNode == null)
-            {
-                printInformationNode = node.SelectSingleNode("S128:printInformation", mgr);
-            }
+            var printInformationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}printInformation", mgr);
             if (printInformationNode != null && printInformationNode.HasChildNodes)
             {
                 PrintInformation = new PrintInformation();
-                PrintInformation.FromXml(printInformationNode, mgr);
+                PrintInformation.FromXml(printInformationNode, mgr, nameSpacePrefix);
             }
 
             //public IReferenceToNM ReferenceToNM { get; set; }
-            var referenceToNMNode = node.SelectSingleNode("referenceToNM", mgr);
-            if (referenceToNMNode == null)
-            {
-                referenceToNMNode = node.SelectSingleNode("S128:referenceToNM", mgr);
-            }
+            var referenceToNMNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}referenceToNM", mgr);
             if (referenceToNMNode != null && referenceToNMNode.HasChildNodes)
             {
                 ReferenceToNM = new ReferenceToNM();
-                ReferenceToNM.FromXml(referenceToNMNode, mgr);
+                ReferenceToNM.FromXml(referenceToNMNode, mgr, nameSpacePrefix);
             }
 
             //public string ISBN { get; set; }
-            var isbnNode = node.SelectSingleNode("ISBN", mgr);
-            if (isbnNode == null)
-            {
-                isbnNode = node.SelectSingleNode("S128:ISBN", mgr);
-            }
+            var isbnNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}ISBN", mgr);
             if (isbnNode != null && isbnNode.HasChildNodes)
             {
                 ISBN = isbnNode.InnerText;

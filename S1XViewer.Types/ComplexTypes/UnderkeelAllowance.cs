@@ -5,10 +5,10 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class UnderkeelAllowance : ComplexTypeBase, IUnderkeelAllowance
     {
-        public string UnderkeelAllowanceFixed { get; set; }
-        public string UnderkeelAllowanceVariableBeamBased { get; set; }
-        public string UnderkeelAllowanceVariableDraughtBased { get; set; }
-        public string Operation { get; set; }
+        public string UnderkeelAllowanceFixed { get; set; } = string.Empty;
+        public string UnderkeelAllowanceVariableBeamBased { get; set; } = string.Empty;
+        public string UnderkeelAllowanceVariableDraughtBased { get; set; } = string.Empty;
+        public string Operation { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -31,30 +31,30 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var underkeelAllowanceFixedNode = node.SelectSingleNode("underkeelAllowanceFixed", mgr);
+            var underkeelAllowanceFixedNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}underkeelAllowanceFixed", mgr);
             if (underkeelAllowanceFixedNode != null && underkeelAllowanceFixedNode.HasChildNodes)
             {
-                UnderkeelAllowanceFixed = underkeelAllowanceFixedNode.FirstChild.InnerText;
+                UnderkeelAllowanceFixed = underkeelAllowanceFixedNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var underkeelAllowanceVariableBeamBasedNode = node.SelectSingleNode("underkeelAllowanceVariableBeamBased", mgr);
+            var underkeelAllowanceVariableBeamBasedNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}underkeelAllowanceVariableBeamBased", mgr);
             if (underkeelAllowanceVariableBeamBasedNode != null && underkeelAllowanceVariableBeamBasedNode.HasChildNodes)
             {
-                UnderkeelAllowanceVariableBeamBased = underkeelAllowanceVariableBeamBasedNode.FirstChild.InnerText;
+                UnderkeelAllowanceVariableBeamBased = underkeelAllowanceVariableBeamBasedNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var underkeelAllowanceVariableDraughtBasedNode = node.SelectSingleNode("underkeelAllowanceVariableDraughtBased", mgr);
+            var underkeelAllowanceVariableDraughtBasedNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}underkeelAllowanceVariableDraughtBased", mgr);
             if (underkeelAllowanceVariableDraughtBasedNode != null && underkeelAllowanceVariableDraughtBasedNode.HasChildNodes)
             {
-                UnderkeelAllowanceVariableDraughtBased = underkeelAllowanceVariableDraughtBasedNode.FirstChild.InnerText;
+                UnderkeelAllowanceVariableDraughtBased = underkeelAllowanceVariableDraughtBasedNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var operationNode = node.SelectSingleNode("operation", mgr);
+            var operationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}operation", mgr);
             if (operationNode != null && operationNode.HasChildNodes)
             {
-                Operation = operationNode.FirstChild.InnerText;
+                Operation = operationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

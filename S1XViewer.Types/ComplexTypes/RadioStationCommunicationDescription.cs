@@ -7,10 +7,10 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class RadioStationCommunicationDescription : ComplexTypeBase, IRadioStationCommunicationDescription
     {
-        public string[] CategoryOfMaritimeBroadcast { get; set; }
-        public string[] CommunicationChannel { get; set; }
-        public string SignalFrequency { get; set; }
-        public string TransmissionContent { get; set; }
+        public string[] CategoryOfMaritimeBroadcast { get; set; } = Array.Empty<string>();
+        public string[] CommunicationChannel { get; set; } = Array.Empty<string>();
+        public string SignalFrequency { get; set; } = string.Empty;
+        public string TransmissionContent { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -21,10 +21,10 @@ namespace S1XViewer.Types.ComplexTypes
             return new RadioStationCommunicationDescription
             {
                 CategoryOfMaritimeBroadcast = CategoryOfMaritimeBroadcast == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(CategoryOfMaritimeBroadcast, s => s),
                 CommunicationChannel = CommunicationChannel == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(CommunicationChannel, s => s),
                 SignalFrequency = SignalFrequency,
                 TransmissionContent = TransmissionContent
@@ -37,9 +37,9 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var categoryOfMaritimeBroadcastNodes = node.SelectNodes("categoryOfMaritimeBroadcast", mgr);
+            var categoryOfMaritimeBroadcastNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfMaritimeBroadcast", mgr);
             if (categoryOfMaritimeBroadcastNodes != null && categoryOfMaritimeBroadcastNodes.Count > 0)
             {
                 var categories = new List<string>();
@@ -47,13 +47,13 @@ namespace S1XViewer.Types.ComplexTypes
                 {
                     if (categoryOfMaritimeBroadcastNode != null && categoryOfMaritimeBroadcastNode.HasChildNodes)
                     {
-                        categories.Add(categoryOfMaritimeBroadcastNode.FirstChild.InnerText);
+                        categories.Add(categoryOfMaritimeBroadcastNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 CategoryOfMaritimeBroadcast = categories.ToArray();
             }
 
-            var communicationChannelNodes = node.SelectNodes("communicationChannel", mgr);
+            var communicationChannelNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}communicationChannel", mgr);
             if (communicationChannelNodes != null && communicationChannelNodes.Count > 0)
             {
                 var channels = new List<string>();
@@ -61,22 +61,22 @@ namespace S1XViewer.Types.ComplexTypes
                 {
                     if (communicationChannelNode != null && communicationChannelNode.HasChildNodes)
                     {
-                        channels.Add(communicationChannelNode.FirstChild.InnerText);
+                        channels.Add(communicationChannelNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 CommunicationChannel = channels.ToArray();
             }
 
-            var signalFrequencyNode = node.SelectSingleNode("signalFrequency");
+            var signalFrequencyNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}signalFrequency", mgr);
             if (signalFrequencyNode != null && signalFrequencyNode.HasChildNodes)
             {
-                SignalFrequency = signalFrequencyNode.FirstChild.InnerText;
+                SignalFrequency = signalFrequencyNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var transmissionContentNode = node.SelectSingleNode("transmissionContent");
+            var transmissionContentNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}transmissionContent", mgr);
             if (transmissionContentNode != null && transmissionContentNode.HasChildNodes)
             {
-                TransmissionContent = transmissionContentNode.FirstChild.InnerText;
+                TransmissionContent = transmissionContentNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

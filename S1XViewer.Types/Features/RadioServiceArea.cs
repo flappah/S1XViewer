@@ -65,7 +65,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node">current node to use as a starting point for reading</param>
         /// <param name="mgr">xml namespace manager</param>
         /// <returns>IFeature</returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -73,27 +73,27 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var callSignNode = node.SelectSingleNode("callSign", mgr);
+            var callSignNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
                 CallSign = callSignNode.FirstChild.InnerText;
             }
 
-            var categoryOfBroadcastCommunicationNode = node.SelectSingleNode("categoryOfBroadcastCommunication", mgr);
+            var categoryOfBroadcastCommunicationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfBroadcastCommunication", mgr);
             if (categoryOfBroadcastCommunicationNode != null && categoryOfBroadcastCommunicationNode.HasChildNodes)
             {
                 CategoryOfBroadcastCommunication = categoryOfBroadcastCommunicationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var languageInformationNode = node.SelectSingleNode("languageInformation", mgr);
+            var languageInformationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}languageInformation", mgr);
             if (languageInformationNode != null && languageInformationNode.HasChildNodes)
             {
                 LanguageInformation = languageInformationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var radioCommunicationNodes = node.SelectNodes("radiocommunications", mgr);
+            var radioCommunicationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}radiocommunications", mgr);
             if (radioCommunicationNodes != null && radioCommunicationNodes.Count > 0)
             {
                 var radioCommunications = new List<RadioCommunications>();
@@ -102,38 +102,38 @@ namespace S1XViewer.Types.Features
                     if (radioCommunicationNode != null && radioCommunicationNode.HasChildNodes)
                     {
                         var newRadioCommunications = new RadioCommunications();
-                        newRadioCommunications.FromXml(radioCommunicationNode, mgr);
+                        newRadioCommunications.FromXml(radioCommunicationNode, mgr, nameSpacePrefix);
                         radioCommunications.Add(newRadioCommunications);
                     }
                 }
                 RadioCommunications = radioCommunications.ToArray();
             }
 
-            var statusNode = node.SelectSingleNode("status", mgr);
+            var statusNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNode != null && statusNode.HasChildNodes)
             {
                 Status = statusNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var timeReferenceNode = node.SelectSingleNode("timeReference", mgr);
+            var timeReferenceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}timeReference", mgr);
             if (timeReferenceNode != null && timeReferenceNode.HasChildNodes)
             {
                 TimeReference = timeReferenceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var transmissionPowerNode = node.SelectSingleNode("transmissionPower", mgr);
+            var transmissionPowerNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}transmissionPower", mgr);
             if (transmissionPowerNode != null && transmissionPowerNode.HasChildNodes)
             {
                 TransmissionPower = transmissionPowerNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var txIdentCharNode = node.SelectSingleNode("txIdentChar", mgr);
+            var txIdentCharNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}txIdentChar", mgr);
             if (txIdentCharNode != null && txIdentCharNode.HasChildNodes)
             {
                 TxIdentChar = txIdentCharNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var txTrafficListNode = node.SelectSingleNode("txTrafficList", mgr);
+            var txTrafficListNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}txTrafficList", mgr);
             if (txTrafficListNode != null && txTrafficListNode.HasChildNodes)
             {
                 TxTrafficList = txTrafficListNode.FirstChild?.InnerText ?? string.Empty;

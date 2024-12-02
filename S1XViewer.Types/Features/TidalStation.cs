@@ -109,7 +109,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -117,11 +117,22 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
             // implement reading height and trend values from XML!
 
             return this;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override string GetSymbolName()
+        {
+            return "";
+        }
+
     }
 }

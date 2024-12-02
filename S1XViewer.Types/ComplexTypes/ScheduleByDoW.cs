@@ -7,8 +7,8 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class ScheduleByDoW : ComplexTypeBase, IScheduleByDoW
     {
-        public string CategoryOfSchedule { get; set; }
-        public ITmIntervalsByDoW[] TmIntervalsByDoW { get; set; }
+        public string CategoryOfSchedule { get; set; } = string.Empty;
+        public ITmIntervalsByDoW[] TmIntervalsByDoW { get; set; } = Array.Empty<TmIntervalsByDoW>();
 
         /// <summary>
         /// 
@@ -20,7 +20,7 @@ namespace S1XViewer.Types.ComplexTypes
             {
                 CategoryOfSchedule = CategoryOfSchedule,
                 TmIntervalsByDoW = TmIntervalsByDoW == null
-                    ? new TmIntervalsByDoW[0]
+                    ? Array.Empty<TmIntervalsByDoW>()
                     : Array.ConvertAll(TmIntervalsByDoW, t => t.DeepClone() as ITmIntervalsByDoW)
             };
         }
@@ -31,15 +31,15 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var categoryOfScheduleNode = node.SelectSingleNode("categoryOfSchedule", mgr);
+            var categoryOfScheduleNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfSchedule", mgr);
             if (categoryOfScheduleNode != null && categoryOfScheduleNode.HasChildNodes)
             {
-                CategoryOfSchedule = categoryOfScheduleNode.FirstChild.InnerText;
+                CategoryOfSchedule = categoryOfScheduleNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var tmIntervalsByDoWNodes = node.SelectNodes("tmIntervalsByDoW", mgr);
+            var tmIntervalsByDoWNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}tmIntervalsByDoW", mgr);
             if (tmIntervalsByDoWNodes != null && tmIntervalsByDoWNodes.Count > 0)
             {
                 var intervals = new List<TmIntervalsByDoW>();
@@ -48,7 +48,7 @@ namespace S1XViewer.Types.ComplexTypes
                     if (tmIntervalsByDoWNode != null && tmIntervalsByDoWNode.HasChildNodes)
                     {
                         var newInterval = new TmIntervalsByDoW();
-                        newInterval.FromXml(tmIntervalsByDoWNode, mgr);
+                        newInterval.FromXml(tmIntervalsByDoWNode, mgr, nameSpacePrefix);
                         intervals.Add(newInterval);
                     }
                 }

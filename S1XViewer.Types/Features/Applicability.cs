@@ -69,7 +69,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -77,28 +77,28 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
             
-            var informationNodes = node.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
                 foreach (XmlNode informationNode in informationNodes)
                 {
                     var newInformation = new Information();
-                    newInformation.FromXml(informationNode, mgr);
+                    newInformation.FromXml(informationNode, mgr, nameSpacePrefix);
                     informations.Add(newInformation);
                 }
                 Information = informations.ToArray();
             }
 
-            var ballastNode = node.SelectSingleNode("ballast", mgr);
+            var ballastNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}ballast", mgr);
             if (ballastNode != null && ballastNode.HasChildNodes)
             {
-                Ballast = ballastNode.FirstChild.InnerText;
+                Ballast = ballastNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfCargoNodes = node.SelectNodes("categoryOfCargo", mgr);
+            var categoryOfCargoNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfCargo", mgr);
             if (categoryOfCargoNodes != null && categoryOfCargoNodes.Count > 0)
             {
                 var categoriesOfCargo = new List<string>();
@@ -112,11 +112,11 @@ namespace S1XViewer.Types.Features
                 CategoryOfCargo = categoriesOfCargo.ToArray();
             }
 
-            var categoryOfDangerousOrHazardousCargoNodes = node.SelectNodes("categoryOfDangerousOrHazardousCargo");
+            var categoryOfDangerousOrHazardousCargoNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfDangerousOrHazardousCargo", mgr);
             if (categoryOfDangerousOrHazardousCargoNodes != null && categoryOfDangerousOrHazardousCargoNodes.Count > 0)
             {
                 var categoriesOfCargo = new List<string>();
-                foreach (XmlNode categoryOfCargoNode in categoryOfCargoNodes)
+                foreach (XmlNode categoryOfCargoNode in categoryOfDangerousOrHazardousCargoNodes)
                 {
                     if (categoryOfCargoNode != null && categoryOfCargoNode.HasChildNodes)
                     {
@@ -126,31 +126,31 @@ namespace S1XViewer.Types.Features
                 CategoryOfDangerousOrHazardousCargo = categoriesOfCargo.ToArray();
             }
 
-            var categoryOfVesselNode = node.SelectSingleNode("categoryOfVessel", mgr);
+            var categoryOfVesselNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfVessel", mgr);
             if (categoryOfVesselNode != null && categoryOfVesselNode.HasChildNodes)
             {
-                CategoryOfVessel = categoryOfVesselNode.FirstChild.InnerText;
+                CategoryOfVessel = categoryOfVesselNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfVesselRegistryNode = node.SelectSingleNode("categoryOfVesselRegistry", mgr);
+            var categoryOfVesselRegistryNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfVesselRegistry", mgr);
             if (categoryOfVesselRegistryNode != null && categoryOfVesselRegistryNode.HasChildNodes)
             {
-                CategoryOfVesselRegistry = categoryOfVesselRegistryNode.FirstChild.InnerText;
+                CategoryOfVesselRegistry = categoryOfVesselRegistryNode.FirstChild?.InnerText ?? string.Empty;
             }
             
-            var logicalConnectivesNode = node.SelectSingleNode("logicalConnectives", mgr);
+            var logicalConnectivesNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}logicalConnectives", mgr);
             if (logicalConnectivesNode != null && logicalConnectivesNode.HasChildNodes)
             {
-                LogicalConnectives = logicalConnectivesNode.FirstChild.InnerText;
+                LogicalConnectives = logicalConnectivesNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var thicknessOfIceCapabilityNode = node.SelectSingleNode("thicknessOfIceCapability", mgr);
+            var thicknessOfIceCapabilityNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}thicknessOfIceCapability", mgr);
             if (thicknessOfIceCapabilityNode != null && thicknessOfIceCapabilityNode.HasChildNodes)
             {
-                ThicknessOfIceCapability = thicknessOfIceCapabilityNode.FirstChild.InnerText;
+                ThicknessOfIceCapability = thicknessOfIceCapabilityNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var vesselsMeasurementsNodes = node.SelectNodes("vesselsMeasurements", mgr);
+            var vesselsMeasurementsNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}vesselsMeasurements", mgr);
             if (vesselsMeasurementsNodes != null && vesselsMeasurementsNodes.Count > 0)
             {
                 var measurements = new List<VesselsMeasurement>();
@@ -159,7 +159,7 @@ namespace S1XViewer.Types.Features
                     if (vesselsMeasurementsNode != null && vesselsMeasurementsNode.HasChildNodes)
                     {
                         var newMeasurement = new VesselsMeasurement();
-                        newMeasurement.FromXml(vesselsMeasurementsNode, mgr);
+                        newMeasurement.FromXml(vesselsMeasurementsNode, mgr, nameSpacePrefix);
                         measurements.Add(newMeasurement);
                     }
                 }
@@ -167,10 +167,10 @@ namespace S1XViewer.Types.Features
                 VesselsMeasurements = measurements.ToArray();
             }
 
-            var vesselPerformanceNode = node.SelectSingleNode("vesselPerformance", mgr);
+            var vesselPerformanceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}vesselPerformance", mgr);
             if (vesselPerformanceNode != null && vesselPerformanceNode.HasChildNodes)
             {
-                VesselPerformance = vesselPerformanceNode.FirstChild.InnerText;
+                VesselPerformance = vesselPerformanceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

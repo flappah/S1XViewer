@@ -36,7 +36,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -44,16 +44,16 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var limitsDescriptionNode = node.SelectSingleNode("limitsDescription", mgr);
+            var limitsDescriptionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}limitsDescription", mgr);
             if (limitsDescriptionNode != null && limitsDescriptionNode.HasChildNodes)
             {
                 LimitsDescription = new LimitsDescription();
-                LimitsDescription.FromXml(limitsDescriptionNode, mgr);
+                LimitsDescription.FromXml(limitsDescriptionNode, mgr, nameSpacePrefix);
             }
 
-            var markedByNodes = node.SelectNodes("markedBy", mgr);
+            var markedByNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}markedBy", mgr);
             if (markedByNodes != null && markedByNodes.Count > 0)
             {
                 var markedByItems = new List<MarkedBy>();
@@ -62,7 +62,7 @@ namespace S1XViewer.Types.Features
                     if (markedByNode != null && markedByNode.HasChildNodes)
                     {
                         var markedBy = new MarkedBy();
-                        markedBy.FromXml(markedByNode, mgr);
+                        markedBy.FromXml(markedByNode, mgr, nameSpacePrefix);
                         markedByItems.Add(markedBy);
                     }
                 }
@@ -70,7 +70,7 @@ namespace S1XViewer.Types.Features
                 MarkedBy = markedByItems.ToArray();
             }
 
-            var landmarkDescriptionNodes = node.SelectNodes("landmarkDescription", mgr);
+            var landmarkDescriptionNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}landmarkDescription", mgr);
             if (landmarkDescriptionNodes != null && landmarkDescriptionNodes.Count > 0)
             {
                 var descriptions = new List<LandmarkDescription>();
@@ -79,14 +79,14 @@ namespace S1XViewer.Types.Features
                     if (landmarkDescriptionNode != null && landmarkDescriptionNode.HasChildNodes)
                     {
                         var newLandmarkDescription = new LandmarkDescription();
-                        newLandmarkDescription.FromXml(landmarkDescriptionNode, mgr);
+                        newLandmarkDescription.FromXml(landmarkDescriptionNode, mgr, nameSpacePrefix);
                         descriptions.Add(newLandmarkDescription);
                     }
                 }
                 LandmarkDescription = descriptions.ToArray();
             }
 
-            var offshoreMarkDescriptionNodes = node.SelectNodes("offshoreMarkDescription", mgr);
+            var offshoreMarkDescriptionNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}offshoreMarkDescription", mgr);
             if (offshoreMarkDescriptionNodes != null && offshoreMarkDescriptionNodes.Count > 0)
             {
                 var descriptions = new List<OffShoreMarkDescription>();
@@ -95,14 +95,14 @@ namespace S1XViewer.Types.Features
                     if (offshoreMarkDescriptionNode != null && offshoreMarkDescriptionNode.HasChildNodes)
                     {
                         var newOffShoreMarkDescription = new OffShoreMarkDescription();
-                        newOffShoreMarkDescription.FromXml(offshoreMarkDescriptionNode, mgr);
+                        newOffShoreMarkDescription.FromXml(offshoreMarkDescriptionNode, mgr, nameSpacePrefix);
                         descriptions.Add(newOffShoreMarkDescription);
                     }
                 }
                 OffShoreMarkDescription = descriptions.ToArray();
             }
 
-            var majorLightDescriptionNodes = node.SelectNodes("majorLightDescription", mgr);
+            var majorLightDescriptionNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}majorLightDescription", mgr);
             if (majorLightDescriptionNodes != null && majorLightDescriptionNodes.Count > 0)
             {
                 var descriptions = new List<MajorLightDescription>();
@@ -111,14 +111,14 @@ namespace S1XViewer.Types.Features
                     if (majorLightDescriptionNode != null && majorLightDescriptionNode.HasChildNodes)
                     {
                         var newMajorLightDescription = new MajorLightDescription();
-                        newMajorLightDescription.FromXml(majorLightDescriptionNode, mgr);
+                        newMajorLightDescription.FromXml(majorLightDescriptionNode, mgr, nameSpacePrefix);
                         descriptions.Add(newMajorLightDescription);
                     }
                 }
                 MajorLightDescription = descriptions.ToArray();
             }
 
-            var usefulMarkDescriptionNodes = node.SelectNodes("usefulMarkDescription", mgr);
+            var usefulMarkDescriptionNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}usefulMarkDescription", mgr);
             if (usefulMarkDescriptionNodes != null && usefulMarkDescriptionNodes.Count > 0)
             {
                 var descriptions = new List<UsefulMarkDescription>();
@@ -127,7 +127,7 @@ namespace S1XViewer.Types.Features
                     if (usefulMarkDescriptionNode != null && usefulMarkDescriptionNode.HasChildNodes)
                     {
                         var newUsefulMarkDescription = new UsefulMarkDescription();
-                        newUsefulMarkDescription.FromXml(usefulMarkDescriptionNode, mgr);
+                        newUsefulMarkDescription.FromXml(usefulMarkDescriptionNode, mgr, nameSpacePrefix);
                         descriptions.Add(newUsefulMarkDescription);
                     }
                 }

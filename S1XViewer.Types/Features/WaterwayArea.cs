@@ -63,7 +63,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -71,21 +71,21 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var dynamicResourceNode = node.SelectSingleNode("dynamicResource", mgr);
+            var dynamicResourceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dynamicResource", mgr);
             if (dynamicResourceNode != null)
             {
                 DynamicResource = dynamicResourceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var siltationRateNode = node.SelectSingleNode("siltationRate", mgr);
+            var siltationRateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}siltationRate", mgr);
             if (siltationRateNode != null)
             {
                 SiltationRate = siltationRateNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var statusNodes = node.SelectNodes("status", mgr);
+            var statusNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNodes != null && statusNodes.Count > 0)
             {
                 var statuses = new List<string>();
@@ -99,30 +99,30 @@ namespace S1XViewer.Types.Features
                 Status = statuses.ToArray();
             }
 
-            var categoryOfPortSectionNode = node.SelectSingleNode("categoryOfPortSection", mgr);
+            var categoryOfPortSectionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfPortSection", mgr);
             if (categoryOfPortSectionNode != null)
             {
                 CategoryOfPortSection = categoryOfPortSectionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var depthsDescriptionNode = node.SelectSingleNode("depthsDescription", mgr);
+            var depthsDescriptionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}depthsDescription", mgr);
             if (depthsDescriptionNode != null && depthsDescriptionNode.HasChildNodes)
             {
                 DepthsDescription = new DepthsDescription();
-                DepthsDescription.FromXml(depthsDescriptionNode, mgr);
+                DepthsDescription.FromXml(depthsDescriptionNode, mgr, nameSpacePrefix);
             }
 
-            var locationByTextNode = node.SelectSingleNode("locationByText", mgr);
+            var locationByTextNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}locationByText", mgr);
             if (locationByTextNode != null && locationByTextNode.HasChildNodes)
             {
                 LocationByText = locationByTextNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var markedByNode = node.SelectSingleNode("markedBy", mgr);
+            var markedByNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}markedBy", mgr);
             if (markedByNode != null && markedByNode.HasChildNodes)
             {
                 MarkedBy = new MarkedBy();
-                MarkedBy.FromXml(markedByNode, mgr);
+                MarkedBy.FromXml(markedByNode, mgr, nameSpacePrefix);
             }
 
             return this;

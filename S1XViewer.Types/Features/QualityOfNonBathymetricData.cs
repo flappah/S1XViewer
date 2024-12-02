@@ -60,7 +60,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -68,15 +68,15 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var dataAssessment = node.SelectSingleNode("dataAssessment", mgr);
+            var dataAssessment = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dataAssessment", mgr);
             if (dataAssessment != null)
             {
                 DataAssessment = dataAssessment.InnerText;
             }
 
-            var horizontalDistanceUncertaintyNodes = node.SelectNodes("horizontalDistanceUncertainty", mgr);
+            var horizontalDistanceUncertaintyNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}horizontalDistanceUncertainty", mgr);
             if (horizontalDistanceUncertaintyNodes != null && horizontalDistanceUncertaintyNodes.Count > 0)
             {
                 var distanceUncertainties = new List<string>();
@@ -94,20 +94,20 @@ namespace S1XViewer.Types.Features
                 HorizontalDistanceUncertainty = distanceUncertainties.ToArray();
             }
 
-            var horizontalPositionalUncertaintyNode = node.SelectSingleNode("horizontalPositionalUncertainty", mgr);
+            var horizontalPositionalUncertaintyNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}horizontalPositionalUncertainty", mgr);
             if (horizontalPositionalUncertaintyNode != null && horizontalPositionalUncertaintyNode.HasChildNodes)
             {
                 HorizontalPositionalUncertainty = new HorizontalPositionalUncertainty();
-                HorizontalPositionalUncertainty.FromXml(horizontalPositionalUncertaintyNode, mgr);
+                HorizontalPositionalUncertainty.FromXml(horizontalPositionalUncertaintyNode, mgr, nameSpacePrefix);
             }
 
-            var directionUncertaintyNode = node.SelectSingleNode("directionUncertainty", mgr);
+            var directionUncertaintyNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}directionUncertainty", mgr);
             if (directionUncertaintyNode != null && directionUncertaintyNode.HasChildNodes)
             {
                 DirectionUncertainty = directionUncertaintyNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var orientationUncertaintyNode = node.SelectSingleNode("orientationUncertainty", mgr);
+            var orientationUncertaintyNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}orientationUncertainty", mgr);
             if (orientationUncertaintyNode != null && orientationUncertaintyNode.HasChildNodes)
             {
                 if (float.TryParse(orientationUncertaintyNode.InnerText, out float orientationUncertaintyValue))
@@ -116,25 +116,25 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            var verticalUncertaintyNode = node.SelectSingleNode("verticalUncertainty", mgr);
+            var verticalUncertaintyNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}verticalUncertainty", mgr);
             if (verticalUncertaintyNode != null && verticalUncertaintyNode.HasChildNodes)
             {
                 VerticalUncertainty = new VerticalUncertainty();
-                VerticalUncertainty.FromXml(verticalUncertaintyNode, mgr); 
+                VerticalUncertainty.FromXml(verticalUncertaintyNode, mgr, nameSpacePrefix); 
             }
 
-            var sourceIndicationNode = node.SelectSingleNode("sourceIndication", mgr);
+            var sourceIndicationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceIndication", mgr);
             if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndicationNode, mgr);
+                SourceIndication.FromXml(sourceIndicationNode, mgr, nameSpacePrefix);
             }
 
-            var surveyDateRangeNode = node.SelectSingleNode("surveyDateRange", mgr);
+            var surveyDateRangeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}surveyDateRange", mgr);
             if (surveyDateRangeNode != null && surveyDateRangeNode.HasChildNodes)
             {
                 SurveyDateRange = new SurveyDateRange();
-                SurveyDateRange.FromXml(surveyDateRangeNode, mgr);
+                SurveyDateRange.FromXml(surveyDateRangeNode, mgr, nameSpacePrefix);
             }
 
             var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);

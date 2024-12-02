@@ -41,21 +41,21 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var cardinalDirectionNode = node.SelectSingleNode("cardinalDirection", mgr);
+            var cardinalDirectionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}cardinalDirection", mgr);
             if (cardinalDirectionNode != null && cardinalDirectionNode.HasChildNodes)
             {
-                CardinalDirection = cardinalDirectionNode.FirstChild.InnerText;
+                CardinalDirection = cardinalDirectionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var distanceNode = node.SelectSingleNode("distance", mgr);
+            var distanceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}distance", mgr);
             if (distanceNode != null && distanceNode.HasChildNodes)
             {
-                Distance = distanceNode.FirstChild.InnerText;
+                Distance = distanceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var informationNodes = node.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
@@ -64,21 +64,21 @@ namespace S1XViewer.Types.ComplexTypes
                     if (informationNode != null && informationNode.HasChildNodes)
                     {
                         var newInformation = new Information();
-                        newInformation.FromXml(informationNode, mgr);
+                        newInformation.FromXml(informationNode, mgr, nameSpacePrefix);
                         informations.Add(newInformation);
                     }
                 }
                 Information = informations.ToArray();
             }
 
-            var orientationNode = node.SelectSingleNode("orientation", mgr);
+            var orientationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}orientation", mgr);
             if (orientationNode != null && orientationNode.HasChildNodes)
             {
                 Orientation = new Orientation();
                 Orientation.FromXml(orientationNode, mgr);
             }
 
-            var sectorBearingNodes = node.SelectNodes("sectorBearing", mgr);
+            var sectorBearingNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sectorBearing", mgr);
             if (sectorBearingNodes != null && sectorBearingNodes.Count > 0)
             {
                 var bearings = new List<string>();
@@ -86,7 +86,7 @@ namespace S1XViewer.Types.ComplexTypes
                 {
                     if (sectorBearingNode != null && sectorBearingNode.HasChildNodes)
                     {
-                        bearings.Add(sectorBearingNode.FirstChild.InnerText);
+                        bearings.Add(sectorBearingNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 SectorBearing = bearings.ToArray();

@@ -14,6 +14,7 @@ using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
 using System.Xml;
+using Microsoft.Isam.Esent.Interop;
 
 namespace S1XViewer.Model
 {
@@ -120,35 +121,50 @@ namespace S1XViewer.Model
 
             await Task.Run(() =>
             {
-                XmlNodeList memberNodes = xmlDocument.GetElementsByTagName("member");
-                short i = 0;
-                foreach (XmlNode memberNode in memberNodes)
+                XmlNodeList? memberNodes = xmlDocument.DocumentElement.SelectNodes("S131:members", nsmgr);
+                if (memberNodes != null)
                 {
-                    var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
-                    Progress?.Invoke(percentage);
-
-                    IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr)?.DeepClone();
-                    if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
+                    short i = 0;
+                    int max = 0;
+                    foreach (XmlNode memberNode in memberNodes)
                     {
-                        var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
-                        if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
-                        {
-                            geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
-                        }
-
-                        geoFeatures.Add(geoFeature);
+                        max += memberNode.ChildNodes.Count;
                     }
-                    else
-                    {
-                        if (feature is IMetaFeature metaFeature && memberNode.HasChildNodes)
-                        {
-                            var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
-                            if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
-                            {
-                                metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
-                            }
 
-                            metaFeatures.Add(metaFeature);
+                    foreach (XmlNode memberNode in memberNodes)
+                    {
+                        foreach (XmlNode featureNode in memberNode.ChildNodes)
+                        {
+                            var percentage = ((double)i++ / (double)max) * 100.0;
+                            Progress?.Invoke(percentage);
+
+                            IFeature? feature = _featureFactory.FromXml(featureNode, nsmgr, false, "S131")?.DeepClone();
+                            if (feature != null)
+                            {
+                                if (feature is IGeoFeature geoFeature && featureNode.HasChildNodes)
+                                {
+                                    var geometryOfMemberNode = featureNode.SelectSingleNode("S131:geometry", nsmgr);
+                                    if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
+                                    {
+                                        geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                    }
+
+                                    geoFeatures.Add(geoFeature);
+                                }
+                                else
+                                {
+                                    if (feature is IMetaFeature metaFeature && featureNode.HasChildNodes)
+                                    {
+                                        var geometryOfMemberNode = featureNode.SelectSingleNode("S131:geometry");
+                                        if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
+                                        {
+                                            metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                        }
+
+                                        metaFeatures.Add(metaFeature);
+                                    }
+                                }
+                            }
                         }
                     }
                 }

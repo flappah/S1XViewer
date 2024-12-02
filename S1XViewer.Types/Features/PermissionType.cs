@@ -44,7 +44,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -61,14 +61,14 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
                 FixedDateRange.FromXml(fixedDateRangeNode, mgr);
             }
 
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
@@ -81,7 +81,7 @@ namespace S1XViewer.Types.Features
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
@@ -94,7 +94,7 @@ namespace S1XViewer.Types.Features
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndicationNodes = node.SelectNodes("sourceIndication", mgr);
+            var sourceIndicationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceIndication", mgr);
             if (sourceIndicationNodes != null && sourceIndicationNodes.Count > 0)
             {
                 var sourceIndications = new List<SourceIndication>();
@@ -110,10 +110,10 @@ namespace S1XViewer.Types.Features
                 SourceIndication = sourceIndications.ToArray();
             }
 
-            var categoryOfRelationShipNode = node.SelectSingleNode("categoryOfRelationship");
+            var categoryOfRelationShipNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfRelationship", mgr);
             if (categoryOfRelationShipNode != null && categoryOfRelationShipNode.HasChildNodes)
             {
-                CategoryOfRelationship = categoryOfRelationShipNode.FirstChild.InnerText;
+                CategoryOfRelationship = categoryOfRelationShipNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);

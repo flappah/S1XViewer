@@ -114,7 +114,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -122,9 +122,9 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var valueNode = node.SelectSingleNode("value", mgr);
+            var valueNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}value", mgr);
             if (valueNode != null && valueNode.HasChildNodes)
             {
                 if (float.TryParse(valueNode.FirstChild?.InnerText, out float valueValue))
@@ -133,7 +133,7 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            var qualityOfVerticalMeasurementNodes = node.SelectNodes("qualityOfVerticalMeasurement", mgr);
+            var qualityOfVerticalMeasurementNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}qualityOfVerticalMeasurement", mgr);
             if (qualityOfVerticalMeasurementNodes != null && qualityOfVerticalMeasurementNodes.Count > 0)
             {
                 var measurements = new List<string>();
@@ -150,13 +150,13 @@ namespace S1XViewer.Types.Features
                 QualityOfVerticalMeasurement = measurements.ToArray();
             }
 
-            var statusNode = node.SelectSingleNode("status", mgr);
+            var statusNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNode != null && statusNode.HasChildNodes)
             {
                 Status = statusNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var techniqueOfVerticalMeasurementNodes = node.SelectNodes("techniqueOfVerticalMeasurement", mgr);
+            var techniqueOfVerticalMeasurementNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}techniqueOfVerticalMeasurement", mgr);
             if (techniqueOfVerticalMeasurementNodes != null && techniqueOfVerticalMeasurementNodes.Count > 0)
             {
                 var measurements = new List<string>();
@@ -173,14 +173,24 @@ namespace S1XViewer.Types.Features
                 TechniqueOfVerticalMeasurement = measurements.ToArray();
             }
 
-            var verticalUncertaintyNode = node.SelectSingleNode("verticalUncertainty", mgr);
+            var verticalUncertaintyNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}verticalUncertainty", mgr);
             if (verticalUncertaintyNode != null && verticalUncertaintyNode.HasChildNodes)
             {
                 VerticalUncertainty = new VerticalUncertainty();
-                VerticalUncertainty.FromXml(node, mgr);
+                VerticalUncertainty.FromXml(node, mgr, nameSpacePrefix);
             }
 
             return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override string GetSymbolName()
+        {
+            return "";
         }
     }
 }

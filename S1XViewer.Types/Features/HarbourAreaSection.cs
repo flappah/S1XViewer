@@ -52,7 +52,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -60,15 +60,15 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfPortSectionNode = node.SelectSingleNode("categoryOfPortSection", mgr);
+            var categoryOfPortSectionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfPortSection", mgr);
             if (categoryOfPortSectionNode != null && categoryOfPortSectionNode.HasChildNodes)
             {
                 CategoryOfPortSection = categoryOfPortSectionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfHarbourFacilityNodes = node.SelectNodes("categoryOfHarbourFacility", mgr);
+            var categoryOfHarbourFacilityNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfHarbourFacility", mgr);
             if (categoryOfHarbourFacilityNodes != null && categoryOfHarbourFacilityNodes.Count > 0)
             {
                 var harbourFacilities = new List<string>();
@@ -84,13 +84,13 @@ namespace S1XViewer.Types.Features
                 CategoryOfHarbourFacility = harbourFacilities.ToArray();
             }
 
-            var iSPSLevelNode = node.SelectSingleNode("iSPSLevel", mgr);
+            var iSPSLevelNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}iSPSLevel", mgr);
             if (iSPSLevelNode != null && iSPSLevelNode.HasChildNodes)
             {
                 iSPSLevel = iSPSLevelNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var facilitiesLayoutDescriptionNode = node.SelectSingleNode("facilitiesLayoutDescription", mgr);
+            var facilitiesLayoutDescriptionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}facilitiesLayoutDescription", mgr);
             if (facilitiesLayoutDescriptionNode != null && facilitiesLayoutDescriptionNode.HasChildNodes)
             {
                 FacilitiesLayoutDescription = facilitiesLayoutDescriptionNode.FirstChild?.InnerText ?? string.Empty;

@@ -36,48 +36,48 @@ namespace S1XViewer.Types.ComplexTypes
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node != null && node.HasChildNodes)
             {
-                var categoryOfAuthority = node.SelectSingleNode("categoryOfAuthority", mgr);
+                var categoryOfAuthority = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfAuthority", mgr);
                 if (categoryOfAuthority != null)
                 {
                     CategoryOfAuthority = categoryOfAuthority.InnerText;
                 }
 
-                var country = node.SelectSingleNode("country", mgr);
+                var country = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}country", mgr);
                 if (country != null)
                 {
                     Country = country.InnerText;
                 }
 
-                var featureNameNodes = node.SelectNodes("featureName", mgr);
+                var featureNameNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}featureName", mgr);
                 if (featureNameNodes != null && featureNameNodes.Count > 0)
                 {
                     var featureNames = new List<FeatureName>();
                     foreach (XmlNode featureNameNode in featureNameNodes)
                     {
                         var newFeatureName = new FeatureName();
-                        newFeatureName.FromXml(featureNameNode, mgr);
+                        newFeatureName.FromXml(featureNameNode, mgr, nameSpacePrefix);
                         featureNames.Add(newFeatureName);
                     }
                     FeatureName = featureNames.ToArray();
                 }
 
-                var reportedDateNode = node.SelectSingleNode("reportedDate", mgr);
+                var reportedDateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}reportedDate", mgr);
                 if (reportedDateNode != null && reportedDateNode.HasChildNodes)
                 {
-                    ReportedDate = reportedDateNode.FirstChild.InnerText;
+                    ReportedDate = reportedDateNode.FirstChild?.InnerText ?? string.Empty;
                 }
 
-                var source = node.SelectSingleNode("source", mgr);
+                var source = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}source", mgr);
                 if (source != null)
                 {
                     Source = source.InnerText;
                 }
 
-                var sourceType = node.SelectSingleNode("sourceType", mgr);
+                var sourceType = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceType", mgr);
                 if (sourceType != null)
                 {
                     SourceType = sourceType.InnerText;

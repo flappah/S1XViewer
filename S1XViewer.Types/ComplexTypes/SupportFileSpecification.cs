@@ -5,9 +5,9 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class SupportFileSpecification : ComplexTypeBase, ISupportFileSpecification
     {
-        public string Date { get; set; }
-        public string Name { get; set; }
-        public string Version { get; set; }
+        public string Date { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Version { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -29,24 +29,24 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var dateNode = node.SelectSingleNode("date");
+            var dateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}date", mgr);
             if (dateNode != null && dateNode.HasChildNodes)
             {
-                Date = dateNode.FirstChild.InnerText;
+                Date = dateNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var nameNode = node.SelectSingleNode("name");
+            var nameNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}name", mgr);
             if (nameNode != null && nameNode.HasChildNodes)
             {
-                Name = nameNode.FirstChild.InnerText;
+                Name = nameNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var versionNode = node.SelectSingleNode("version");
+            var versionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}version", mgr);
             if (versionNode != null && versionNode.HasChildNodes)
             {
-                Version = versionNode.FirstChild.InnerText;
+                Version = versionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

@@ -1,15 +1,13 @@
 ﻿using S1XViewer.Types.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.ComplexTypes
 {
     public class FrequencyPair : ComplexTypeBase, IFrequencyPair
     {
-        public string[] FrequencyShoreStationReceives { get; set; }
-        public string[] FrequencyShoreStationTransmits { get; set; }
-        public string[] ContactInstructions { get; set; }
+        public string[] FrequencyShoreStationReceives { get; set; } = Array.Empty<string>();
+        public string[] FrequencyShoreStationTransmits { get; set; } = Array.Empty<string>();
+        public string[] ContactInstructions { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// 
@@ -20,13 +18,13 @@ namespace S1XViewer.Types.ComplexTypes
             return new FrequencyPair
             {
                 FrequencyShoreStationReceives = FrequencyShoreStationReceives == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(FrequencyShoreStationReceives, i => i),
                 FrequencyShoreStationTransmits = FrequencyShoreStationTransmits == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(FrequencyShoreStationTransmits, i => i),
                 ContactInstructions = ContactInstructions == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(ContactInstructions, s => s)
             };
         }
@@ -37,9 +35,9 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var frequencyShoreStationReceivesNodes = node.SelectNodes("frequencyShoreStationReceives");
+            var frequencyShoreStationReceivesNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}frequencyShoreStationReceives", mgr);
             if (frequencyShoreStationReceivesNodes != null && frequencyShoreStationReceivesNodes.Count > 0)
             {
                 var frequencies = new List<string>();
@@ -47,14 +45,14 @@ namespace S1XViewer.Types.ComplexTypes
                 {
                     if (frequencyShoreStationReceivesNode != null && frequencyShoreStationReceivesNode.HasChildNodes)
                     {
-                        frequencies.Add(frequencyShoreStationReceivesNode.FirstChild.InnerText);
+                        frequencies.Add(frequencyShoreStationReceivesNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
 
                 FrequencyShoreStationReceives = frequencies.ToArray();
             }
 
-            var frequencyShoreStationTransmitsNodes = node.SelectNodes("frequencyShoreStationTransmits");
+            var frequencyShoreStationTransmitsNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}frequencyShoreStationTransmits", mgr);
             if (frequencyShoreStationTransmitsNodes != null && frequencyShoreStationTransmitsNodes.Count > 0)
             {
                 var frequencies = new List<string>();
@@ -62,7 +60,7 @@ namespace S1XViewer.Types.ComplexTypes
                 {
                     if (frequencyShoreStationTransmitsNode != null && frequencyShoreStationTransmitsNode.HasChildNodes)
                     {
-                        frequencies.Add(frequencyShoreStationTransmitsNode.FirstChild.InnerText);
+                        frequencies.Add(frequencyShoreStationTransmitsNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
 

@@ -61,7 +61,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node">current node to use as a starting point for reading</param>
         /// <param name="mgr">xml namespace manager</param>
         /// <returns>IFeature</returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -69,34 +69,34 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var callSignNode = node.SelectSingleNode("callSign", mgr);
+            var callSignNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
                 CallSign = callSignNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfRadioStationNode = node.SelectSingleNode("categoryOfRadioStation", mgr);
+            var categoryOfRadioStationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfRadioStation", mgr);
             if (categoryOfRadioStationNode != null && categoryOfRadioStationNode.HasChildNodes)
             {
                 CategoryOfRadioStation = categoryOfRadioStationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var estimatedRangeOffTransmissionNode = node.SelectSingleNode("estimatedRangeOffTransmission", mgr);
+            var estimatedRangeOffTransmissionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}estimatedRangeOffTransmission", mgr);
             if (estimatedRangeOffTransmissionNode != null && estimatedRangeOffTransmissionNode.HasChildNodes)
             {
                 EstimatedRangeOffTransmission = estimatedRangeOffTransmissionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var orientationNode = node.SelectSingleNode("orientation", mgr);
+            var orientationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}orientation", mgr);
             if (orientationNode != null && orientationNode.HasChildNodes)
             {
                 Orientation = new Orientation();
-                Orientation.FromXml(orientationNode, mgr);
+                Orientation.FromXml(orientationNode, mgr, nameSpacePrefix);
             }
 
-            var radioStationCommunicationDescriptionNodes = node.SelectNodes("radioStationCommunicationDescription", mgr);
+            var radioStationCommunicationDescriptionNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}radioStationCommunicationDescription", mgr);
             if (radioStationCommunicationDescriptionNodes != null && radioStationCommunicationDescriptionNodes.Count > 0)
             {
                 var rdoComDescriptions = new List<RadioStationCommunicationDescription>();
@@ -105,14 +105,14 @@ namespace S1XViewer.Types.Features
                     if (radioStationCommunicationDescriptionNode != null && radioStationCommunicationDescriptionNode.HasChildNodes)
                     {
                         var rdoComDescription = new RadioStationCommunicationDescription();
-                        rdoComDescription.FromXml(radioStationCommunicationDescriptionNode, mgr);
+                        rdoComDescription.FromXml(radioStationCommunicationDescriptionNode, mgr, nameSpacePrefix);
                         rdoComDescriptions.Add(rdoComDescription);
                     }
                 }
                 RadioStationCommunicationDescription = rdoComDescriptions.ToArray();
             }
 
-            var statusNode = node.SelectSingleNode("status", mgr);
+            var statusNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNode != null && statusNode.HasChildNodes)
             {
                 Status = statusNode.FirstChild?.InnerText ?? string.Empty;  

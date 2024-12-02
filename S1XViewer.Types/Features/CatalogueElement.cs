@@ -8,15 +8,15 @@ namespace S1XViewer.Types.Features
     {
         // new for v2.0
         public string AgencyResponsibleForProduction { get; set; } = string.Empty;
-        public string[] CatalogueElementClassification { get; set; } = new string[0];
+        public string[] CatalogueElementClassification { get; set; } = Array.Empty<string>();
         public string CatalogueElementIdentifier { get; set; } = string.Empty;
         public string Classification { get; set; } = string.Empty;
-        public string[] IMOMaritimeService { get; set; } = new string[0];
+        public string[] IMOMaritimeService { get; set; } = Array.Empty<string>();
         public string Keywords { get; set; } = string.Empty;
         public bool NotForNavigation { get; set; } = false;
-        public IInformation[] Information { get; set; } = new Information[0];
+        public IInformation[] Information { get; set; } = Array.Empty<Information>();
         public IOnlineResource OnlineResource { get; set; } = new OnlineResource();
-        public ISupportFile[] SupportFile { get; set; } = new SupportFile[0];
+        public ISupportFile[] SupportFile { get; set; } = Array.Empty<SupportFile>();
         public ITimeIntervalOfProduct TimeIntervalOfProduct = new TimeIntervalOfProduct();
 
         /// <summary>
@@ -25,44 +25,34 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null || !node.HasChildNodes) return this;
 
+            base.FromXml(node, mgr, nameSpacePrefix);
+
             // coming from GeoFeatureBase
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
-            if (featureNameNodes == null || featureNameNodes.Count == 0)
-            {
-                featureNameNodes = node.SelectNodes("S128:featureName", mgr);
-            }
+            var featureNameNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
                 foreach (XmlNode featureNameNode in featureNameNodes)
                 {
                     var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
+                    newFeatureName.FromXml(featureNameNode, mgr, nameSpacePrefix);
                     featureNames.Add(newFeatureName);
                 }
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndicationNode = node.SelectSingleNode("sourceIndication", mgr);
-            if (sourceIndicationNode == null)
-            {
-                sourceIndicationNode = node.SelectSingleNode("S128:sourceIndication", mgr);
-            }
+            var sourceIndicationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceIndication", mgr);
             if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndicationNode, mgr);
+                SourceIndication.FromXml(sourceIndicationNode, mgr, nameSpacePrefix);
             }
 
-            var textContentNodes = node.SelectNodes("textContent", mgr);
-            if (textContentNodes == null || textContentNodes.Count == 0)
-            {
-                textContentNodes = node.SelectNodes("S128:textContent", mgr);
-            }
+            var textContentNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}textContent", mgr);
             if (textContentNodes != null && textContentNodes.Count > 0)
             {
                 var textContents = new List<TextContent>();
@@ -71,7 +61,7 @@ namespace S1XViewer.Types.Features
                     if (textContentNode != null && textContentNode.HasChildNodes)
                     {
                         var content = new TextContent();
-                        content.FromXml(textContentNode, mgr);
+                        content.FromXml(textContentNode, mgr, nameSpacePrefix);
                         textContents.Add(content);
                     }
                 }
@@ -79,22 +69,14 @@ namespace S1XViewer.Types.Features
             }
 
             //public string AgencyResponsibleForProduction { get; set; } = string.Empty;
-            var agencyResponsibleForProductionNode = node.SelectSingleNode("agencyResponsibleForProduction", mgr);
-            if (agencyResponsibleForProductionNode == null)
-            {
-                agencyResponsibleForProductionNode = node.SelectSingleNode("S128:agencyResponsibleForProduction", mgr);
-            }
+            var agencyResponsibleForProductionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}agencyResponsibleForProduction", mgr);
             if (agencyResponsibleForProductionNode != null && agencyResponsibleForProductionNode.HasChildNodes)
             {
                 AgencyResponsibleForProduction = agencyResponsibleForProductionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string[] CatalogueElementClassification { get; set; } = new string[0];
-            var catalogueElementClassificationNodes = node.SelectNodes("catalogueElementClassification");
-            if (catalogueElementClassificationNodes == null || catalogueElementClassificationNodes.Count == 0)
-            {
-                catalogueElementClassificationNodes = node.SelectNodes("S128:catalogueElementClassification", mgr);
-            }
+            var catalogueElementClassificationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}catalogueElementClassification", mgr);
             if (catalogueElementClassificationNodes != null && catalogueElementClassificationNodes.Count > 0)
             {
                 var catalogueElements = new List<string>();
@@ -110,33 +92,22 @@ namespace S1XViewer.Types.Features
             }
 
             //public string CatalogueElementIdentifier { get; set; } = string.Empty;
-            var catalogueElementIdentifierNode = node.SelectSingleNode("catalogueElementIdentifier", mgr);
+            var catalogueElementIdentifierNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}catalogueElementIdentifier", mgr);
             if (catalogueElementIdentifierNode == null)
-            {
-                catalogueElementIdentifierNode = node.SelectSingleNode("S128:catalogueElementIdentifier", mgr);
-            }
             if (catalogueElementIdentifierNode != null && catalogueElementIdentifierNode.HasChildNodes)
             {
                 CatalogueElementIdentifier = catalogueElementIdentifierNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string Classification { get; set; }
-            var classificationNode = node.SelectSingleNode("classification", mgr);
-            if (classificationNode == null)
-            {
-                classificationNode = node.SelectSingleNode("S128:classification", mgr);
-            }
+            var classificationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}classification", mgr);
             if (classificationNode != null && classificationNode.HasChildNodes)
             {
                 Classification = classificationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string[] IMOMaritimeService { get; set; } = new string[0];
-            var imoMaritimeServiceNodes = node.SelectNodes("IMOMaritimeService");
-            if (imoMaritimeServiceNodes == null || imoMaritimeServiceNodes.Count == 0)
-            {
-                imoMaritimeServiceNodes = node.SelectNodes("S128:IMOMaritimeService", mgr);
-            }
+            var imoMaritimeServiceNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}IMOMaritimeService", mgr);
             if (imoMaritimeServiceNodes != null && imoMaritimeServiceNodes.Count > 0)
             {
                 var maritimeServiceNodes = new List<string>();
@@ -152,22 +123,14 @@ namespace S1XViewer.Types.Features
             }
 
             //public string Keywords { get; set; } = string.Empty;
-            var keywordsNode = node.SelectSingleNode("keywords", mgr);
-            if (keywordsNode == null)
-            {
-                keywordsNode = node.SelectSingleNode("S128:keywords", mgr);
-            }
+            var keywordsNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}keywords", mgr);
             if (keywordsNode != null && keywordsNode.HasChildNodes)
             {
                 Keywords = keywordsNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public bool NotForNavigation { get; set; } = false;
-            var notForNavigationNode = node.SelectSingleNode("notForNavigation", mgr);
-            if (notForNavigationNode == null)
-            {
-                notForNavigationNode = node.SelectSingleNode("S128:notForNavigation", mgr);
-            }
+            var notForNavigationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}notForNavigation", mgr);
             if (notForNavigationNode != null && notForNavigationNode.HasChildNodes)
             {
                 NotForNavigation = false; // default value is false
@@ -178,11 +141,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public IInformation[] Information { get; set; }
-            var informationNodes = node.SelectNodes("information", mgr);
-            if (informationNodes == null || informationNodes.Count == 0)
-            {
-                informationNodes = node.SelectNodes("S128:information", mgr);
-            }
+            var informationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
@@ -191,7 +150,7 @@ namespace S1XViewer.Types.Features
                     if (informationNode != null && informationNode.HasChildNodes)
                     {
                         var newInformation = new Information();
-                        newInformation.FromXml(informationNode, mgr);
+                        newInformation.FromXml(informationNode, mgr, nameSpacePrefix);
                         informations.Add(newInformation);
                     }
                 }
@@ -199,23 +158,15 @@ namespace S1XViewer.Types.Features
             }
 
             //public OnlineResource OnlineResource { get; set; } = new OnlineResource();
-            var onlineResourceNode = node.SelectSingleNode("onlineResource", mgr);
-            if (onlineResourceNode == null)
-            {
-                onlineResourceNode = node.SelectSingleNode("S128:onlineResource", mgr);
-            }
+            var onlineResourceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}onlineResource", mgr);
             if (onlineResourceNode != null && onlineResourceNode.HasChildNodes)
             {
                 OnlineResource = new OnlineResource();
-                OnlineResource.FromXml(onlineResourceNode, mgr);
+                OnlineResource.FromXml(onlineResourceNode, mgr, nameSpacePrefix);
             }
 
             //public ISupportFile[] SupportFile { get; set; }
-            var supportFileNodes = node.SelectNodes("supportFile", mgr);
-            if (supportFileNodes == null || supportFileNodes.Count == 0)
-            {
-                supportFileNodes = node.SelectNodes("S128:supportFile", mgr);
-            }
+            var supportFileNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}supportFile", mgr);
             if (supportFileNodes != null && supportFileNodes.Count > 0)
             {
                 var supportFiles = new List<SupportFile>();
@@ -224,7 +175,7 @@ namespace S1XViewer.Types.Features
                     if (supportFileNode != null && supportFileNode.HasChildNodes)
                     {
                         var newSupportFile = new SupportFile();
-                        newSupportFile.FromXml(supportFileNode, mgr);
+                        newSupportFile.FromXml(supportFileNode, mgr, nameSpacePrefix);
                         supportFiles.Add(newSupportFile);
                     }
                 }
@@ -232,15 +183,11 @@ namespace S1XViewer.Types.Features
             }
 
             //public TimeIntervalOfProduct TimeIntervalOfProduct = new TimeIntervalOfProduct();
-            var timeIntervalOfProductNode = node.SelectSingleNode("timeIntervalOfProduct", mgr);
-            if (timeIntervalOfProductNode == null)
-            {
-                timeIntervalOfProductNode = node.SelectSingleNode("S128:timeIntervalOfProduct", mgr);
-            }
+            var timeIntervalOfProductNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}timeIntervalOfProduct", mgr);
             if (timeIntervalOfProductNode != null && timeIntervalOfProductNode.HasChildNodes)
             {
                 TimeIntervalOfProduct = new TimeIntervalOfProduct();
-                TimeIntervalOfProduct.FromXml(timeIntervalOfProductNode, mgr);
+                TimeIntervalOfProduct.FromXml(timeIntervalOfProductNode, mgr, nameSpacePrefix);
             }
 
             return this;

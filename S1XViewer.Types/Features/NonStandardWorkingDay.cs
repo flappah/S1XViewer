@@ -47,7 +47,14 @@ namespace S1XViewer.Types.Features
             };
         }
 
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="mgr"></param>
+        /// <param name="nameSpacePrefix"></param>
+        /// <returns></returns>
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -56,7 +63,7 @@ namespace S1XViewer.Types.Features
                 return this;
             base.FromXml(node, mgr );
 
-            var dateFixedNodes = node.SelectNodes("dateFixed", mgr);
+            var dateFixedNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dateFixed", mgr);
             if (dateFixedNodes != null && dateFixedNodes.Count > 0)
             {
                 var datesFixed = new List<string>();
@@ -70,7 +77,7 @@ namespace S1XViewer.Types.Features
                 DateFixed = datesFixed.ToArray();
             }
 
-            var dateVariableNodes = node.SelectNodes("dateVariable", mgr);
+            var dateVariableNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dateVariable", mgr);
             if (dateVariableNodes != null && dateVariableNodes.Count > 0)
             {
                 var datesVariable = new List<string>();
@@ -84,7 +91,7 @@ namespace S1XViewer.Types.Features
                 DateVariable = datesVariable.ToArray();
             }
 
-            var informationNodes = node.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
@@ -93,7 +100,7 @@ namespace S1XViewer.Types.Features
                     if (informationNode != null && informationNode.HasChildNodes)
                     {
                         var newInformation = new Information();
-                        newInformation.FromXml(informationNode, mgr);
+                        newInformation.FromXml(informationNode, mgr, nameSpacePrefix);
                         informations.Add(newInformation);
                     }
                 }

@@ -67,7 +67,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -75,15 +75,15 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var callSignNode = node.SelectSingleNode("callSign", mgr);
+            var callSignNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
                 CallSign = callSignNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var communicationChannelNodes = node.SelectNodes("communicationChannel", mgr);
+            var communicationChannelNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}communicationChannel", mgr);
             if (communicationChannelNodes != null && communicationChannelNodes.Count > 0)
             {
                 var channels = new List<string>();
@@ -97,7 +97,7 @@ namespace S1XViewer.Types.Features
                 CommunicationChannel = channels.ToArray();
             }
 
-            var categoryOfCargoNodes = node.SelectNodes("categoryOfCargo", mgr);
+            var categoryOfCargoNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfCargo", mgr);
             if (categoryOfCargoNodes != null && categoryOfCargoNodes.Count > 0)
             {
                 var categories = new List<string>();
@@ -111,13 +111,13 @@ namespace S1XViewer.Types.Features
                 CategoryOfCargo = categories.ToArray();
             }
 
-            var categoryOfVesselNode = node.SelectSingleNode("categoryOfVessel", mgr);
+            var categoryOfVesselNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfVessel", mgr);
             if (categoryOfVesselNode != null && categoryOfVesselNode.HasChildNodes)
             {
                 CategoryOfVessel = categoryOfVesselNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var orientationNodes = node.SelectNodes("orientation", mgr);
+            var orientationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}orientation", mgr);
             if (orientationNodes != null && orientationNodes.Count > 0)
             {
                 var orientations = new List<Orientation>();
@@ -126,14 +126,14 @@ namespace S1XViewer.Types.Features
                     if (orientationNode != null && orientationNode.HasChildNodes)
                     {
                         var newOrientation = new Orientation();
-                        newOrientation.FromXml(orientationNode, mgr);
+                        newOrientation.FromXml(orientationNode, mgr, nameSpacePrefix);
                         orientations.Add(newOrientation);
                     }
                 }
                 Orientation = orientations.ToArray();
             }
 
-            var statusNodes = node.SelectNodes("status", mgr);
+            var statusNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNodes != null && statusNodes.Count > 0)
             {
                 var statuses = new List<string>();
@@ -147,7 +147,7 @@ namespace S1XViewer.Types.Features
                 Status = statuses.ToArray();
             }
 
-            var trafficFlowNode = node.SelectSingleNode("trafficFlow", mgr);
+            var trafficFlowNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}trafficFlow", mgr);
             if (trafficFlowNode != null && trafficFlowNode.HasChildNodes)
             {
                 TrafficFlow = trafficFlowNode.FirstChild?.InnerText ?? string.Empty;

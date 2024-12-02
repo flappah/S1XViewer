@@ -1,8 +1,6 @@
-﻿using S1XViewer.Base;
-using S1XViewer.Types.ComplexTypes;
+﻿using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
@@ -51,7 +49,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -59,132 +57,7 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            if (node.HasChildNodes)
-            {
-                if (node.Attributes?.Count > 0 &&
-                    node.Attributes.Contains("gml:id") == true)
-                {
-                    Id = node.Attributes["gml:id"].InnerText;
-                }
-            }
-
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
-            if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
-            {
-                FixedDateRange = new DateRange();
-                FixedDateRange.FromXml(fixedDateRangeNode, mgr);
-            }
-
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
-            if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
-            {
-                var dateRanges = new List<DateRange>();
-                foreach (XmlNode periodicDateRangeNode in periodicDateRangeNodes)
-                {
-                    var newDateRange = new DateRange();
-                    newDateRange.FromXml(periodicDateRangeNode, mgr);
-                    dateRanges.Add(newDateRange);
-                }
-                PeriodicDateRange = dateRanges.ToArray();
-            }
-
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
-            if (featureNameNodes != null && featureNameNodes.Count > 0)
-            {
-                var featureNames = new List<FeatureName>();
-                foreach (XmlNode featureNameNode in featureNameNodes)
-                {
-                    var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
-                    featureNames.Add(newFeatureName);
-                }
-                FeatureName = featureNames.ToArray();
-            }
-
-            var sourceIndicationNodes = node.SelectNodes("sourceIndication", mgr);
-            if (sourceIndicationNodes != null && sourceIndicationNodes.Count > 0)
-            {
-                var sourceIndications = new List<SourceIndication>();
-                foreach (XmlNode sourceIndicationNode in sourceIndicationNodes)
-                {
-                    if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
-                    {
-                        var sourceIndication = new SourceIndication();
-                        sourceIndication.FromXml(sourceIndicationNode, mgr);
-                        sourceIndications.Add(sourceIndication);
-                    }
-                }
-                SourceIndication = sourceIndications.ToArray();
-            }
-
-            var textContentNodes = node.SelectNodes("textContent", mgr);
-            if (textContentNodes != null && textContentNodes.Count > 0)
-            {
-                var textContents = new List<TextContent>();
-                foreach (XmlNode textContentNode in textContentNodes)
-                {
-                    if (textContentNode != null && textContentNode.HasChildNodes)
-                    {
-                        var newTextContent = new TextContent();
-                        newTextContent.FromXml(textContentNode, mgr);
-                        textContents.Add(newTextContent);
-                    }
-                }
-
-                TextContent = textContents.ToArray();
-            }
-
-            var categoryOfAuthorityNode = node.SelectSingleNode("categoryOfAuthority", mgr);
-            if (categoryOfAuthorityNode != null && categoryOfAuthorityNode.HasChildNodes)
-            {
-                CategoryOfAuthority = categoryOfAuthorityNode.FirstChild.InnerText;
-            }
-
-            var graphicNodes = node.SelectNodes("graphic", mgr);
-            if (graphicNodes != null && graphicNodes.Count > 0)
-            {
-                var graphics = new List<Graphic>();
-                foreach (XmlNode graphicNode in graphicNodes)
-                {
-                    if (graphicNode != null && graphicNode.HasChildNodes)
-                    {
-                        var newGraphic = new Graphic();
-                        newGraphic.FromXml(graphicNode, mgr);
-                        graphics.Add(newGraphic);
-                    }
-                }
-                Graphic = graphics.ToArray();
-            }
-
-            var rxnCodeNodes = node.SelectNodes("rxnCode");
-            if (rxnCodeNodes != null && rxnCodeNodes.Count > 0)
-            {
-                var rxnCodes = new List<RxnCode>();
-                foreach (XmlNode rxnCodeNode in rxnCodeNodes)
-                {
-                    if (rxnCodeNode != null && rxnCodeNode.HasChildNodes)
-                    {
-                        var newRxnCode = new RxnCode();
-                        newRxnCode.FromXml(rxnCodeNode, mgr);
-                        rxnCodes.Add(newRxnCode);
-                    }
-                }
-                RxnCode = rxnCodes.ToArray();
-            }
-
-            var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);
-            if (linkNodes != null && linkNodes.Count > 0)
-            {
-                var links = new List<Link>();
-                foreach (XmlNode linkNode in linkNodes)
-                {
-                    var newLink = new Link();
-                    newLink.FromXml(linkNode, mgr);
-                    links.Add(newLink);
-                }
-                Links = links.ToArray();
-            }
-
+            base.FromXml(node, mgr, nameSpacePrefix);
             return this;
         }
     }

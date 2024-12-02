@@ -8,7 +8,7 @@ namespace S1XViewer.Types
     {        /// <summary>
              ///     Uses Autofac to insert all existing IFeature's in this property. 
              /// </summary>
-        public S1XViewer.Types.Interfaces.IFeature[] Features { get; set; } = new IFeature[0];
+        public S1XViewer.Types.Interfaces.IFeature[] Features { get; set; } = Array.Empty<IFeature>();
 
         /// <summary>
         ///     No dependencies
@@ -20,8 +20,10 @@ namespace S1XViewer.Types
         /// </summary>
         /// <param name="node">XmlNode</param>
         /// <param name="mgr">XmlNamespaceManager</param>
+        /// <param name="firstChildIsFeature"></param>
+        /// <param name="nameSpacePrefix"></param>
         /// <returns>IFeature</returns>
-        public S1XViewer.Types.Interfaces.IFeature? FromXml(XmlNode node, XmlNamespaceManager mgr, bool firstChildIsFeature = true)
+        public S1XViewer.Types.Interfaces.IFeature? FromXml(XmlNode node, XmlNamespaceManager mgr, bool firstChildIsFeature = true, string nameSpacePrefix = "")
         {
             var featureTypeString = "";
             if (node != null)
@@ -29,7 +31,7 @@ namespace S1XViewer.Types
                 // determine the type string of the feature we're looking for
                 if (firstChildIsFeature)
                 {
-                    featureTypeString = (node.HasChildNodes ? node.ChildNodes[0].Name : "").LastPart(char.Parse(":"));
+                    featureTypeString = (node.ChildNodes.Count > 0 ? node.ChildNodes[0].Name : "").LastPart(char.Parse(":"));
                 }
                 else
                 {
@@ -37,9 +39,8 @@ namespace S1XViewer.Types
                 }
 
                 // look for the feature in the collection of features Autofac initialized and inserted in the Features property
-                var featuresList = Features.ToList();
-                var locatedFeature =
-                    featuresList.Find(tp => tp.GetType().Name.Equals(featureTypeString));
+                List<IFeature> featuresList = Features.ToList();
+                IFeature? locatedFeature = featuresList.Find(tp => tp.GetType().Name.Equals(featureTypeString));
 
                 // if there's a feature, start XML parsing it and return the feature
                 if (locatedFeature != null)
@@ -52,12 +53,12 @@ namespace S1XViewer.Types
                         // and parse xml content into it
                         if ((firstChildIsFeature || node.Name.Equals("member") || node.Name.Equals("imember")) && node.FirstChild != null)
                         {
-                            clonedFeature.FromXml(node.FirstChild, mgr);
+                            clonedFeature.FromXml(node.FirstChild, mgr, nameSpacePrefix);
                         }
                         else
                         {
-                            clonedFeature.FromXml(node, mgr);
-                        }
+                            clonedFeature.FromXml(node, mgr, nameSpacePrefix);
+                        } 
                         return clonedFeature;
                     }
                 }

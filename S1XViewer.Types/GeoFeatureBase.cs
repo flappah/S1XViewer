@@ -40,7 +40,7 @@ namespace S1XViewer.Types
         /// </summary>
         /// <param name=""></param>
         /// <returns></returns>
-        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -48,49 +48,49 @@ namespace S1XViewer.Types
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
                 foreach (XmlNode featureNameNode in featureNameNodes)
                 {
                     var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
+                    newFeatureName.FromXml(featureNameNode, mgr, nameSpacePrefix);
                     featureNames.Add(newFeatureName);
                 }
                 FeatureName = featureNames.ToArray();
             }
 
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
-                FixedDateRange.FromXml(fixedDateRangeNode, mgr);
+                FixedDateRange.FromXml(fixedDateRangeNode, mgr, nameSpacePrefix);
             }
 
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
                 foreach (XmlNode periodicDateRangeNode in periodicDateRangeNodes)
                 {
                     var newDateRange = new DateRange();
-                    newDateRange.FromXml(periodicDateRangeNode, mgr);
+                    newDateRange.FromXml(periodicDateRangeNode, mgr, nameSpacePrefix);
                     dateRanges.Add(newDateRange);
                 }
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var sourceIndicationNode = node.SelectSingleNode("sourceIndication", mgr);
+            var sourceIndicationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceIndication", mgr);
             if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndicationNode, mgr);
+                SourceIndication.FromXml(sourceIndicationNode, mgr, nameSpacePrefix);
             }
 
-            var textContentNodes = node.SelectNodes("textContent", mgr);
+            var textContentNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}textContent", mgr);
             if (textContentNodes != null && textContentNodes.Count > 0)
             {
                 var textContentItems = new List<TextContent>();
@@ -99,7 +99,7 @@ namespace S1XViewer.Types
                     if (textContentNode != null && textContentNode.HasChildNodes)
                     {
                         var textContent = new ComplexTypes.TextContent();
-                        textContent.FromXml(textContentNode, mgr);
+                        textContent.FromXml(textContentNode, mgr, nameSpacePrefix);
                         textContentItems.Add(textContent);
                     }
                 }
@@ -107,19 +107,19 @@ namespace S1XViewer.Types
             }
 
             /* S131 */
-            var locationMRNNode = node.SelectSingleNode("locationMRN", mgr);
+            var locationMRNNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}locationMRN", mgr);
             if (locationMRNNode != null && locationMRNNode.HasChildNodes)
             {
                 LocationMRN = locationMRNNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var globalLocationNumberNode = node.SelectSingleNode("globalLocationNumber", mgr);
+            var globalLocationNumberNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}globalLocationNumber", mgr);
             if (globalLocationNumberNode != null && globalLocationNumberNode.HasChildNodes)
             {
                 GlobalLocationNumber = globalLocationNumberNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var rxNCodeNodes = node.SelectNodes("rxNCode", mgr);
+            var rxNCodeNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}rxNCode", mgr);
             if (rxNCodeNodes != null && rxNCodeNodes.Count > 0)
             {
                 var rxnCodeItems = new List<RxnCode>();
@@ -128,14 +128,14 @@ namespace S1XViewer.Types
                     if (rxnCodeNode != null && rxnCodeNode.HasChildNodes)
                     {
                         var rxnCode = new ComplexTypes.RxnCode();
-                        rxnCode.FromXml(rxnCodeNode, mgr);
+                        rxnCode.FromXml(rxnCodeNode, mgr, nameSpacePrefix);
                         rxnCodeItems.Add(rxnCode);
                     }
                 }
                 RxnCode = rxnCodeItems.ToArray();
             }
 
-            var graphicNodes = node.SelectNodes("textContent", mgr);
+            var graphicNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}textContent", mgr);
             if (graphicNodes != null && graphicNodes.Count > 0)
             {
                 var graphicItems = new List<Graphic>();
@@ -144,26 +144,26 @@ namespace S1XViewer.Types
                     if (graphicNode != null && graphicNode.HasChildNodes)
                     {
                         var graphic = new ComplexTypes.Graphic();
-                        graphic.FromXml(graphicNode, mgr);
+                        graphic.FromXml(graphicNode, mgr, nameSpacePrefix);
                         graphicItems.Add(graphic);
                     }
                 }
                 Graphic = graphicItems.ToArray();
             }
 
-            var sourceNode = node.SelectSingleNode("source", mgr);
+            var sourceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}source", mgr);
             if (sourceNode != null && sourceNode.HasChildNodes)
             {
                 Source = sourceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var sourceTypeNode = node.SelectSingleNode("sourceType", mgr);
+            var sourceTypeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceType", mgr);
             if (sourceTypeNode != null && sourceTypeNode.HasChildNodes)
             {
                 SourceType = sourceTypeNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var reportedDateNode = node.SelectSingleNode("reportedDate", mgr);
+            var reportedDateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}reportedDate", mgr);
             if (reportedDateNode != null && reportedDateNode.HasChildNodes)
             {
                 if (DateTime.TryParse(reportedDateNode.FirstChild?.InnerText, out DateTime reportedDateValue))

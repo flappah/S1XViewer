@@ -55,7 +55,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -63,33 +63,33 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var flipBearingNode = node.SelectSingleNode("flipBearing", mgr);
+            var flipBearingNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}flipBearing", mgr);
             if (flipBearingNode != null && flipBearingNode.HasChildNodes)
             {
                 FlipBearing = flipBearingNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var scaleMinimumNode = node.SelectSingleNode("scaleMinimum", mgr);
+            var scaleMinimumNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}scaleMinimum", mgr);
             if (scaleMinimumNode != null && scaleMinimumNode.HasChildNodes)
             {
                 ScaleMinimum = scaleMinimumNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var textJustificationNode = node.SelectSingleNode("textJustification", mgr);
+            var textJustificationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}textJustification", mgr);
             if (textJustificationNode != null && textJustificationNode.HasChildNodes)
             {
                 TextJustification = textJustificationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var textNode = node.SelectSingleNode("text", mgr);
+            var textNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}text", mgr);
             if (textNode != null && textNode.HasChildNodes)
             {
                 Text = textNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var textTypeNode = node.SelectSingleNode("textType", mgr);
+            var textTypeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}textType", mgr);
             if (textTypeNode != null && textTypeNode.HasChildNodes)
             {
                 TextType = textTypeNode.FirstChild?.InnerText ?? string.Empty;

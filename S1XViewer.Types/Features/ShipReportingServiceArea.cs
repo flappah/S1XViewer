@@ -1,6 +1,5 @@
 ﻿using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
-using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
@@ -48,7 +47,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -56,15 +55,15 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var serviceAccessProcedureNode = node.SelectSingleNode("serviceaccessprocedure", mgr);
+            var serviceAccessProcedureNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}serviceaccessprocedure", mgr);
             if (serviceAccessProcedureNode != null && serviceAccessProcedureNode.HasChildNodes)
             {
                 ServiceAccessProcedure = serviceAccessProcedureNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var requirementsForMaintenanceOfListeningWatchNode = node.SelectSingleNode("requirementsformaintenanceoflisteningwatch", mgr);
+            var requirementsForMaintenanceOfListeningWatchNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}requirementsformaintenanceoflisteningwatch", mgr);
             if (requirementsForMaintenanceOfListeningWatchNode != null && requirementsForMaintenanceOfListeningWatchNode.HasChildNodes)
             {
                 RequirementsForMaintenanceOfListeningWatch = requirementsForMaintenanceOfListeningWatchNode.FirstChild?.InnerText ?? string.Empty;

@@ -62,7 +62,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -70,9 +70,9 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfMilitaryPracticeAreaNodes = node.SelectNodes("categoryOfMilitaryPracticeArea", mgr);
+            var categoryOfMilitaryPracticeAreaNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfMilitaryPracticeArea", mgr);
             if (categoryOfMilitaryPracticeAreaNodes != null && categoryOfMilitaryPracticeAreaNodes.Count > 0)
             {
                 var categories = new List<string>();
@@ -88,13 +88,13 @@ namespace S1XViewer.Types.Features
                 CategoryOfMilitaryPracticeArea = categories.ToArray();
             }
 
-            var nationalityNode = node.SelectSingleNode("nationality", mgr);
+            var nationalityNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}nationality", mgr);
             if (nationalityNode != null && nationalityNode.HasChildNodes)
             {
                 Nationality = nationalityNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var restrictionNodes = node.SelectNodes("restriction", mgr);
+            var restrictionNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}restriction", mgr);
             if (restrictionNodes != null && restrictionNodes.Count > 0)
             {
                 var restrictions = new List<string>();
@@ -110,7 +110,7 @@ namespace S1XViewer.Types.Features
                 Restriction = restrictions.ToArray();
             }
 
-            var statusNodes = node.SelectNodes("status", mgr);
+            var statusNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNodes != null && statusNodes.Count > 0)
             {
                 var statuses = new List<string>();

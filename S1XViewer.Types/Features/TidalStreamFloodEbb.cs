@@ -165,7 +165,7 @@ namespace S1XViewer.Types.Features
         /// <param name="mgr"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -173,9 +173,9 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-           base.FromXml(node, mgr);
+           base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfTidalStreamNodes = node.SelectNodes("categoryOfTidalStream", mgr);
+            var categoryOfTidalStreamNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfTidalStream", mgr);
             if (categoryOfTidalStreamNodes != null && categoryOfTidalStreamNodes.Count > 0)
             {
                 var tidalStreamCategories = new List<string>();
@@ -189,21 +189,32 @@ namespace S1XViewer.Types.Features
                 CategoryOfTidalStream = tidalStreamCategories.ToArray();
             }
 
-            var orientationNode = node.SelectSingleNode("orientation", mgr);
+            var orientationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}orientation", mgr);
             if (orientationNode != null && orientationNode.HasChildNodes)
             {
                 Orientation = new Orientation();
-                Orientation.FromXml(orientationNode, mgr);
+                Orientation.FromXml(orientationNode, mgr, nameSpacePrefix);
             }
 
-            var speedNode = node.SelectSingleNode("speed", mgr);
+            var speedNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}speed", mgr);
             if (speedNode != null && speedNode.HasChildNodes)
             {
                 Speed = new Speed();
-                Speed.FromXml(speedNode, mgr);
+                Speed.FromXml(speedNode, mgr, nameSpacePrefix);
             }
 
             return this;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override string GetSymbolName()
+        {
+            return "";
+        }
+
     }
 }

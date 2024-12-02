@@ -52,7 +52,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -60,21 +60,21 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfVesselTrafficServiceNode = node.SelectSingleNode("categoryOfVesselTrafficService", mgr);
+            var categoryOfVesselTrafficServiceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfVesselTrafficService", mgr);
             if (categoryOfVesselTrafficServiceNode != null && categoryOfVesselTrafficServiceNode.HasChildNodes)
             {
                 CategoryOfVesselTrafficService = categoryOfVesselTrafficServiceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var serviceAccessProcedureNode = node.SelectSingleNode("serviceAccessProcedure", mgr);
+            var serviceAccessProcedureNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}serviceAccessProcedure", mgr);
             if (serviceAccessProcedureNode != null)
             {
                 ServiceAccessProcedure = serviceAccessProcedureNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var requirementsForMaintenanceOfListeningWatchNode = node.SelectSingleNode("requirementsForMaintenanceOfListeningWatch", mgr);
+            var requirementsForMaintenanceOfListeningWatchNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}requirementsForMaintenanceOfListeningWatch", mgr);
             if (requirementsForMaintenanceOfListeningWatchNode != null && requirementsForMaintenanceOfListeningWatchNode.HasChildNodes)
             {
                 RequirementsForMaintenanceOfListeningWatch = requirementsForMaintenanceOfListeningWatchNode.FirstChild?.InnerText ?? string.Empty;

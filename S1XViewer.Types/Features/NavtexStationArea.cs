@@ -1,7 +1,6 @@
 ﻿using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
@@ -51,7 +50,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -59,21 +58,21 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var txIdentCharNode = node.SelectSingleNode("txIdentChar", mgr);
+            var txIdentCharNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}txIdentChar", mgr);
             if (txIdentCharNode != null && txIdentCharNode.HasChildNodes)
             {
                 TxIdentChar = txIdentCharNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var restrictionNode = node.SelectSingleNode("restriction", mgr);
+            var restrictionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}restriction", mgr);
             if (restrictionNode != null && restrictionNode.HasChildNodes)
             {
                 Restriction = restrictionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var statusNode = node.SelectSingleNode("status", mgr);
+            var statusNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNode != null && statusNode.HasChildNodes)
             {
                 Status = statusNode.FirstChild?.InnerText ?? string.Empty;

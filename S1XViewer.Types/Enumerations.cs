@@ -16,6 +16,7 @@ namespace S1XViewer.Types
         S123,
         S125,
         S127,
-        S128
+        S128,
+        S131
     }
 }

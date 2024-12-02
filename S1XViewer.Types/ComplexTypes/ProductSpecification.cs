@@ -5,10 +5,10 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class ProductSpecification : ComplexTypeBase, IProductSpecification
     {
-        public string Date { get; set; }
-        public string ISSN { get; set; }
-        public string Name { get; set; }
-        public string Version { get; set; }
+        public string Date { get; set; } = string.Empty;
+        public string ISSN { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Version { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -31,27 +31,27 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var dateNode = node.SelectSingleNode("date");
+            var dateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}date", mgr);
             if (dateNode != null && dateNode.HasChildNodes)
             {
-                Date = dateNode.FirstChild.InnerText;
+                Date = dateNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var issnNode = node.SelectSingleNode("issn");
+            var issnNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}issn", mgr);
             if (issnNode != null && issnNode.HasChildNodes)
             {
-                ISSN = issnNode.FirstChild.InnerText;
+                ISSN = issnNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var nameNode = node.SelectSingleNode("name");
+            var nameNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}name", mgr);
             if (nameNode != null && nameNode.HasChildNodes)
             {
                 Name = node.InnerText;
             }
 
-            var versionNode = node.SelectSingleNode("version");
+            var versionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}version", mgr);
             if (versionNode != null && versionNode.HasChildNodes)
             {
                 Version = node.InnerText;

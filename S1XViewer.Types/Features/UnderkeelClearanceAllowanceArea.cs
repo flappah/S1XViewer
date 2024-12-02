@@ -51,7 +51,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -59,16 +59,16 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var underkeelAllowanceNode = node.SelectSingleNode("underkeelAllowance", mgr);
+            var underkeelAllowanceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}underkeelAllowance", mgr);
             if (underkeelAllowanceNode != null && underkeelAllowanceNode.HasChildNodes)
             {
                 UnderkeelAllowance = new UnderkeelAllowance();
-                UnderkeelAllowance.FromXml(underkeelAllowanceNode, mgr);
+                UnderkeelAllowance.FromXml(underkeelAllowanceNode, mgr, nameSpacePrefix);
             }
 
-            var waterLevelTrendNode = node.SelectSingleNode("waterLevelTrend", mgr);
+            var waterLevelTrendNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}waterLevelTrend", mgr);
             if (waterLevelTrendNode != null && waterLevelTrendNode.HasChildNodes)
             {
                 WaterLevelTrend = waterLevelTrendNode.FirstChild?.InnerText ?? string.Empty;

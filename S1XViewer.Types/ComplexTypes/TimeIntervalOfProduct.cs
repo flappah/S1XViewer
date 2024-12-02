@@ -5,8 +5,8 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class TimeIntervalOfProduct : ComplexTypeBase, ITimeIntervalOfProduct
     {
-        public DateTime ExpirationDate { get; set; }
-        public DateTime IssueDate { get; set; }
+        public DateTime ExpirationDate { get; set; } = DateTime.MinValue;
+        public DateTime IssueDate { get; set; } = DateTime.MinValue;
         public IIssuanceCycle IssuanceCycle { get; set; } = new IssuanceCycle();
 
         /// <summary>
@@ -31,14 +31,10 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             //public DateTime ExpirationDate { get; set; }
-            var expirationDateNode = node.SelectSingleNode("expirationDate", mgr);
-            if (expirationDateNode == null)
-            {
-                expirationDateNode = node.SelectSingleNode("S128:expirationDate", mgr);
-            }
+            var expirationDateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}expirationDate", mgr);
             if (expirationDateNode != null && expirationDateNode.HasChildNodes)
             {
                 if (DateTime.TryParse(expirationDateNode.FirstChild?.InnerText, out DateTime expirationDateValue))
@@ -48,11 +44,7 @@ namespace S1XViewer.Types.ComplexTypes
             }
 
             //public DateTime IssueDate { get; set; }
-            var issueDateNode = node.SelectSingleNode("issueDate", mgr);
-            if (issueDateNode == null)
-            {
-                issueDateNode = node.SelectSingleNode("S128:issueDate", mgr);
-            }
+            var issueDateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}issueDate", mgr);
             if (issueDateNode != null && issueDateNode.HasChildNodes)
             {
                 if (DateTime.TryParse(issueDateNode.FirstChild?.InnerText, out DateTime issueDateValue))
@@ -62,15 +54,11 @@ namespace S1XViewer.Types.ComplexTypes
             }
 
             //public IIssuanceCycle IssuanceCycle { get; set; }
-            var issuanceCycleNode = node.SelectSingleNode("issuanceCycle", mgr);
-            if (issuanceCycleNode == null)
-            {
-                issuanceCycleNode = node.SelectSingleNode("S128:issuanceCycle", mgr);
-            }
+            var issuanceCycleNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}issuanceCycle", mgr);
             if (issuanceCycleNode != null && issuanceCycleNode.HasChildNodes)
             {
                 IssuanceCycle = new IssuanceCycle();
-                IssuanceCycle.FromXml(issuanceCycleNode, mgr);
+                IssuanceCycle.FromXml(issuanceCycleNode, mgr, nameSpacePrefix);
             }
 
             return this;

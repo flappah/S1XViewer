@@ -29,7 +29,7 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -37,24 +37,24 @@ namespace S1XViewer.Types.ComplexTypes
             if (mgr == null)
                 return this;
 
-            var onlineResourceNode = node.SelectSingleNode("onlineResource", mgr);
+            var onlineResourceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}onlineResource", mgr);
             if (onlineResourceNode != null && onlineResourceNode.HasChildNodes)
             {
                 OnlineResource = new OnlineResource();
-                OnlineResource.FromXml(onlineResourceNode, mgr);
+                OnlineResource.FromXml(onlineResourceNode, mgr, nameSpacePrefix);
             }
 
-            var dynamicResourceNode = node.SelectSingleNode("dynamicResource", mgr);
+            var dynamicResourceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dynamicResource", mgr);
             if (dynamicResourceNode != null && dynamicResourceNode.HasChildNodes)
             {
                 DynamicResource = dynamicResourceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var textContentNode = node.SelectSingleNode("textContent", mgr);
+            var textContentNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}textContent", mgr);
             if (textContentNode != null && textContentNode.HasChildNodes)
             {
                 TextContent = new TextContent();
-                TextContent.FromXml(textContentNode, mgr);
+                TextContent.FromXml(textContentNode, mgr, nameSpacePrefix);
             }
 
             return this;

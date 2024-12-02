@@ -50,7 +50,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -67,40 +67,40 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
-                FixedDateRange.FromXml(fixedDateRangeNode, mgr);
+                FixedDateRange.FromXml(fixedDateRangeNode, mgr, nameSpacePrefix);
             }
 
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
                 foreach (XmlNode periodicDateRangeNode in periodicDateRangeNodes)
                 {
                     var newDateRange = new DateRange();
-                    newDateRange.FromXml(periodicDateRangeNode, mgr);
+                    newDateRange.FromXml(periodicDateRangeNode, mgr, nameSpacePrefix);
                     dateRanges.Add(newDateRange);
                 }
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
                 foreach (XmlNode featureNameNode in featureNameNodes)
                 {
                     var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
+                    newFeatureName.FromXml(featureNameNode, mgr, nameSpacePrefix);
                     featureNames.Add(newFeatureName);
                 }
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndicationNodes = node.SelectNodes("sourceIndication", mgr);
+            var sourceIndicationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceIndication", mgr);
             if (sourceIndicationNodes != null && sourceIndicationNodes.Count > 0)
             {
                 var sourceIndications = new List<SourceIndication>();
@@ -109,27 +109,27 @@ namespace S1XViewer.Types.Features
                     if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
                     {
                         var sourceIndication = new SourceIndication();
-                        sourceIndication.FromXml(sourceIndicationNode, mgr);
+                        sourceIndication.FromXml(sourceIndicationNode, mgr, nameSpacePrefix);
                         sourceIndications.Add(sourceIndication);
                     }
                 }
                 SourceIndication = sourceIndications.ToArray();
             }
 
-            var informationNodes = node.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
                 foreach (XmlNode informationNode in informationNodes)
                 {
                     var newInformation = new Information();
-                    newInformation.FromXml(informationNode, mgr);
+                    newInformation.FromXml(informationNode, mgr, nameSpacePrefix);
                     informations.Add(newInformation);
                 }
                 Information = informations.ToArray();
             }
 
-            var scheduleByDoWNodes = node.SelectNodes("scheduleByDoW", mgr);
+            var scheduleByDoWNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}scheduleByDoW", mgr);
             if (scheduleByDoWNodes != null && scheduleByDoWNodes.Count > 0)
             {
                 var schedules = new List<ScheduleByDoW>();
@@ -138,7 +138,7 @@ namespace S1XViewer.Types.Features
                     if (scheduleByDoWNode != null && scheduleByDoWNode.HasChildNodes)
                     {
                         var scheduleByDoW = new ScheduleByDoW();
-                        scheduleByDoW.FromXml(scheduleByDoWNode, mgr);
+                        scheduleByDoW.FromXml(scheduleByDoWNode, mgr, nameSpacePrefix);
                         schedules.Add(scheduleByDoW);
                     }
                 }

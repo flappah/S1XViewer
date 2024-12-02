@@ -40,7 +40,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -71,13 +71,13 @@ namespace S1XViewer.Types.Features
                 FeatureObjectIdentifier.FromXml(foidNode, mgr);
             }
 
-            var verticalDatumNode = node.SelectSingleNode("verticalDatum", mgr);
+            var verticalDatumNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}verticalDatum", mgr);
             if (verticalDatumNode != null)
             {
                 VerticalDatum = verticalDatumNode.InnerText;
             }
 
-            var informationNodes = node.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
@@ -86,7 +86,7 @@ namespace S1XViewer.Types.Features
                     if (informationNode != null && informationNode.HasChildNodes)
                     {
                         var newInformation = new Information();
-                        newInformation.FromXml(informationNode, mgr);
+                        newInformation.FromXml(informationNode, mgr, nameSpacePrefix);
                         informations.Add(newInformation);
                     }
                 }

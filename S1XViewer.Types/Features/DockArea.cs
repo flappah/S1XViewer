@@ -52,7 +52,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -60,29 +60,29 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var depthsDescriptionNode = node.SelectSingleNode("depthsDescription", mgr);
+            var depthsDescriptionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}depthsDescription", mgr);
             if (depthsDescriptionNode != null && depthsDescriptionNode.HasChildNodes)
             {
                 DepthsDescription = new DepthsDescription();
-                DepthsDescription.FromXml(depthsDescriptionNode, mgr);
+                DepthsDescription.FromXml(depthsDescriptionNode, mgr, nameSpacePrefix);
             }
 
-            var locationByTextNode = node.SelectSingleNode("locationByText", mgr);
+            var locationByTextNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}locationByText", mgr);
             if (locationByTextNode != null && locationByTextNode.HasChildNodes)
             {
                 LocationByText = locationByTextNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var markedByNode = node.SelectSingleNode("markedBy", mgr);
+            var markedByNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}markedBy", mgr);
             if (markedByNode != null && markedByNode.HasChildNodes)
             {
                 MarkedBy = new MarkedBy();
-                MarkedBy.FromXml(markedByNode, mgr);
+                MarkedBy.FromXml(markedByNode, mgr, nameSpacePrefix);
             }
 
-            var iSPSLevelNode = node.SelectSingleNode("iSPSLevel", mgr);
+            var iSPSLevelNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}iSPSLevel", mgr);
             if (iSPSLevelNode != null && iSPSLevelNode.HasChildNodes)
             {
                 ISPSLevel = iSPSLevelNode.FirstChild?.InnerText ?? string.Empty;

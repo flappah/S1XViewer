@@ -8,8 +8,5 @@ namespace S1XViewer.Types.Interfaces
         string CategoryOfPortSection { get; set; }
         string FacilitiesLayoutDescription { get; set; }
         string iSPSLevel { get; set; }
-
-        IFeature DeepClone();
-        IFeature FromXml(XmlNode node, XmlNamespaceManager mgr);
     }
 }

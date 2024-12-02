@@ -26,20 +26,20 @@ namespace S1XViewer.Types.ComplexTypes
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node != null && node.HasChildNodes)
             {
-                var dateStart = node.SelectSingleNode("dateStart", mgr);
+                var dateStart = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dateStart", mgr);
                 if (dateStart != null && dateStart.HasChildNodes)
                 {
-                    StartMonthDay = dateStart.FirstChild.InnerText;
+                    StartMonthDay = dateStart.FirstChild?.InnerText ?? string.Empty;
                 }
 
-                var dateEnd = node.SelectSingleNode("dateEnd", mgr);
+                var dateEnd = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dateEnd", mgr);
                 if (dateEnd != null && dateEnd.HasChildNodes)
                 {
-                    EndMonthDay = dateEnd.FirstChild.InnerText;
+                    EndMonthDay = dateEnd.FirstChild?.InnerText ?? string.Empty;
                 }
             }
 

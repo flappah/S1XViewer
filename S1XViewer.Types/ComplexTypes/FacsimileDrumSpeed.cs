@@ -5,8 +5,8 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class FacsimileDrumSpeed : ComplexTypeBase, IFacsimileDrumSpeed
     {
-        public string DrumSpeed { get; set; }
-        public string IndexOfCooperation { get; set; }
+        public string DrumSpeed { get; set; } = string.Empty;
+        public string IndexOfCooperation { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -27,18 +27,18 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var drumSpeedNode = node.SelectSingleNode("drumSpeed");
+            var drumSpeedNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}drumSpeed", mgr);
             if (drumSpeedNode != null && drumSpeedNode.HasChildNodes)
             {
-                DrumSpeed = drumSpeedNode.FirstChild.InnerText;
+                DrumSpeed = drumSpeedNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var indexOfCooperationNode = node.SelectSingleNode("indexOfCooperation");
+            var indexOfCooperationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}indexOfCooperation", mgr);
             if (indexOfCooperationNode != null && indexOfCooperationNode.HasChildNodes)
             {
-                IndexOfCooperation = indexOfCooperationNode.FirstChild.InnerText;
+                IndexOfCooperation = indexOfCooperationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

@@ -9,8 +9,5 @@ namespace S1XViewer.Types.Interfaces
         string PublicationNumber { get; set; }
         DateTime ReferenceToNM { get; set; }
         string TypeOfPaper { get; set; }
-
-        IFeature DeepClone();
-        IFeature FromXml(XmlNode node, XmlNamespaceManager mgr);
     }
 }

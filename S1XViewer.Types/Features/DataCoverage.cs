@@ -37,7 +37,7 @@ namespace S1XViewer.Types.Features
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -58,23 +58,23 @@ namespace S1XViewer.Types.Features
             if (featureObjectIdentifierNode != null && featureObjectIdentifierNode.HasChildNodes)
             {
                 FeatureObjectIdentifier = new FeatureObjectIdentifier();
-                FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr);
+                FeatureObjectIdentifier.FromXml(featureObjectIdentifierNode, mgr, nameSpacePrefix);
             }
 
             var foidNode = node.SelectSingleNode("S100:featureObjectIdentifier", mgr);
             if (foidNode != null && foidNode.HasChildNodes)
             {
                 FeatureObjectIdentifier = new FeatureObjectIdentifier();
-                FeatureObjectIdentifier.FromXml(foidNode, mgr);
+                FeatureObjectIdentifier.FromXml(foidNode, mgr, nameSpacePrefix);
             }
 
-            var maximumDisplayScaleNode = node.SelectSingleNode("maximumDisplayScale", mgr);
+            var maximumDisplayScaleNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}maximumDisplayScale", mgr);
             if (maximumDisplayScaleNode != null)
             {
                 MaximumDisplayScale = maximumDisplayScaleNode.InnerText;
             }
 
-            var minimumDisplayScaleNode = node.SelectSingleNode("minimumDisplayScale", mgr);
+            var minimumDisplayScaleNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}minimumDisplayScale", mgr);
             if (minimumDisplayScaleNode != null)
             {
                 MinimumDisplayScale = minimumDisplayScaleNode.InnerText;

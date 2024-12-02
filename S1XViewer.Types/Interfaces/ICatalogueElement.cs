@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace S1XViewer.Types.Interfaces
 {
-    public interface ICatalogueElement
+    public interface ICatalogueElement : IGeoFeature
     {
         string AgencyResponsibleForProduction { get; set; }
         string[] CatalogueElementClassification { get; set; }
@@ -15,7 +15,5 @@ namespace S1XViewer.Types.Interfaces
         bool NotForNavigation { get; set; }
         IOnlineResource OnlineResource { get; set; }
         ISupportFile[] SupportFile { get; set; }
-
-        IFeature FromXml(XmlNode node, XmlNamespaceManager mgr);
     }
 }

@@ -5,11 +5,11 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class Information : ComplexTypeBase, IInformation
     {
-        public string FileLocator { get; set; }
-        public string FileReference { get; set; }
-        public string Headline { get; set; }
-        public string Language { get; set; }
-        public string Text { get; set; }
+        public string FileLocator { get; set; } = string.Empty;
+        public string FileReference { get; set; } = string.Empty;   
+        public string Headline { get; set; } = string.Empty;
+        public string Language { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -33,35 +33,35 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var fileLocatorNode = node.SelectSingleNode("fileLocator", mgr);
+            var fileLocatorNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}fileLocator", mgr);
             if (fileLocatorNode != null && fileLocatorNode.HasChildNodes)
             {
-                FileLocator = fileLocatorNode.FirstChild.InnerText;
+                FileLocator = fileLocatorNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var fileReferenceNode = node.SelectSingleNode("fileReference", mgr);
+            var fileReferenceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}fileReference", mgr);
             if (fileReferenceNode != null && fileReferenceNode.HasChildNodes)
             {
-                FileReference = fileReferenceNode.FirstChild.InnerText;
+                FileReference = fileReferenceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var headlineNode = node.SelectSingleNode("headline", mgr);
+            var headlineNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}headline", mgr);
             if (headlineNode != null && headlineNode.HasChildNodes)
             {
-                Headline = headlineNode.FirstChild.InnerText;
+                Headline = headlineNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var languageNode = node.SelectSingleNode("language", mgr);
+            var languageNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}language", mgr);
             if (languageNode != null && languageNode.HasChildNodes)
             {
-                Language = languageNode.FirstChild.InnerText;
+                Language = languageNode.FirstChild?.InnerText ?? string.Empty;
             }
-            var textNode = node.SelectSingleNode("text", mgr);
+            var textNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}text", mgr);
             if (textNode != null && textNode.HasChildNodes)
-            {
-                Text = textNode.FirstChild.InnerText;
+            {   
+                Text = textNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

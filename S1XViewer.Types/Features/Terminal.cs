@@ -59,7 +59,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -67,21 +67,21 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var portFacilityNumberNode = node.SelectSingleNode("portFacilityNumber", mgr);
+            var portFacilityNumberNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}portFacilityNumber", mgr);
             if (portFacilityNumberNode != null && portFacilityNumberNode.HasChildNodes)
             {
                 PortFacilityNumber = portFacilityNumberNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfHarbourFacilityNode = node.SelectSingleNode("categoryOfHarbourFacility", mgr);
+            var categoryOfHarbourFacilityNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfHarbourFacility", mgr);
             if (categoryOfHarbourFacilityNode != null && categoryOfHarbourFacilityNode.HasChildNodes)
             {
                 CategoryOfHarbourFacility = categoryOfHarbourFacilityNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfCargoNodes = node.SelectNodes("categoryOfCargo", mgr);
+            var categoryOfCargoNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfCargo", mgr);
             if (categoryOfCargoNodes != null && categoryOfCargoNodes.Count > 0)
             {
                 var categoryOfCargos = new List<string>();
@@ -97,7 +97,7 @@ namespace S1XViewer.Types.Features
                 CategoryOfCargo = categoryOfCargos.ToArray();
             }
 
-            var productNodes = node.SelectNodes("product", mgr);
+            var productNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}product", mgr);
             if (productNodes != null && productNodes.Count > 0)
             {
                 var products = new List<string>();
@@ -113,19 +113,19 @@ namespace S1XViewer.Types.Features
                 Product = products.ToArray();
             }
 
-            var terminalIdentifierNode = node.SelectSingleNode("terminalIdentifier", mgr);
+            var terminalIdentifierNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}terminalIdentifier", mgr);
             if (terminalIdentifierNode != null && terminalIdentifierNode.HasChildNodes)
             {
                 TerminalIdentifier = terminalIdentifierNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var sMDGTerminalCodeNode = node.SelectSingleNode("sMDGTerminalCode", mgr);
+            var sMDGTerminalCodeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sMDGTerminalCode", mgr);
             if (sMDGTerminalCodeNode != null && sMDGTerminalCodeNode.HasChildNodes)
             {
                 SMDGTerminalCode = sMDGTerminalCodeNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var uNLocationCodeNode = node.SelectSingleNode("uNLocationCode", mgr);
+            var uNLocationCodeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}uNLocationCode", mgr);
             if (uNLocationCodeNode != null && uNLocationCodeNode.HasChildNodes)
             {
                 UNLocationCode = uNLocationCodeNode.FirstChild?.InnerText ?? string.Empty;

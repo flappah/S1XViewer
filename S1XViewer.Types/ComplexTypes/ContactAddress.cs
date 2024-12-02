@@ -7,11 +7,11 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class ContactAddress : ComplexTypeBase, IContactAddress
     {
-        public string[] DeliveryPoint { get; set; }
-        public string CityName { get; set; }
-        public string AdministrativeDivision { get; set; }
-        public string Country { get; set; }
-        public string PostalCode { get; set; }
+        public string[] DeliveryPoint { get; set; } = Array.Empty<string>();
+        public string CityName { get; set; } = string.Empty;
+        public string AdministrativeDivision { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string PostalCode { get; set; } = String.Empty;
 
         /// <summary>
         /// 
@@ -22,7 +22,7 @@ namespace S1XViewer.Types.ComplexTypes
             return new ContactAddress
             {
                 DeliveryPoint = DeliveryPoint == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(DeliveryPoint, s => s),
                 CityName = CityName,
                 AdministrativeDivision = AdministrativeDivision,
@@ -37,9 +37,9 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var deliveryPointNodes = node.SelectNodes("deliveryPoint", mgr);
+            var deliveryPointNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}deliveryPoint", mgr);
             if (deliveryPointNodes != null && deliveryPointNodes.Count > 0)
             {
                 var deliveryPoints = new List<string>();
@@ -47,34 +47,34 @@ namespace S1XViewer.Types.ComplexTypes
                 {
                     if (deliveryPointNode != null && deliveryPointNode.HasChildNodes)
                     {
-                        deliveryPoints.Add(deliveryPointNode.FirstChild.InnerText);
+                        deliveryPoints.Add(deliveryPointNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 DeliveryPoint = deliveryPoints.ToArray();
             }
 
-            var cityNameNode = node.SelectSingleNode("cityName", mgr);
+            var cityNameNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}cityName", mgr);
             if (cityNameNode != null && cityNameNode.HasChildNodes)
             {
-                CityName = cityNameNode.FirstChild.InnerText;
+                CityName = cityNameNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var administrativeDivisionNode = node.SelectSingleNode("administrativeDivision", mgr);
+            var administrativeDivisionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}administrativeDivision", mgr);
             if (administrativeDivisionNode != null && administrativeDivisionNode.HasChildNodes)
             {
-                AdministrativeDivision = administrativeDivisionNode.FirstChild.InnerText;
+                AdministrativeDivision = administrativeDivisionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var countryNode = node.SelectSingleNode("country", mgr);
+            var countryNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}country", mgr);
             if (countryNode != null && countryNode.HasChildNodes)
             {
-                Country = countryNode.FirstChild.InnerText;
+                Country = countryNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var postalCodeNode = node.SelectSingleNode("postalCode", mgr);
+            var postalCodeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}postalCode", mgr);
             if (postalCodeNode != null && postalCodeNode.HasChildNodes)
             {
-                PostalCode = postalCodeNode.FirstChild.InnerText;
+                PostalCode = postalCodeNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

@@ -62,7 +62,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -70,10 +70,10 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
             //public float AvailableBerthingLength { get; set; } = 0.0f;
-            var availableBerthingLengthNode = node.SelectSingleNode("availableBerthingLength", mgr);
+            var availableBerthingLengthNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}availableBerthingLength", mgr);
             if (availableBerthingLengthNode != null && availableBerthingLengthNode.HasChildNodes)
             {
                 if (float.TryParse(availableBerthingLengthNode.FirstChild?.InnerText, out float availableBerthingLengthValue))
@@ -83,14 +83,14 @@ namespace S1XViewer.Types.Features
             }
 
             //public string BollardDescription { get; set; } = string.Empty;
-            var bollardDescriptionNode = node.SelectSingleNode("bollardDescription", mgr);
+            var bollardDescriptionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}bollardDescription", mgr);
             if (bollardDescriptionNode != null && bollardDescriptionNode.HasChildNodes)
             {
                 BollardDescription = bollardDescriptionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public float BollardPull { get; set; } = 0.0f;
-            var bollardPullNode = node.SelectSingleNode("bollardPull", mgr);
+            var bollardPullNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}bollardPull", mgr);
             if (bollardPullNode != null && bollardPullNode.HasChildNodes)
             {
                 if (float.TryParse(bollardPullNode.FirstChild?.InnerText, out float bollardPullNodeValue))
@@ -100,7 +100,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public string[] BollardNumber { get; set; } = Array.Empty<string>();
-            var bollardNumberNodes = node.SelectNodes("bollardNumber", mgr);
+            var bollardNumberNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}bollardNumber", mgr);
             if (bollardNumberNodes != null && bollardNumberNodes.Count > 0)
             {
                 var bollardNumbers = new List<string>();
@@ -108,7 +108,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (bollardNumberNode != null && bollardNumberNode.HasChildNodes && String.IsNullOrEmpty(bollardNumberNode.FirstChild?.InnerText) == false)
                     {
-                        bollardNumbers.Add(bollardNumberNode.FirstChild?.InnerText);
+                        bollardNumbers.Add(bollardNumberNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
 
@@ -117,14 +117,14 @@ namespace S1XViewer.Types.Features
             }
 
             //public string GLNExtension { get; set; } = string.Empty;
-            var gLNExtensionNode = node.SelectSingleNode("gLNExtension", mgr);
+            var gLNExtensionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}gLNExtension", mgr);
             if (gLNExtensionNode != null && gLNExtensionNode.HasChildNodes)
             {
                 GLNExtension = gLNExtensionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string[] MetreMarkNumber { get; set; } = Array.Empty<string>();
-            var metreMarkNumberNodes = node.SelectNodes("metreMarkNumber", mgr);
+            var metreMarkNumberNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}metreMarkNumber", mgr);
             if (metreMarkNumberNodes != null && metreMarkNumberNodes.Count > 0)
             {
                 var metreMarkNumbers = new List<string>();
@@ -132,7 +132,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (metreMarkNumberNode != null && metreMarkNumberNode.HasChildNodes && String.IsNullOrEmpty(metreMarkNumberNode.FirstChild?.InnerText) == false)
                     {
-                        metreMarkNumbers.Add(metreMarkNumberNode.FirstChild?.InnerText);
+                        metreMarkNumbers.Add(metreMarkNumberNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
 
@@ -141,7 +141,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public string[] ManifoldNumber { get; set; } = Array.Empty<string>();
-            var manifoldNumberNodes = node.SelectNodes("manifoldNumber", mgr);
+            var manifoldNumberNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}manifoldNumber", mgr);
             if (manifoldNumberNodes != null && manifoldNumberNodes.Count > 0)
             {
                 var manifoldNumbers = new List<string>();
@@ -149,7 +149,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (manifoldNumberNode != null && manifoldNumberNode.HasChildNodes && String.IsNullOrEmpty(manifoldNumberNode.FirstChild?.InnerText) == false)
                     {
-                        manifoldNumbers.Add(manifoldNumberNode.FirstChild?.InnerText);
+                        manifoldNumbers.Add(manifoldNumberNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
 
@@ -158,14 +158,14 @@ namespace S1XViewer.Types.Features
             }
 
             //public string RampNumber { get; set; } = string.Empty;
-            var rampNumberNode = node.SelectSingleNode("rampNumber", mgr);
+            var rampNumberNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}rampNumber", mgr);
             if (rampNumberNode != null && rampNumberNode.HasChildNodes)
             {
                 RampNumber = rampNumberNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string LocationByText { get; set; } = string.Empty;
-            var locationByTextNode = node.SelectSingleNode("locationByText", mgr);
+            var locationByTextNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}locationByText", mgr);
             if (locationByTextNode != null && locationByTextNode.HasChildNodes)
             {
                 LocationByText = locationByTextNode.FirstChild?.InnerText ?? string.Empty;

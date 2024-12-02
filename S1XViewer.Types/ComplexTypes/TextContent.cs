@@ -22,7 +22,7 @@ namespace S1XViewer.Types.ComplexTypes
             {
                 CategoryOfText = CategoryOfText,
                 Information = Information == null 
-                    ? new Information[0]
+                    ? Array.Empty<Information>()
                     : Array.ConvertAll(Information, i => i.DeepClone() as IInformation),
                 OnlineResource = OnlineResource == null 
                     ? new OnlineResource()
@@ -39,15 +39,15 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var categoryOfTextNode = node.SelectSingleNode("categoryOfText", mgr);
+            var categoryOfTextNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfText", mgr);
             if (categoryOfTextNode != null && categoryOfTextNode.HasChildNodes)
             {
                 CategoryOfText = categoryOfTextNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var informationNodes = node.SelectNodes("information", mgr);
+            var informationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}information", mgr);
             if (informationNodes != null && informationNodes.Count > 0)
             {
                 var informations = new List<Information>();
@@ -56,25 +56,25 @@ namespace S1XViewer.Types.ComplexTypes
                     if (informationNode != null && informationNode.HasChildNodes)
                     {
                         var newInformation = new Information();
-                        newInformation.FromXml(informationNode, mgr);
+                        newInformation.FromXml(informationNode, mgr, nameSpacePrefix);
                         informations.Add(newInformation);
                     }
                 }
                 Information = informations.ToArray();
             }
 
-            var onlineResourceNode = node.SelectSingleNode("onlineResource");
+            var onlineResourceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}onlineResource", mgr);
             if (onlineResourceNode != null && onlineResourceNode.HasChildNodes)
             {
                 OnlineResource = new OnlineResource();
-                OnlineResource.FromXml(onlineResourceNode, mgr);
+                OnlineResource.FromXml(onlineResourceNode, mgr, nameSpacePrefix);
             }
 
-            var sourceIndicationNode = node.SelectSingleNode("sourceIndication", mgr);
+            var sourceIndicationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceIndication", mgr);
             if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
             {
                 SourceIndication = new SourceIndication();
-                SourceIndication.FromXml(sourceIndicationNode, mgr);
+                SourceIndication.FromXml(sourceIndicationNode, mgr, nameSpacePrefix);
             }
 
             return this;

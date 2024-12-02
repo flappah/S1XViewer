@@ -2,6 +2,7 @@
 using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Symbology;
 using S1XViewer.Types.Interfaces;
+using System.IO;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
@@ -10,18 +11,18 @@ namespace S1XViewer.Types.Features
     {
         public float VerticalClearance { get; set; } = 0.0f;
 
-
+ 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var verticalClearanceValueNode = node.SelectSingleNode("verticalClearanceValue", mgr);
+            var verticalClearanceValueNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}verticalClearanceValue", mgr);
             if (verticalClearanceValueNode != null && verticalClearanceValueNode.HasChildNodes)
             {
                 if (float.TryParse(verticalClearanceValueNode.FirstChild?.InnerText, out float verticalClearanceValue))

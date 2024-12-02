@@ -30,7 +30,7 @@ namespace S1XViewer.Types.Interfaces
         void Clear();
         IFeature DeepClone();
         DataTable GetData();
-        IFeature FromXml(XmlNode node, XmlNamespaceManager mgr);
+        IFeature FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "");
 
         #endregion
     }

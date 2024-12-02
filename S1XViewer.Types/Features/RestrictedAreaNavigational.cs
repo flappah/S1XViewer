@@ -56,7 +56,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -64,9 +64,9 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfRestrictedAreaNodes = node.SelectNodes("categoryOfRestrictedArea", mgr);
+            var categoryOfRestrictedAreaNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfRestrictedArea", mgr);
             if (categoryOfRestrictedAreaNodes != null && categoryOfRestrictedAreaNodes.Count > 0)
             {
                 var categories = new List<string>();
@@ -80,7 +80,7 @@ namespace S1XViewer.Types.Features
                 CategoryOfRestrictedArea = categories.ToArray();
             }
 
-            var restrictionNodes = node.SelectNodes("restriction", mgr);
+            var restrictionNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}restriction", mgr);
             if (restrictionNodes != null && restrictionNodes.Count > 0)
             {
                 var restrictions = new List<string>();
@@ -94,7 +94,7 @@ namespace S1XViewer.Types.Features
                 Restriction = restrictions.ToArray();
             }
 
-            var statusNodes = node.SelectNodes("status", mgr);
+            var statusNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNodes != null && statusNodes.Count > 0)
             {
                 var statuses = new List<string>();

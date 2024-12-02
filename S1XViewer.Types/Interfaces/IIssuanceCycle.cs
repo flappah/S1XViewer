@@ -9,6 +9,6 @@ namespace S1XViewer.Types.Interfaces
         ITimeIntervalOfCycle TimeIntervalOfCycle { get; set; }
 
         IComplexType DeepClone();
-        IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr);
+        IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "");
     }
 }

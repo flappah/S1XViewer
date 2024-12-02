@@ -55,7 +55,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -63,9 +63,9 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var communicationsChannelNodes = node.SelectNodes("communicationsChannel", mgr);
+            var communicationsChannelNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}communicationsChannel", mgr);
             if (communicationsChannelNodes != null && communicationsChannelNodes.Count > 0)
             {
                 var communications = new List<string>();
@@ -82,13 +82,13 @@ namespace S1XViewer.Types.Features
                 CommunicationsChannel = communications.ToArray();
             }
 
-            var ismrccNode = node.SelectSingleNode("isMRCC", mgr);
+            var ismrccNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}isMRCC", mgr);
             if (ismrccNode != null && ismrccNode.HasChildNodes)
             {
                 IsMRCC = ismrccNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var statusNodes = node.SelectNodes("status", mgr);
+            var statusNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNodes != null && statusNodes.Count > 0)
             {
                 var statuses = new List<string>();

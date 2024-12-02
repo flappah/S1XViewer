@@ -56,7 +56,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -73,40 +73,40 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
-                FixedDateRange.FromXml(fixedDateRangeNode, mgr);
+                FixedDateRange.FromXml(fixedDateRangeNode, mgr, nameSpacePrefix);
             }
 
-            var periodicDateRangeNodes = node.SelectNodes("periodicDateRange", mgr);
+            var periodicDateRangeNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}periodicDateRange", mgr);
             if (periodicDateRangeNodes != null && periodicDateRangeNodes.Count > 0)
             {
                 var dateRanges = new List<DateRange>();
                 foreach (XmlNode periodicDateRangeNode in periodicDateRangeNodes)
                 {
                     var newDateRange = new DateRange();
-                    newDateRange.FromXml(periodicDateRangeNode, mgr);
+                    newDateRange.FromXml(periodicDateRangeNode, mgr, nameSpacePrefix);
                     dateRanges.Add(newDateRange);
                 }
                 PeriodicDateRange = dateRanges.ToArray();
             }
 
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
                 foreach (XmlNode featureNameNode in featureNameNodes)
                 {
                     var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
+                    newFeatureName.FromXml(featureNameNode, mgr, nameSpacePrefix);
                     featureNames.Add(newFeatureName);
                 }
                 FeatureName = featureNames.ToArray();
             }
 
-            var sourceIndicationNodes = node.SelectNodes("sourceIndication", mgr);
+            var sourceIndicationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceIndication", mgr);
             if (sourceIndicationNodes != null && sourceIndicationNodes.Count > 0)
             {
                 var sourceIndications = new List<SourceIndication>();
@@ -115,14 +115,14 @@ namespace S1XViewer.Types.Features
                     if (sourceIndicationNode != null && sourceIndicationNode.HasChildNodes)
                     {
                         var sourceIndication = new SourceIndication();
-                        sourceIndication.FromXml(sourceIndicationNode, mgr);
+                        sourceIndication.FromXml(sourceIndicationNode, mgr, nameSpacePrefix);
                         sourceIndications.Add(sourceIndication);
                     }
                 }
                 SourceIndication = sourceIndications.ToArray();
             }
 
-            var categoryOfShipReportNodes = node.SelectNodes("categoryOfShipReport");
+            var categoryOfShipReportNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfShipReport", mgr);
             if (categoryOfShipReportNodes != null && categoryOfShipReportNodes.Count > 0)
             {
                 var categories = new List<string>();
@@ -136,13 +136,13 @@ namespace S1XViewer.Types.Features
                 CategoryOfShipReport = categories.ToArray();
             }
 
-            var imoFormatForReportingNode = node.SelectSingleNode("imoFormatForReporting", mgr);
+            var imoFormatForReportingNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}imoFormatForReporting", mgr);
             if (imoFormatForReportingNode != null && imoFormatForReportingNode.HasChildNodes)
             {
-                ImoFormatForReporting = imoFormatForReportingNode.FirstChild.InnerText;
+                ImoFormatForReporting = imoFormatForReportingNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var noticeTimeNodes = node.SelectNodes("noticeTime");
+            var noticeTimeNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}noticeTime", mgr);
             if (noticeTimeNodes != null && noticeTimeNodes.Count > 0)
             {
                 var noticeTimes = new List<NoticeTime>();
@@ -151,18 +151,18 @@ namespace S1XViewer.Types.Features
                     if (noticeTimeNode != null && noticeTimeNode.HasChildNodes)
                     {
                         var newNoticeTime = new NoticeTime();
-                        newNoticeTime.FromXml(noticeTimeNode, mgr);
+                        newNoticeTime.FromXml(noticeTimeNode, mgr, nameSpacePrefix);
                         noticeTimes.Add(newNoticeTime);
                     }
                 }
                 NoticeTime = noticeTimes.ToArray();
             }
 
-            var textContentNode = node.SelectSingleNode("textContent", mgr);
+            var textContentNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}textContent", mgr);
             if (textContentNode != null && textContentNode.HasChildNodes)
             {
                 TextContent = new TextContent();
-                TextContent.FromXml(textContentNode, mgr);
+                TextContent.FromXml(textContentNode, mgr, nameSpacePrefix);
             }
 
             var linkNodes = node.SelectNodes("*[boolean(@xlink:href)]", mgr);

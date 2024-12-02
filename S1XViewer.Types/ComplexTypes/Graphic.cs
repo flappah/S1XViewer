@@ -1,17 +1,15 @@
 ﻿using S1XViewer.Types.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.ComplexTypes
 {
     public class Graphic : ComplexTypeBase, IGraphic
     {
-        public string[] PictorialRepresentation { get; set; }
-        public string PictureCaption { get; set; }
-        public string SourceDate { get; set; }
-        public string PictureInformation { get; set; }
-        public IBearingInformation BearingInformation { get; set; }
+        public string[] PictorialRepresentation { get; set; } = Array.Empty<string>();
+        public string PictureCaption { get; set; } = string.Empty;
+        public string SourceDate { get; set; } = string.Empty;  
+        public string PictureInformation { get; set; } = string.Empty;
+        public IBearingInformation BearingInformation { get; set; } = new BearingInformation();
 
         /// <summary>
         /// 
@@ -22,7 +20,7 @@ namespace S1XViewer.Types.ComplexTypes
             return new Graphic
             {
                 PictorialRepresentation = PictorialRepresentation == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(PictorialRepresentation, s => s),
                 PictureCaption = PictureCaption,
                 SourceDate = SourceDate,
@@ -39,9 +37,9 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var pictorialRepresentationNodes = node.SelectNodes("pictorialRepresentation");
+            var pictorialRepresentationNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}pictorialRepresentation", mgr);
             if (pictorialRepresentationNodes != null && pictorialRepresentationNodes.Count > 0)
             {
                 var representations = new List<string>();
@@ -49,36 +47,36 @@ namespace S1XViewer.Types.ComplexTypes
                 {
                     if (pictorialRepresentationNode != null && pictorialRepresentationNode.HasChildNodes)
                     {
-                        var representation = pictorialRepresentationNode.FirstChild.InnerText;
+                        var representation = pictorialRepresentationNode.FirstChild?.InnerText ?? string.Empty;
                         representations.Add(representation);
                     }
                 }
                 PictorialRepresentation = representations.ToArray();
             }
 
-            var pictureCaptionNode = node.SelectSingleNode("pictureCaptionNode");
+            var pictureCaptionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}pictureCaptionNode", mgr);
             if (pictureCaptionNode != null && pictureCaptionNode.HasChildNodes)
             {
-                PictureCaption = pictureCaptionNode.FirstChild.InnerText;
+                PictureCaption = pictureCaptionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var sourceDateNode = node.SelectSingleNode("sourceDate");
+            var sourceDateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}sourceDate", mgr);
             if (sourceDateNode != null && sourceDateNode.HasChildNodes)
             {
-                SourceDate = sourceDateNode.FirstChild.InnerText;
+                SourceDate = sourceDateNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var pictureInformationNode = node.SelectSingleNode("pictureInformation");
+            var pictureInformationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}pictureInformation", mgr);
             if (pictureInformationNode != null && pictureInformationNode.HasChildNodes)
             {
-                PictureInformation = pictureInformationNode.FirstChild.InnerText;
+                PictureInformation = pictureInformationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var bearingInformationNode = node.SelectSingleNode("bearingInformation");
+            var bearingInformationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}bearingInformation", mgr);
             if (bearingInformationNode != null && bearingInformationNode.HasChildNodes)
             {
                 var bearingInformation = new BearingInformation();
-                bearingInformation.FromXml(bearingInformationNode, mgr);
+                bearingInformation.FromXml(bearingInformationNode, mgr, nameSpacePrefix);
                 BearingInformation = bearingInformation;
             }
 

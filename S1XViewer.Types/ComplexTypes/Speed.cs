@@ -6,8 +6,8 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class Speed : ComplexTypeBase, ISpeed
     {
-        public double SpeedMaximum { get; set; }
-        public double SpeedMinimum { get; set; }
+        public double SpeedMaximum { get; set; } = 0.0;
+        public double SpeedMinimum { get; set; } = 0.0;
 
         /// <summary>
         /// 
@@ -28,9 +28,9 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var speedMaximumNode = node.SelectSingleNode("speedMaximum", mgr);
+            var speedMaximumNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}speedMaximum", mgr);
             if (speedMaximumNode != null && speedMaximumNode.HasChildNodes)
             {
                 if (double.TryParse(speedMaximumNode.FirstChild?.InnerText, 
@@ -42,7 +42,7 @@ namespace S1XViewer.Types.ComplexTypes
                 }
             }
 
-            var speedMinimumNode = node.SelectSingleNode("speedMinimum", mgr);
+            var speedMinimumNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}speedMinimum", mgr);
             if (speedMinimumNode != null && speedMinimumNode.HasChildNodes)
             {
                 if (double.TryParse(speedMinimumNode.FirstChild?.InnerText,

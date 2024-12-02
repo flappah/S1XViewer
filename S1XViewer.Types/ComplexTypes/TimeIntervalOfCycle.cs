@@ -27,25 +27,17 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             //public string TypeOfTimeIntervalUnit { get; set; } = string.Empty;
-            var typeOfTimeIntervalUnitNode = node.SelectSingleNode("typeOfTimeIntervalUnit", mgr);
-            if (typeOfTimeIntervalUnitNode == null)
-            {
-                typeOfTimeIntervalUnitNode = node.SelectSingleNode("S128:typeOfTimeIntervalUnit", mgr);
-            }
+            var typeOfTimeIntervalUnitNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}typeOfTimeIntervalUnit", mgr);
             if (typeOfTimeIntervalUnitNode != null && typeOfTimeIntervalUnitNode.HasChildNodes)
             {
                 TypeOfTimeIntervalUnit = typeOfTimeIntervalUnitNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public int ValueOfTime { get; set; }
-            var valueOfTimeNode = node.SelectSingleNode("valueOfTime", mgr);
-            if (valueOfTimeNode == null)
-            {
-                valueOfTimeNode = node.SelectSingleNode("S128:valueOfTime", mgr);
-            }
+            var valueOfTimeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}valueOfTime", mgr);
             if (valueOfTimeNode != null && valueOfTimeNode.HasChildNodes)
             {
                 if (int.TryParse(valueOfTimeNode.FirstChild?.InnerText, out int valueOfTimeValue))

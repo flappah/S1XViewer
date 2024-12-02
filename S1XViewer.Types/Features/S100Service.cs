@@ -60,18 +60,14 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null || !node.HasChildNodes) return this;
 
-            base.FromXml(node, mgr); // run the CatalogueElements xml interpreter
+            base.FromXml(node, mgr, nameSpacePrefix); // run the CatalogueElements xml interpreter
 
             //public bool CompressionFlag { get; set; }
-            var compressionFlagNode = node.SelectSingleNode("compressionFlag", mgr);
-            if (compressionFlagNode == null)
-            {
-                compressionFlagNode = node.SelectSingleNode("S128:compressionFlag", mgr);
-            }
+            var compressionFlagNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}compressionFlag", mgr);
             if (compressionFlagNode != null && compressionFlagNode.HasChildNodes)
             {
                 if (bool.TryParse(compressionFlagNode.FirstChild?.InnerText, out bool compressionFlagValue))
@@ -81,71 +77,47 @@ namespace S1XViewer.Types.Features
             }
 
             //public string EncodingFormat { get; set; } = string.Empty;
-            var encodingFormatNode = node.SelectSingleNode("encodingFormat", mgr);
-            if (encodingFormatNode == null)
-            {
-                encodingFormatNode = node.SelectSingleNode("S128:encodingFormat", mgr);
-            }
+            var encodingFormatNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}encodingFormat", mgr);
             if (encodingFormatNode != null && encodingFormatNode.HasChildNodes)
             {
                 EncodingFormat = encodingFormatNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string ServiceName { get; set; } = string.Empty;
-            var serviceNameNode = node.SelectSingleNode("serviceName", mgr);
-            if (serviceNameNode == null)
-            {
-                serviceNameNode = node.SelectSingleNode("S128:serviceName", mgr);
-            }
+            var serviceNameNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}serviceName", mgr);
             if (serviceNameNode != null && serviceNameNode.HasChildNodes)
             {
                 ServiceName = serviceNameNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string ServiceStatus { get; set; } = string.Empty;
-            var serviceStatusNode = node.SelectSingleNode("serviceStatus", mgr);
-            if (serviceStatusNode == null)
-            {
-                serviceStatusNode = node.SelectSingleNode("S128:serviceStatus", mgr);
-            }
+            var serviceStatusNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}serviceStatus", mgr);
             if (serviceStatusNode != null && serviceStatusNode.HasChildNodes)
             {
                 ServiceStatus = serviceStatusNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string TypeOfProductFormat { get; set; } = string.Empty;
-            var typeOfProductFormatNode = node.SelectSingleNode("typeOfProductFormat", mgr);
-            if (typeOfProductFormatNode == null)
-            {
-                typeOfProductFormatNode = node.SelectSingleNode("S128:typeOfProductFormat", mgr);
-            }
+            var typeOfProductFormatNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}typeOfProductFormat", mgr);
             if (typeOfProductFormatNode != null && typeOfProductFormatNode.HasChildNodes)
             {
                 TypeOfProductFormat = typeOfProductFormatNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public IProductSpecification ProductSpecification { get; set; } = new ProductSpecification();
-            var productSpecificationNode = node.SelectSingleNode("productSpecification", mgr);
-            if (productSpecificationNode == null)
-            {
-                productSpecificationNode = node.SelectSingleNode("S128:productSpecification", mgr);
-            }
+            var productSpecificationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}productSpecification", mgr);
             if (productSpecificationNode != null && productSpecificationNode.HasChildNodes)
             {
                 ProductSpecification = new ProductSpecification();
-                ProductSpecification.FromXml(productSpecificationNode, mgr);
+                ProductSpecification.FromXml(productSpecificationNode, mgr, nameSpacePrefix);
             }
 
             //public IServiceSpecification ServiceSpecification { get; set; } = new ServiceSpecification();
-            var serviceSpecificationNode = node.SelectSingleNode("serviceSpecification", mgr);
-            if (serviceSpecificationNode == null)
-            {
-                serviceSpecificationNode = node.SelectSingleNode("S128:serviceSpecification", mgr);
-            }
+            var serviceSpecificationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}serviceSpecification", mgr);
             if (serviceSpecificationNode != null && serviceSpecificationNode.HasChildNodes)
             {
                 ServiceSpecification = new ServiceSpecification();
-                ServiceSpecification.FromXml(serviceSpecificationNode, mgr);
+                ServiceSpecification.FromXml(serviceSpecificationNode, mgr, nameSpacePrefix);
             }
 
             return this;

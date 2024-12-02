@@ -11,8 +11,5 @@ namespace S1XViewer.Types.Interfaces
         IServiceSpecification ServiceSpecification { get; set; }
         string ServiceStatus { get; set; }
         string TypeOfProductFormat { get; set; }
-
-        IFeature DeepClone();
-        IFeature FromXml(XmlNode node, XmlNamespaceManager mgr);
     }
 }

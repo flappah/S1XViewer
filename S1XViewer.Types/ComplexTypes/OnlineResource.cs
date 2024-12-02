@@ -5,13 +5,13 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class OnlineResource : ComplexTypeBase, IOnlineResource
     {
-        public string ApplicationProfile { get; set; }
-        public string Linkage { get; set; }
-        public string NameOfResource { get; set; }
-        public string OnlineDescription { get; set; }
-        public string OnlineFunction { get; set; }
-        public string Protocol { get; set; }
-        public string ProtocolRequest { get; set; }
+        public string ApplicationProfile { get; set; } = string.Empty;
+        public string Linkage { get; set; } = string.Empty;
+        public string NameOfResource { get; set; } = string.Empty;
+        public string OnlineDescription { get; set; } = string.Empty;
+        public string OnlineFunction { get; set; } = string.Empty;
+        public string Protocol { get; set; } = string.Empty;
+        public string ProtocolRequest { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -37,48 +37,48 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var applicationProfileNode = node.SelectSingleNode("applicationProfile", mgr);
+            var applicationProfileNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}applicationProfile", mgr);
             if (applicationProfileNode != null && applicationProfileNode.HasChildNodes)
             {
-                ApplicationProfile = applicationProfileNode.FirstChild.InnerText;
+                ApplicationProfile = applicationProfileNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var linkageNode = node.SelectSingleNode("linkage", mgr);
+            var linkageNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}linkage", mgr);
             if (linkageNode != null && linkageNode.HasChildNodes)
             {
-                Linkage = linkageNode.FirstChild.InnerText;
+                Linkage = linkageNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var nameOfResourceNode = node.SelectSingleNode("nameOfResource", mgr);
+            var nameOfResourceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}nameOfResource", mgr);
             if (nameOfResourceNode != null && nameOfResourceNode.HasChildNodes)
             {
-                NameOfResource = nameOfResourceNode.FirstChild.InnerText;
+                NameOfResource = nameOfResourceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var onlineDescriptionNode = node.SelectSingleNode("onlineDescription", mgr);
+            var onlineDescriptionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}onlineDescription", mgr);
             if (onlineDescriptionNode != null && onlineDescriptionNode.HasChildNodes)
             {
-                OnlineDescription = onlineDescriptionNode.FirstChild.InnerText;
+                OnlineDescription = onlineDescriptionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var onlineFunctionNode = node.SelectSingleNode("onlineFunction", mgr);
+            var onlineFunctionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}onlineFunction", mgr);
             if (onlineFunctionNode != null && onlineFunctionNode.HasChildNodes)
             {
-                OnlineFunction = onlineFunctionNode.FirstChild.InnerText;
+                OnlineFunction = onlineFunctionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var protocolNode = node.SelectSingleNode("protocol", mgr);
+            var protocolNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}protocol", mgr);
             if (protocolNode != null && protocolNode.HasChildNodes)
             {
-                Protocol = protocolNode.FirstChild.InnerText;
+                Protocol = protocolNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var protocolRequestNode = node.SelectSingleNode("protocolRequest", mgr);
+            var protocolRequestNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}protocolRequest", mgr);
             if (protocolRequestNode != null && protocolRequestNode.HasChildNodes)
             {
-                ProtocolRequest = protocolRequestNode.FirstChild.InnerText;
+                ProtocolRequest = protocolRequestNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

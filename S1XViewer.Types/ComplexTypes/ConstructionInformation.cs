@@ -24,7 +24,7 @@ namespace S1XViewer.Types.ComplexTypes
                 Development = Development,
                 LocationByText = LocationByText,
                 TextContent = TextContent == null
-                    ? new TextContent[0]
+                    ? Array.Empty<TextContent>()
                     : Array.ConvertAll(TextContent, t => t.DeepClone() as ITextContent)
             };
         }
@@ -35,7 +35,7 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -43,32 +43,32 @@ namespace S1XViewer.Types.ComplexTypes
             if (mgr == null)
                 return this;
 
-            var fixedDateRangeNode = node.SelectSingleNode("fixedDateRange", mgr);
+            var fixedDateRangeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}fixedDateRange", mgr);
             if (fixedDateRangeNode != null && fixedDateRangeNode.HasChildNodes)
             {
                 FixedDateRange = new DateRange();
                 FixedDateRange.FromXml(fixedDateRangeNode, mgr);
             }
 
-            var conditionNode = node.SelectSingleNode("condition", mgr);
+            var conditionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}condition", mgr);
             if (conditionNode != null && conditionNode.HasChildNodes)
             {
                 Condition = conditionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var developmentNode = node.SelectSingleNode("development", mgr);
+            var developmentNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}development", mgr);
             if (developmentNode != null && developmentNode.HasChildNodes)
             {
                 Development = developmentNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var locationByTextNode = node.SelectSingleNode("locationByText", mgr);
+            var locationByTextNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}locationByText", mgr);
             if (locationByTextNode != null && locationByTextNode.HasChildNodes)
             {
                 LocationByText = locationByTextNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var textContentNodes = node.SelectNodes("textContent", mgr);
+            var textContentNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}textContent", mgr);
             if (textContentNodes != null && textContentNodes.Count > 0)
             {
                 var textContentItems = new List<TextContent>();
@@ -77,7 +77,7 @@ namespace S1XViewer.Types.ComplexTypes
                     if (textContentNode != null && textContentNode.HasChildNodes)
                     {
                         var textContent = new ComplexTypes.TextContent();
-                        textContent.FromXml(textContentNode, mgr);
+                        textContent.FromXml(textContentNode, mgr, nameSpacePrefix);
                         textContentItems.Add(textContent);
                     }
                 }

@@ -45,7 +45,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -53,19 +53,19 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfAuthorityNode = node.SelectSingleNode("categoryOfAuthority", mgr);
+            var categoryOfAuthorityNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfAuthority", mgr);
             if (categoryOfAuthorityNode != null && categoryOfAuthorityNode.HasChildNodes)
             {
                 CategoryOfAuthority = categoryOfAuthorityNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var textContentNode = node.SelectSingleNode("textContent", mgr);
+            var textContentNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}textContent", mgr);
             if (textContentNode != null && textContentNode.HasChildNodes)
             {
                 TextContent = new TextContent();
-                TextContent.FromXml(textContentNode, mgr);
+                TextContent.FromXml(textContentNode, mgr, nameSpacePrefix);
             }
 
             return this;

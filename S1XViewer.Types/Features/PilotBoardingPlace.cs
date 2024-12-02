@@ -77,7 +77,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -85,33 +85,33 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var callSignNode = node.SelectSingleNode("callSign", mgr);
+            var callSignNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}callSign", mgr);
             if (callSignNode != null && callSignNode.HasChildNodes)
             {
                 CallSign = callSignNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfPilotBoardingPlaceNode = node.SelectSingleNode("categoryOfPilotBoardingPlace", mgr);
+            var categoryOfPilotBoardingPlaceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfPilotBoardingPlace", mgr);
             if (categoryOfPilotBoardingPlaceNode != null && categoryOfPilotBoardingPlaceNode.HasChildNodes)
             {
                 CategoryOfPilotBoardingPlace = categoryOfPilotBoardingPlaceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfPreferenceNode= node.SelectSingleNode("categoryOfPreference", mgr);
+            var categoryOfPreferenceNode= node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfPreference", mgr);
             if (categoryOfPreferenceNode != null && categoryOfPreferenceNode.HasChildNodes)
             {
                 CategoryOfPilotBoardingPlace = categoryOfPreferenceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfVesselNode = node.SelectSingleNode("categoryOfVessel", mgr);
+            var categoryOfVesselNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfVessel", mgr);
             if (categoryOfVesselNode != null && categoryOfVesselNode.HasChildNodes)
             {
                 CategoryOfVessel = categoryOfVesselNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var communicationChannelNodes = node.SelectNodes("communicationChannel", mgr);
+            var communicationChannelNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}communicationChannel", mgr);
             if (communicationChannelNodes != null && communicationChannelNodes.Count > 0)
             {
                 var channels = new List<string>();
@@ -125,25 +125,25 @@ namespace S1XViewer.Types.Features
                 CommunicationChannel = channels.ToArray();
             }
 
-            var destinationNode = node.SelectSingleNode("destination", mgr);
+            var destinationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}destination", mgr);
             if (destinationNode != null && destinationNode.HasChildNodes)
             {
                 Destination = destinationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var pilotMovementNode = node.SelectSingleNode("pilotMovement", mgr);
+            var pilotMovementNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}pilotMovement", mgr);
             if (pilotMovementNode != null && pilotMovementNode.HasChildNodes)
             {
                 PilotMovement = pilotMovementNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var pilotVesselNode = node.SelectSingleNode("pilotVessel", mgr);
+            var pilotVesselNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}pilotVessel", mgr);
             if (pilotVesselNode != null && pilotVesselNode.HasChildNodes)
             {
                 PilotVessel = pilotVesselNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var statusNodes = node.SelectNodes("status", mgr);
+            var statusNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNodes != null && statusNodes.Count > 0)
             {
                 var statuses = new List<string>();
@@ -159,27 +159,27 @@ namespace S1XViewer.Types.Features
                 Status = statuses.ToArray();
             }
 
-            var depthsDescriptionNode = node.SelectSingleNode("depthsDescription", mgr);
+            var depthsDescriptionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}depthsDescription", mgr);
             if (depthsDescriptionNode != null && depthsDescriptionNode.HasChildNodes)
             {
                 DepthsDescription = new DepthsDescription();
-                DepthsDescription.FromXml(depthsDescriptionNode, mgr);
+                DepthsDescription.FromXml(depthsDescriptionNode, mgr, nameSpacePrefix);
             }
 
-            var locationByTextNode = node.SelectSingleNode("locationByText", mgr);
+            var locationByTextNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}locationByText", mgr);
             if (locationByTextNode != null && locationByTextNode.HasChildNodes)
             {
                 LocationByText = locationByTextNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var markedByNode = node.SelectSingleNode("markedBy", mgr);
+            var markedByNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}markedBy", mgr);
             if (markedByNode != null && markedByNode.HasChildNodes)
             {
                 MarkedBy = new MarkedBy();
-                MarkedBy.FromXml(markedByNode, mgr);
+                MarkedBy.FromXml(markedByNode, mgr, nameSpacePrefix);
             }
 
-            var iSPSLevelNode = node.SelectSingleNode("iSPSLevel", mgr);
+            var iSPSLevelNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}iSPSLevel", mgr);
             if (iSPSLevelNode != null && iSPSLevelNode.HasChildNodes)
             {
                 ISPSLevel = iSPSLevelNode.FirstChild?.InnerText ?? string.Empty;

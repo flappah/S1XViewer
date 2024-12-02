@@ -5,8 +5,8 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class HorizontalPositionalUncertainty : ComplexTypeBase, IHorizontalPositionalUncertainty
     {
-        public string UncertaintyFixed { get; set; }
-        public string UncertaintyVariable { get; set; }
+        public string UncertaintyFixed { get; set; } = string.Empty;   
+        public string UncertaintyVariable { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -27,18 +27,18 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var uncertaintyFixedNode = node.SelectSingleNode("uncertaintyFixed", mgr);
+            var uncertaintyFixedNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}uncertaintyFixed", mgr);
             if (uncertaintyFixedNode != null && uncertaintyFixedNode.HasChildNodes)
             {
-                UncertaintyFixed = uncertaintyFixedNode.FirstChild.InnerText;
+                UncertaintyFixed = uncertaintyFixedNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var uncertaintyVariableNode = node.SelectSingleNode("uncertaintyVariable", mgr);
+            var uncertaintyVariableNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}uncertaintyVariable", mgr);
             if (uncertaintyVariableNode != null && uncertaintyVariableNode.HasChildNodes)
             {
-                UncertaintyVariable = uncertaintyVariableNode.FirstChild.InnerText;
+                UncertaintyVariable = uncertaintyVariableNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

@@ -73,19 +73,25 @@ namespace S1XViewer.Model
                 if (memberNodes != null)
                 {
                     short i = 0;
+                    int max = 0;
                     foreach (XmlNode memberNode in memberNodes)
                     {
-                        if (memberNode.FirstChild != null)
+                        max += memberNode.ChildNodes.Count;
+                    }
+
+                    foreach (XmlNode memberNode in memberNodes)
+                    {
+                        foreach (XmlNode featureNode in memberNode.ChildNodes)
                         {
-                            var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
+                            var percentage = ((double)i++ / (double)max) * 100.0;
                             Progress?.Invoke(percentage);
 
-                            IFeature? feature = _featureFactory.FromXml(memberNode.FirstChild, nsmgr, false)?.DeepClone();
+                            IFeature? feature = _featureFactory.FromXml(featureNode, nsmgr, false, "S128")?.DeepClone();
                             if (feature != null)
                             {
                                 if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
                                 {
-                                    var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("S128:geometry", nsmgr);
+                                    var geometryOfMemberNode = featureNode.SelectSingleNode("S128:geometry", nsmgr);
                                     if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                                     {
                                         geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
@@ -97,7 +103,7 @@ namespace S1XViewer.Model
                                 {
                                     if (feature is IMetaFeature metaFeature && memberNode.HasChildNodes)
                                     {
-                                        var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("S128:geometry", nsmgr);
+                                        var geometryOfMemberNode = featureNode.SelectSingleNode("S128:geometry", nsmgr);
                                         if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                                         {
                                             metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);

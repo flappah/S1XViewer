@@ -8,10 +8,10 @@ namespace S1XViewer.Types.Features
 {
     public class CatalogueOfNauticalProduct : GeoFeatureBase, ICatalogueOfNauticalProduct, IS128Feature
     {
-        public string EditionNumber { get; set; }
-        public string IssueDate { get; set; }
-        public string MarineResourceName { get; set; }
-        public IGraphic[] Graphic { get; set; }
+        public string EditionNumber { get; set; } = string.Empty;
+        public string IssueDate { get; set; } = string.Empty;
+        public string MarineResourceName { get; set; } = string.Empty;
+        public IGraphic[] Graphic { get; set; } = Array.Empty<Graphic>();
 
         /// <summary>
         /// 
@@ -50,7 +50,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -66,20 +66,20 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            var featureNameNodes = node.SelectNodes("featureName", mgr);
+            var featureNameNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}featureName", mgr);
             if (featureNameNodes != null && featureNameNodes.Count > 0)
             {
                 var featureNames = new List<FeatureName>();
                 foreach (XmlNode featureNameNode in featureNameNodes)
                 {
                     var newFeatureName = new FeatureName();
-                    newFeatureName.FromXml(featureNameNode, mgr);
+                    newFeatureName.FromXml(featureNameNode, mgr, nameSpacePrefix);
                     featureNames.Add(newFeatureName);
                 }
                 FeatureName = featureNames.ToArray();
             }
 
-            var graphicNodes = node.SelectNodes("graphic", mgr);
+            var graphicNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}graphic", mgr);
             if (graphicNodes != null && graphicNodes.Count > 0)
             {
                 var graphics = new List<Graphic>();
@@ -88,26 +88,26 @@ namespace S1XViewer.Types.Features
                     if (graphicNode != null && graphicNode.HasChildNodes)
                     {
                         var newGraphic = new Graphic();
-                        newGraphic.FromXml(graphicNode, mgr);
+                        newGraphic.FromXml(graphicNode, mgr, nameSpacePrefix);
                         graphics.Add(newGraphic);
                     }
                 }
                 Graphic = graphics.ToArray();
             }
 
-            var issueDateNode = node.SelectSingleNode("issueDate", mgr);
+            var issueDateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}issueDate", mgr);
             if (issueDateNode != null && issueDateNode.HasChildNodes)
             {
                 IssueDate = issueDateNode.InnerText;
             }
 
-            var editionNumberNode = node.SelectSingleNode("editionNumber", mgr);
+            var editionNumberNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}editionNumber", mgr);
             if (editionNumberNode != null && editionNumberNode.HasChildNodes)
             {
                 EditionNumber = editionNumberNode.InnerText;
             }
 
-            var marineResourceNameNode = node.SelectSingleNode("marineResourceName", mgr);
+            var marineResourceNameNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}marineResourceName", mgr);
             if (marineResourceNameNode != null && marineResourceNameNode.HasChildNodes)
             {
                 MarineResourceName = marineResourceNameNode.InnerText;

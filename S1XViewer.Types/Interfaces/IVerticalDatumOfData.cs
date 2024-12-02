@@ -2,12 +2,9 @@
 
 namespace S1XViewer.Types.Interfaces
 {
-    public interface IVerticalDatumOfData
+    public interface IVerticalDatumOfData : IMetaFeature
     {
         IInformation[] Information { get; set; }
         string VerticalDatum { get; set; }
-
-        IFeature DeepClone();
-        IFeature FromXml(XmlNode node, XmlNamespaceManager mgr);
     }
 }

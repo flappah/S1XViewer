@@ -28,9 +28,9 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var uncertaintyFixedNode = node.SelectSingleNode("uncertaintyFixed", mgr);
+            var uncertaintyFixedNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}uncertaintyFixed", mgr);
             if (uncertaintyFixedNode != null && uncertaintyFixedNode.HasChildNodes)
             {
                 if (double.TryParse(uncertaintyFixedNode.FirstChild?.InnerText,
@@ -42,7 +42,7 @@ namespace S1XViewer.Types.ComplexTypes
                 }
             }
 
-            var uncertaintyVariableNode = node.SelectSingleNode("uncertaintyVariable", mgr);
+            var uncertaintyVariableNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}uncertaintyVariable", mgr);
             if (uncertaintyVariableNode != null && uncertaintyVariableNode.HasChildNodes)
             {
                 if (double.TryParse(uncertaintyVariableNode.FirstChild?.InnerText,

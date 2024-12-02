@@ -7,11 +7,11 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class TimesOfTransmission : ComplexTypeBase, ITimesOfTransmission
     {
-        public string MinutePastEvenHours { get; set; }
-        public string MinutePastEveryHours { get; set; }
-        public string MinutePastOddHours { get; set; }
-        public string TimeReference { get; set; }
-        public string[] TransmissionTime { get; set; }
+        public string MinutePastEvenHours { get; set; } = string.Empty;
+        public string MinutePastEveryHours { get; set; } = string.Empty;
+        public string MinutePastOddHours { get; set; } = string.Empty;
+        public string TimeReference { get; set; } = string.Empty;
+        public string[] TransmissionTime { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// 
@@ -26,7 +26,7 @@ namespace S1XViewer.Types.ComplexTypes
                 MinutePastOddHours = MinutePastOddHours,
                 TimeReference = TimeReference,
                 TransmissionTime = TransmissionTime == null
-                    ? new string[0]
+                    ? Array.Empty<string>()
                     : Array.ConvertAll(TransmissionTime, s => s)
             };
         }
@@ -37,33 +37,33 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var minutePastEvenHoursNode = node.SelectSingleNode("minutePastEvenHours");
+            var minutePastEvenHoursNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}minutePastEvenHours", mgr);
             if (minutePastEvenHoursNode != null && minutePastEvenHoursNode.HasChildNodes)
             {
-                MinutePastEvenHours = minutePastEvenHoursNode.FirstChild.InnerText;
+                MinutePastEvenHours = minutePastEvenHoursNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var minutePastEveryHoursNode = node.SelectSingleNode("minutePastEveryHours");
+            var minutePastEveryHoursNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}minutePastEveryHours", mgr);
             if (minutePastEveryHoursNode != null && minutePastEveryHoursNode.HasChildNodes)
             {
-                MinutePastEveryHours = minutePastEveryHoursNode.FirstChild.InnerText;
+                MinutePastEveryHours = minutePastEveryHoursNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var minutePastOddHoursNode = node.SelectSingleNode("minutePastOddHours");
+            var minutePastOddHoursNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}minutePastOddHours", mgr);
             if (minutePastOddHoursNode != null && minutePastOddHoursNode.HasChildNodes)
             {
-                MinutePastOddHours = minutePastOddHoursNode.FirstChild.InnerText;
+                MinutePastOddHours = minutePastOddHoursNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var timeReferenceNode = node.SelectSingleNode("timeReference");
+            var timeReferenceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}timeReference", mgr);
             if (timeReferenceNode != null && timeReferenceNode.HasChildNodes)
             {
-                TimeReference = timeReferenceNode.FirstChild.InnerText;
+                TimeReference = timeReferenceNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var transmissionTimeNodes = node.SelectNodes("transmissionTime");
+            var transmissionTimeNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}transmissionTime", mgr);
             if (transmissionTimeNodes != null && transmissionTimeNodes.Count > 0)
             {
                 var transmissionTimes = new List<string>();
@@ -71,7 +71,7 @@ namespace S1XViewer.Types.ComplexTypes
                 {
                     if (transmissionTimeNode != null && transmissionTimeNode.HasChildNodes)
                     {
-                        transmissionTimes.Add(transmissionTimeNode.FirstChild.InnerText);
+                        transmissionTimes.Add(transmissionTimeNode.FirstChild?.InnerText ?? string.Empty);
                     }
                 }
                 TransmissionTime = transmissionTimes.ToArray();

@@ -1,13 +1,12 @@
 ﻿using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
-using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
     public class CautionArea : GeoFeatureBase, ICautionArea, IS127Feature
     {
-        public string Condition { get; set; }
-        public string Status { get; set; }
+        public string Condition { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -48,7 +47,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -56,18 +55,18 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var conditionNode = node.SelectSingleNode("condition", mgr);
+            var conditionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}condition", mgr);
             if (conditionNode != null && conditionNode.HasChildNodes)
             {
-                Condition = conditionNode.FirstChild.InnerText;
+                Condition = conditionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var statusNode = node.SelectSingleNode("status", mgr);
+            var statusNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}status", mgr);
             if (statusNode != null && statusNode.HasChildNodes)
             {
-                Status = statusNode.FirstChild.InnerText;
+                Status = statusNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;

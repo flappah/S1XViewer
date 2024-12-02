@@ -98,7 +98,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -114,10 +114,10 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
             //public IProductSpecification ProductSpecification { get; set; }
-            var productSpecificationNode = node.SelectSingleNode("productSpecification", mgr);
+            var productSpecificationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}productSpecification", mgr);
             if (productSpecificationNode != null && productSpecificationNode.HasChildNodes)
             {
                 ProductSpecification = new ProductSpecification();
@@ -125,7 +125,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public IOnlineResource OnlineResource { get; set; }
-            var onlineResourceNode = node.SelectSingleNode("onlineResource", mgr);
+            var onlineResourceNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}onlineResource", mgr);
             if (onlineResourceNode != null && onlineResourceNode.HasChildNodes)
             {
                 OnlineResource = new OnlineResource();
@@ -133,7 +133,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public string ServiceSpecification { get; set; }
-            var serviceSpecificationNode = node.SelectSingleNode("serviceSpecification", mgr);
+            var serviceSpecificationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}serviceSpecification", mgr);
             if (serviceSpecificationNode != null && serviceSpecificationNode.HasChildNodes)
             {
                 ServiceSpecification = new ServiceSpecification();
@@ -141,56 +141,56 @@ namespace S1XViewer.Types.Features
             }
 
             //public string PublicationNumber { get; set; }
-            var publicationNumberNode = node.SelectSingleNode("publicationNumber", mgr);
+            var publicationNumberNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}publicationNumber", mgr);
             if (publicationNumberNode != null && publicationNumberNode.HasChildNodes)
             {
                 PublicationNumber = publicationNumberNode.InnerText;
             }
 
             //public string DataSetName { get; set; }
-            var dataSetNameNode = node.SelectSingleNode("dataSetName", mgr);
+            var dataSetNameNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dataSetName", mgr);
             if (dataSetNameNode != null && dataSetNameNode.HasChildNodes)
             {
                 DataSetName = dataSetNameNode.InnerText;
             }
 
             //public string Version { get; set; }
-            var versionNode = node.SelectSingleNode("version", mgr);
+            var versionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}version", mgr);
             if (versionNode != null && versionNode.HasChildNodes)
             {
                 Version = versionNode.InnerText;
             }
 
             //public string ServiceStatus { get; set; }
-            var serviceStatusNode = node.SelectSingleNode("serviceStatus", mgr);
+            var serviceStatusNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}serviceStatus", mgr);
             if (serviceStatusNode != null && serviceStatusNode.HasChildNodes)
             {
                 ServiceStatus = serviceStatusNode.InnerText;
             }
 
             //public string Keyword { get; set; }
-            var keywordsNode = node.SelectSingleNode("keyword", mgr);
+            var keywordsNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}keyword", mgr);
             if (keywordsNode != null && keywordsNode.HasChildNodes)
             {
                 Keyword = keywordsNode.InnerText;
             }
 
             //public string ServiceDesign { get; set; }
-            var serviceDesignNode = node.SelectSingleNode("serviceDesign", mgr);
+            var serviceDesignNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}serviceDesign", mgr);
             if (serviceDesignNode != null && serviceDesignNode.HasChildNodes)
             {
                 ServiceDesign = serviceDesignNode.InnerText;
             }
 
             //public string ISBN { get; set; }
-            var isbnNode = node.SelectSingleNode("ISBN", mgr);
+            var isbnNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}ISBN", mgr);
             if (isbnNode != null && isbnNode.HasChildNodes)
             {
                 ISBN = isbnNode.InnerText;
             }
 
             //public string TypeOfProductFormat { get; set; }
-            var typeOfProductFormatNode = node.SelectSingleNode("typeOfProductFormat", mgr);
+            var typeOfProductFormatNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}typeOfProductFormat", mgr);
             if (typeOfProductFormatNode != null && typeOfProductFormatNode.HasChildNodes)
             {
                 TypeOfProductFormat = typeOfProductFormatNode.InnerText;

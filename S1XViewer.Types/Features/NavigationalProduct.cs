@@ -6,9 +6,9 @@ namespace S1XViewer.Types.Features
     public abstract class NavigationalProduct : CatalogueElement, INavigationalProduct
     {
         public int ApproximateGridResolution { get; set; }
-        public int[] CompilationScale { get; set; } = new int[0];
+        public int[] CompilationScale { get; set; } = Array.Empty<int>();
         public string DistributionStatus { get; set; } = string.Empty;
-        public string[] NavigationPurpose { get; set; } = new string[0];
+        public string[] NavigationPurpose { get; set; } = Array.Empty<string>();
         public int OptimumDisplayScale { get; set; }
         public string OriginalProductNumber { get; set; } = string.Empty;
         public string ProducerNation { get; set; } = string.Empty;
@@ -23,18 +23,14 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null || !node.HasChildNodes) return this;
 
-            base.FromXml(node, mgr); // run the CatalogueElements Xml interpreter
+            base.FromXml(node, mgr, nameSpacePrefix); // run the CatalogueElements Xml interpreter
 
             //public int ApproximateGridResolution { get; set; }
-            var approximateGridResolutionNode = node.SelectSingleNode("approximateGridResolution", mgr);
-            if (approximateGridResolutionNode == null)
-            {
-                approximateGridResolutionNode = node.SelectSingleNode("S128:approximateGridResolution", mgr);
-            }
+            var approximateGridResolutionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}approximateGridResolution", mgr);
             if (approximateGridResolutionNode != null && approximateGridResolutionNode.HasChildNodes)
             {
                 if (int.TryParse(approximateGridResolutionNode.FirstChild?.InnerText, out int approximateGridResolutionValue))
@@ -44,11 +40,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public int[] CompilationScale { get; set; } = new int[0];
-            var compilationScaleNodes = node.SelectNodes("compilationScale");
-            if (compilationScaleNodes == null || compilationScaleNodes.Count == 0)
-            {
-                compilationScaleNodes = node.SelectNodes("S128:compilationScale", mgr);
-            }
+            var compilationScaleNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}compilationScale", mgr);
             if (compilationScaleNodes != null && compilationScaleNodes.Count > 0)
             {
                 var compilationScales = new List<int>();
@@ -67,11 +59,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public string DistributionStatus { get; set; } = string.Empty;
-            var distributionStatusNode = node.SelectSingleNode("distributionStatus", mgr);
-            if (distributionStatusNode == null)
-            {
-                distributionStatusNode = node.SelectSingleNode("S128:distributionStatus", mgr);
-            }
+            var distributionStatusNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}distributionStatus", mgr);
             if (distributionStatusNode != null && distributionStatusNode.HasChildNodes)
             {
                 DistributionStatus = distributionStatusNode.FirstChild?.InnerText ?? string.Empty;
@@ -82,11 +70,7 @@ namespace S1XViewer.Types.Features
             //minimumDisplayScale -> base parser
 
             //public string[] NavigationPurpose { get; set; } = new string[0];
-            var navigationPurposeNodes = node.SelectNodes("navigationPurpose");
-            if (navigationPurposeNodes == null || navigationPurposeNodes.Count == 0)
-            {
-                navigationPurposeNodes = node.SelectNodes("S128:navigationPurpose", mgr);
-            }
+            var navigationPurposeNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}navigationPurpose", mgr);
             if (navigationPurposeNodes != null && navigationPurposeNodes.Count > 0)
             {
                 var navigationPurposes = new List<string>();
@@ -102,11 +86,7 @@ namespace S1XViewer.Types.Features
             }
 
             //public int OptimumDisplayScale { get; set; }
-            var optimumDisplayScaleNode = node.SelectSingleNode("optimumDisplayScale", mgr);
-            if (optimumDisplayScaleNode == null)
-            {
-                optimumDisplayScaleNode = node.SelectSingleNode("S128:optimumDisplayScale", mgr);
-            }
+            var optimumDisplayScaleNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}optimumDisplayScale", mgr);
             if (optimumDisplayScaleNode != null && optimumDisplayScaleNode.HasChildNodes)
             {
                 if (int.TryParse(optimumDisplayScaleNode.FirstChild?.InnerText, out int optimumDisplayScaleValue))
@@ -116,58 +96,42 @@ namespace S1XViewer.Types.Features
             }
 
             //public string OriginalProductNumber { get; set; } = string.Empty;
-            var originalProductNumberValue = node.SelectSingleNode("originalProductNumber", mgr);
-            if (originalProductNumberValue == null)
-            {
-                originalProductNumberValue = node.SelectSingleNode("S128:originalProductNumber", mgr);
-            }
+            var originalProductNumberValue = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}originalProductNumber", mgr);
             if (originalProductNumberValue != null && originalProductNumberValue.HasChildNodes)
             {
                 OriginalProductNumber = originalProductNumberValue.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string ProducerNation { get; set; } = string.Empty;
-            var producerNationNode = node.SelectSingleNode("producerNation", mgr);
-            if (producerNationNode == null)
-            {
-                producerNationNode = node.SelectSingleNode("S128:producerNation", mgr);
-            }
+            var producerNationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}producerNation", mgr);
             if (producerNationNode != null && producerNationNode.HasChildNodes)
             {
                 ProducerNation = producerNationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string ProductNumber { get; set; } = string.Empty;
-            var productNumberNode = node.SelectSingleNode("productNumber", mgr);
-            if (productNumberNode == null)
-            {
-                productNumberNode = node.SelectSingleNode("S128:productNumber", mgr);
-            }
+            var productNumberNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}productNumber", mgr);
             if (productNumberNode != null && productNumberNode.HasChildNodes)
             {
                 ProductNumber = productNumberNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string SpecificUsage { get; set; } = string.Empty;
-            var specificUsageNode = node.SelectSingleNode("specificUsage", mgr);
-            if (productNumberNode == null)
-            {
-                productNumberNode = node.SelectSingleNode("S128:specificUsage", mgr);
-            }
+            var specificUsageNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}specificUsage", mgr);
             if (productNumberNode != null && productNumberNode.HasChildNodes)
             {
                 SpecificUsage = productNumberNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string UpdateDate { get; set; }
-            var updateDateNode = node.SelectSingleNode("updateDate", mgr);
+            var updateDateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}updateDate", mgr);
             if (updateDateNode != null && updateDateNode.HasChildNodes)
             {
                 UpdateDate = updateDateNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             //public string UpdateNumber { get; set; }
-            var updateNumberNode = node.SelectSingleNode("updateNumber", mgr);
+            var updateNumberNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}updateNumber", mgr);
             if (updateNumberNode != null && updateNumberNode.HasChildNodes)
             {
                 UpdateNumber = updateNumberNode.FirstChild?.InnerText ?? string.Empty;

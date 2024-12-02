@@ -27,14 +27,10 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             //public DateTime DateEnd { get; set; } = DateTime.MinValue;
-            var dateEndNode = node.SelectSingleNode("dateEnd", mgr);
-            if (dateEndNode == null)
-            {
-                dateEndNode = node.SelectSingleNode("S128:dateEnd", mgr);
-            }
+            var dateEndNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dateEnd", mgr);
             if (dateEndNode != null && dateEndNode.HasChildNodes)
             {
                 if (DateTime.TryParse(dateEndNode.FirstChild?.InnerText, out DateTime dateEndNodeValue))
@@ -44,11 +40,7 @@ namespace S1XViewer.Types.ComplexTypes
             }
 
             //public DateTime DateStart { get; set; } = DateTime.MinValue;
-            var dateStartNode = node.SelectSingleNode("dateStart", mgr);
-            if (dateStartNode == null)
-            {
-                dateStartNode = node.SelectSingleNode("S128:dateStart", mgr);
-            }
+            var dateStartNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}dateStart", mgr);
             if (dateStartNode != null && dateStartNode.HasChildNodes)
             {
                 if (DateTime.TryParse(dateStartNode.FirstChild?.InnerText, out DateTime dateStartValue))

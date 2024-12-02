@@ -2,18 +2,16 @@
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Interfaces;
 using S1XViewer.Types.Links;
-using System;
-using System.Collections.Generic;
 using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
     public class ElectronicChart : AbstractChartProduct, IElectronicChart, IS128Feature
     {
-        public IProductSpecification ProductSpecification { get; set; }
-        public string[] DatasetName { get; set; }
-        public string TnpUpdate { get; set; }
-        public string TypeOfProductFormat { get; set; }
+        public IProductSpecification ProductSpecification { get; set; } = new ProductSpecification();
+        public string[] DatasetName { get; set; } = Array.Empty<string>();
+        public string TnpUpdate { get; set; } = string.Empty;
+        public string TypeOfProductFormat { get; set; } = string.Empty;
 
         /// <summary>
         /// 
@@ -85,7 +83,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -101,26 +99,18 @@ namespace S1XViewer.Types.Features
                 }
             }
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
             //public IProductSpecification ProductSpecification { get; set; }
-            var productSpecificationNode = node.SelectSingleNode("productSpecification", mgr);
-            if (productSpecificationNode == null)
-            {
-                productSpecificationNode = node.SelectSingleNode("S128:productSpecification", mgr);
-            }
+            var productSpecificationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}productSpecification", mgr);
             if (productSpecificationNode != null && productSpecificationNode.HasChildNodes)
             {
                 ProductSpecification = new ProductSpecification();
-                ProductSpecification.FromXml(productSpecificationNode, mgr);
+                ProductSpecification.FromXml(productSpecificationNode, mgr, nameSpacePrefix);
             }
 
             //public string[] DatasetName { get; set; }
-            var datasetNameNodes = node.SelectNodes("datasetName", mgr);
-            if (datasetNameNodes == null)
-            {
-                datasetNameNodes = node.SelectNodes("S128:datasetName", mgr);
-            }
+            var datasetNameNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}datasetName", mgr);
             if (datasetNameNodes != null && datasetNameNodes.Count > 0)
             {
                 var dataSetNames = new List<string>();
@@ -137,22 +127,14 @@ namespace S1XViewer.Types.Features
             }
 
             //public string TnpUpdate { get; set; }
-            var tnpUpdateNode = node.SelectSingleNode("tnpUpdate", mgr);
-            if (tnpUpdateNode == null)
-            {
-                node.SelectSingleNode("S128:tnpUpdate", mgr);
-            }
+            var tnpUpdateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}tnpUpdate", mgr);
             if (tnpUpdateNode != null && tnpUpdateNode.HasChildNodes)
             {
                 TnpUpdate = tnpUpdateNode.InnerText;
             }
 
             //public string TypeOfProductFormat { get; set; }
-            var typeOfProductFormatNode = node.SelectSingleNode("typeOfProductFormat", mgr);
-            if (typeOfProductFormatNode == null)
-            {
-                typeOfProductFormatNode = node.SelectSingleNode("S128:typeOfProductFormat", mgr);
-            }
+            var typeOfProductFormatNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}typeOfProductFormat", mgr);
             if (typeOfProductFormatNode != null && typeOfProductFormatNode.HasChildNodes)
             {
                 TypeOfProductFormat = typeOfProductFormatNode.InnerText;

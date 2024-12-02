@@ -6,8 +6,8 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class Orientation : ComplexTypeBase, IOrientation
     {
-        public double OrientationUncertainty { get; set; }
-        public double OrientationValue { get; set; }
+        public double OrientationUncertainty { get; set; } = 0.0;
+        public double OrientationValue { get; set; } = 0.0;
 
         /// <summary>
         /// 
@@ -28,9 +28,9 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var orientationUncertaintyNode = node.SelectSingleNode("orientationUncertainty", mgr);
+            var orientationUncertaintyNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}orientationUncertainty", mgr);
             if (orientationUncertaintyNode != null && orientationUncertaintyNode.HasChildNodes)
             {
                 if (double.TryParse(orientationUncertaintyNode.FirstChild?.InnerText, 
@@ -42,7 +42,7 @@ namespace S1XViewer.Types.ComplexTypes
                 }
             }
 
-            var orientationValueNode = node.SelectSingleNode("orientationValue", mgr);
+            var orientationValueNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}orientationValue", mgr);
             if (orientationValueNode != null && orientationValueNode.HasChildNodes)
             {
                 if (double.TryParse(orientationValueNode.FirstChild?.InnerText,

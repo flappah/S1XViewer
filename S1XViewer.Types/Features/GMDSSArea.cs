@@ -49,7 +49,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -57,9 +57,9 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfGMDSSAreaNodes = node.SelectNodes("categoryOfGMDSSArea", mgr);
+            var categoryOfGMDSSAreaNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfGMDSSArea", mgr);
             if (categoryOfGMDSSAreaNodes != null && categoryOfGMDSSAreaNodes.Count > 0)
             {
                 var categories = new List<string>();
@@ -67,7 +67,7 @@ namespace S1XViewer.Types.Features
                 {
                     if (categoryOfGMDSSAreaNode != null && categoryOfGMDSSAreaNode.HasChildNodes)
                     {
-                        var category = categoryOfGMDSSAreaNode.FirstChild.InnerText;
+                        var category = categoryOfGMDSSAreaNode.FirstChild?.InnerText ?? string.Empty;
                         categories.Add(category);
                     }
                 }

@@ -62,7 +62,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -70,9 +70,9 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfPilotNodes = node.SelectNodes("categoryOfPilot", mgr);
+            var categoryOfPilotNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfPilot", mgr);
             if (categoryOfPilotNodes != null && categoryOfPilotNodes.Count > 0)
             {
                 var categories = new List<string>();
@@ -84,29 +84,29 @@ namespace S1XViewer.Types.Features
                 CategoryOfPilot = categories.ToArray();
             }
 
-            var pilotQualificationNode = node.SelectSingleNode("pilotQualification", mgr);
+            var pilotQualificationNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}pilotQualification", mgr);
             if (pilotQualificationNode != null && pilotQualificationNode.HasChildNodes)
             {
                 PilotQualification = pilotQualificationNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var pilotRequestNode = node.SelectSingleNode("pilotRequest", mgr);
+            var pilotRequestNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}pilotRequest", mgr);
             if (pilotRequestNode != null && pilotRequestNode.HasChildNodes)
             {
                 PilotRequest = pilotRequestNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var remotePilotNode = node.SelectSingleNode("remotePilot", mgr);
+            var remotePilotNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}remotePilot", mgr);
             if (remotePilotNode != null && remotePilotNode.HasChildNodes)
             {
                 RemotePilot = remotePilotNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var noticeTimeNode = node.SelectSingleNode("noticeTime", mgr);
+            var noticeTimeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}noticeTime", mgr);
             if (noticeTimeNode != null && noticeTimeNode.HasChildNodes)
             {
                 NoticeTime = new NoticeTime();
-                NoticeTime.FromXml(noticeTimeNode, mgr);
+                NoticeTime.FromXml(noticeTimeNode, mgr, nameSpacePrefix);
             }
 
             return this;

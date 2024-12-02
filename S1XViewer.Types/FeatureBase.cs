@@ -29,7 +29,7 @@ namespace S1XViewer.Types
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public virtual IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public virtual IFeature FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;

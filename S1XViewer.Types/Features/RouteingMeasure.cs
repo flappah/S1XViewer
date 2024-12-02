@@ -51,7 +51,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -59,21 +59,21 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfRouteingMeasureNode = node.SelectSingleNode("categoryOfRouteingMeasure", mgr);
+            var categoryOfRouteingMeasureNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfRouteingMeasure", mgr);
             if (categoryOfRouteingMeasureNode != null && categoryOfRouteingMeasureNode.HasChildNodes)
             {
                 CategoryOfRouteingMeasure = categoryOfRouteingMeasureNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfTrafficSeparationSchemeNode = node.SelectSingleNode("categoryOfTrafficSeparationScheme", mgr);
+            var categoryOfTrafficSeparationSchemeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfTrafficSeparationScheme", mgr);
             if (categoryOfTrafficSeparationSchemeNode != null && categoryOfTrafficSeparationSchemeNode.HasChildNodes)
             {
                 CategoryOfTrafficSeparationScheme = categoryOfTrafficSeparationSchemeNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var categoryOfNavigationLineNode = node.SelectSingleNode("categoryOfNavigationLine", mgr);
+            var categoryOfNavigationLineNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfNavigationLine", mgr);
             if (categoryOfNavigationLineNode != null && categoryOfNavigationLineNode.HasChildNodes)
             {
                 CategoryOfNavigationLine = categoryOfNavigationLineNode.FirstChild?.InnerText ?? string.Empty;

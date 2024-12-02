@@ -53,7 +53,7 @@ namespace S1XViewer.Types.Features
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr)
+        public override IFeature FromXml(System.Xml.XmlNode node, System.Xml.XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
             if (node == null)
                 return this;
@@ -61,33 +61,33 @@ namespace S1XViewer.Types.Features
             if (mgr == null)
                 return this;
 
-            base.FromXml(node, mgr);
+            base.FromXml(node, mgr, nameSpacePrefix);
 
-            var categoryOfMooringWarpingFacilityNode = node.SelectSingleNode("categoryOfMooringWarpingFacility", mgr);
+            var categoryOfMooringWarpingFacilityNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfMooringWarpingFacility", mgr);
             if (categoryOfMooringWarpingFacilityNode != null && categoryOfMooringWarpingFacilityNode.HasChildNodes)
             {
                 CategoryOfMooringWarpingFacility = categoryOfMooringWarpingFacilityNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var iDCodeNode = node.SelectSingleNode("iDCode", mgr);
+            var iDCodeNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}iDCode", mgr);
             if (iDCodeNode != null && iDCodeNode.HasChildNodes)
             {
                 IDCode = iDCodeNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var bollardDescriptionNode = node.SelectSingleNode("bollardDescription", mgr);
+            var bollardDescriptionNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}bollardDescription", mgr);
             if (bollardDescriptionNode != null && bollardDescriptionNode.HasChildNodes)
             {
                 BollardDescription = bollardDescriptionNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var bollardPullNode = node.SelectSingleNode("bollardPull", mgr);
+            var bollardPullNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}bollardPull", mgr);
             if (bollardPullNode != null && bollardPullNode.HasChildNodes)
             {
                 BollardPull = bollardPullNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var heavingLinesFromShoreNode = node.SelectSingleNode("heavingLinesFromShore", mgr);
+            var heavingLinesFromShoreNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}heavingLinesFromShore", mgr);
             if (heavingLinesFromShoreNode != null && heavingLinesFromShoreNode.HasChildNodes)
             {
                 if (bool.TryParse(heavingLinesFromShoreNode.FirstChild?.InnerText, out bool heavingLinesFromShoreValue))

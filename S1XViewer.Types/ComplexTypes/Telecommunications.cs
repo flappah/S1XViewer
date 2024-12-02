@@ -7,12 +7,12 @@ namespace S1XViewer.Types.ComplexTypes
 {
     public class Telecommunications : ComplexTypeBase, ITelecommunications
     {
-        public string CategoryOfCommPref { get; set; }
-        public string TelecommunicationIdentifier { get; set; }
-        public string TelcomCarrier { get; set; }
-        public string ContactInstructions { get; set; }
-        public string[] TelecommunicationService { get; set; }
-        public IScheduleByDoW[] ScheduleByDoW { get; set; }
+        public string CategoryOfCommPref { get; set; } = string.Empty;
+        public string TelecommunicationIdentifier { get; set; } = string.Empty;
+        public string TelcomCarrier { get; set; } = string.Empty;
+        public string ContactInstructions { get; set; } = string.Empty;
+        public string[] TelecommunicationService { get; set; } = Array.Empty<string>();
+        public IScheduleByDoW[] ScheduleByDoW { get; set; } = Array.Empty<ScheduleByDoW>();
 
         /// <summary>
         /// 
@@ -25,7 +25,7 @@ namespace S1XViewer.Types.ComplexTypes
                 CategoryOfCommPref = CategoryOfCommPref,
                 ContactInstructions = ContactInstructions,
                 ScheduleByDoW = ScheduleByDoW == null   
-                    ? new ScheduleByDoW[0]
+                    ? Array.Empty<ScheduleByDoW>()
                     : Array.ConvertAll(ScheduleByDoW, s => s.DeepClone() as IScheduleByDoW),
                 TelcomCarrier = TelcomCarrier,
                 TelecommunicationIdentifier = TelecommunicationIdentifier,
@@ -39,15 +39,15 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var telecommunicationIdentifierNode = node.SelectSingleNode("telecommunicationIdentifier", mgr);
+            var telecommunicationIdentifierNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}telecommunicationIdentifier", mgr);
             if (telecommunicationIdentifierNode != null && telecommunicationIdentifierNode.HasChildNodes)
             {
-                TelecommunicationIdentifier = telecommunicationIdentifierNode.FirstChild.InnerText;
+                TelecommunicationIdentifier = telecommunicationIdentifierNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var telecommunicationsServiceNodes = node.SelectNodes("telecommunicationService", mgr);
+            var telecommunicationsServiceNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}telecommunicationService", mgr);
             if (telecommunicationsServiceNodes != null && telecommunicationsServiceNodes.Count > 0)
             {
                 var services = new List<string>();
@@ -61,25 +61,25 @@ namespace S1XViewer.Types.ComplexTypes
                 TelecommunicationService = services.ToArray();
             }
 
-            var categoryOfCommPrefNode = node.SelectSingleNode("categoryOfCommPref", mgr);
+            var categoryOfCommPrefNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}categoryOfCommPref", mgr);
             if (categoryOfCommPrefNode != null && categoryOfCommPrefNode.HasChildNodes)
             {
-                CategoryOfCommPref = categoryOfCommPrefNode.FirstChild.InnerText;
+                CategoryOfCommPref = categoryOfCommPrefNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var contactInstructionsNode = node.SelectSingleNode("contactInstructions", mgr);
+            var contactInstructionsNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}contactInstructions", mgr);
             if (contactInstructionsNode != null && contactInstructionsNode.HasChildNodes)
             {
-                ContactInstructions = contactInstructionsNode.FirstChild.InnerText;
+                ContactInstructions = contactInstructionsNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var telcomCarrierNode = node.SelectSingleNode("telcomCarrier", mgr);
+            var telcomCarrierNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}telcomCarrier", mgr);
             if (telcomCarrierNode != null && telcomCarrierNode.HasChildNodes)
             {
-                TelcomCarrier = telcomCarrierNode.FirstChild.InnerText;
+                TelcomCarrier = telcomCarrierNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var scheduleByDoWNodes = node.SelectNodes("scheduleByDoW", mgr);
+            var scheduleByDoWNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}scheduleByDoW", mgr);
             if (scheduleByDoWNodes != null && scheduleByDoWNodes.Count > 0)
             {
                 var nodes = new List<ScheduleByDoW>();
@@ -88,7 +88,7 @@ namespace S1XViewer.Types.ComplexTypes
                     if (scheduleByDoWNode != null && scheduleByDoWNode.HasChildNodes)
                     {
                         var scheduleByDoW = new ScheduleByDoW();
-                        scheduleByDoW.FromXml(scheduleByDoWNode, mgr);
+                        scheduleByDoW.FromXml(scheduleByDoWNode, mgr, nameSpacePrefix);
                         nodes.Add(scheduleByDoW);
                     }
                 }

@@ -29,24 +29,24 @@ namespace S1XViewer.Types.ComplexTypes
         /// <param name="node"></param>
         /// <param name="mgr"></param>
         /// <returns></returns>
-        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr)
+        public override IComplexType FromXml(XmlNode node, XmlNamespaceManager mgr, string nameSpacePrefix = "")
         {
-            var displayNameNode = node.SelectSingleNode("displayName", mgr);
+            var displayNameNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}displayName", mgr);
             if (displayNameNode != null && displayNameNode.HasChildNodes)
             {                
-                DisplayName = displayNameNode.FirstChild.InnerText;
+                DisplayName = displayNameNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var languageNode = node.SelectSingleNode("language", mgr);
+            var languageNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}language", mgr);
             if (languageNode != null && languageNode.HasChildNodes)
             {
-                Language = languageNode.FirstChild.InnerText;
+                Language = languageNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            var nameNode = node.SelectSingleNode("name", mgr);
+            var nameNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}name", mgr);
             if (nameNode != null && nameNode.HasChildNodes)
             {
-                Name = nameNode.FirstChild.InnerText;
+                Name = nameNode.FirstChild?.InnerText ?? string.Empty;
             }
 
             return this;
