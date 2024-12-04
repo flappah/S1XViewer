@@ -1,6 +1,4 @@
-﻿using S1XViewer.Model.Interfaces;
-
-namespace S1XViewer.Model.Interface
+﻿namespace S1XViewer.Model.Interfaces
 {
     public interface INullDataParser : IDataParser
     {

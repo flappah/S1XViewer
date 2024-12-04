@@ -186,7 +186,7 @@ namespace S1XViewer.Types.Features
                         return "TERMNL93";
 
                     case "10":
-                        return "TERCON91";
+                        return "TRMCON91";
 
                     case "11":
                         return "TERMNL94";

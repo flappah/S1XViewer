@@ -197,6 +197,13 @@ namespace S1XViewer.Model
             return dataPackage;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <param name="selectedDateTime"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         public override Task<IS1xxDataPackage> ParseAsync(string hdf5FileName, DateTime? selectedDateTime)
         {
             throw new NotImplementedException();

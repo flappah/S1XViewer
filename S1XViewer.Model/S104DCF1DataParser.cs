@@ -4,18 +4,12 @@ using S1XViewer.HDF;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
+using S1XViewer.Types;
 using S1XViewer.Types.ComplexTypes;
 using S1XViewer.Types.Features;
-using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using System.Windows.Automation.Peers;
 
 namespace S1XViewer.Model
 {

@@ -1931,34 +1931,37 @@ namespace S1XViewer
             {
                 if (feature is IGeoFeature geoFeature && geoFeature.Geometry != null)
                 {
-                    (string type, Feature feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererManager, horizontalCRS);
+                    (string type, Feature? feature, Graphic? graphic) renderedFeature = geoFeature.Render(featureRendererManager, horizontalCRS);
 
-                    switch (renderedFeature.type)
+                    if (renderedFeature.feature != null)
                     {
-                        case "PointFeatures":
-                            pointFeatureList.Add(renderedFeature.feature);
-                            break;
+                        switch (renderedFeature.type)
+                        {
+                            case "PointFeatures":
+                                pointFeatureList.Add(renderedFeature.feature);
+                                break;
 
-                        case "LineFeatures":
-                            lineFeatureList.Add(renderedFeature.feature);
-                            break;
+                            case "LineFeatures":
+                                lineFeatureList.Add(renderedFeature.feature);
+                                break;
 
-                        case "PolygonFeatures":
-                            polygonFeatureList.Add(renderedFeature.feature);
-                            break;
+                            case "PolygonFeatures":
+                                polygonFeatureList.Add(renderedFeature.feature);
+                                break;
 
-                        case "VectorFeatures":
-                            vectorFeatureList.Add(renderedFeature.feature);
-                            break;
+                            case "VectorFeatures":
+                                vectorFeatureList.Add(renderedFeature.feature);
+                                break;
 
-                        default:
-                            if (filledPolyFeatureLists.ContainsKey(renderedFeature.type) == false)
-                            {
-                                filledPolyFeatureLists.Add(renderedFeature.type, new List<Feature>());
-                            }
-                            filledPolyFeatureLists[renderedFeature.type].Add(renderedFeature.feature);
+                            default:
+                                if (filledPolyFeatureLists.ContainsKey(renderedFeature.type) == false)
+                                {
+                                    filledPolyFeatureLists.Add(renderedFeature.type, new List<Feature>());
+                                }
+                                filledPolyFeatureLists[renderedFeature.type].Add(renderedFeature.feature);
 
-                            break;
+                                break;
+                        }
                     }
 
                     if (renderedFeature.graphic != null)

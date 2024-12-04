@@ -49,7 +49,7 @@ namespace S1XViewer.Types.Features
             Field idField = new Field(FieldType.Text, "FeatureId", "Id", 50);
             Field nameField = new Field(FieldType.Text, "FeatureName", "Name", 255);
 
-            if (Geometry is MapPoint mapPoint)
+            if (Geometry is MapPoint mapPoint && File.Exists(Path.Combine(AppContext.BaseDirectory, @$"images\{GetSymbolName()}.png")))
             {
                 if (mapPoint != null)
                 {

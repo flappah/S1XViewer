@@ -97,7 +97,7 @@ namespace S1XViewer.Types.Features
         /// <returns></returns>
         public override string GetSymbolName()
         {
-            throw new NotImplementedException();
+            return "";
         }
     }
 }
