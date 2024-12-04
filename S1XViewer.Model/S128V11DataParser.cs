@@ -25,6 +25,65 @@ namespace S1XViewer.Model
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="memberNodes"></param>
+        /// <param name="nsmgr"></param>
+        /// <param name="invertLonLat"></param>
+        /// <returns></returns>
+        private (List<IGeoFeature> geoFeatures, List<IMetaFeature> metaFeatures, List<IInformationFeature> informationFeatures) RetrieveGeometriesFromXml(XmlNodeList? memberNodes, XmlNamespaceManager nsmgr, bool invertLonLat)
+        {
+            var geoFeatures = new List<IGeoFeature>();
+            var metaFeatures = new List<IMetaFeature>();
+            var informationFeatures = new List<IInformationFeature>();
+
+            if (memberNodes != null)
+            {
+                _geometryBuilderFactory.InvertLonLat = invertLonLat;
+                short i = 0;
+                foreach (XmlNode memberNode in memberNodes)
+                {
+                    var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
+                    Progress?.Invoke(percentage);
+
+                    IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr, false)?.DeepClone();
+                    if (feature != null)
+                    {
+                        if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
+                        {
+                            var geometryOfMemberNode = memberNode.SelectSingleNode("S128:geometry", nsmgr);
+                            if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
+                            {
+                                geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                            }
+
+                            geoFeatures.Add(geoFeature);
+                        }
+                        else
+                        {
+                            if (feature is IMetaFeature metaFeature && memberNode.HasChildNodes)
+                            {
+                                var geometryOfMemberNode = memberNode.SelectSingleNode("S128:geometry", nsmgr);
+                                if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
+                                {
+                                    metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                }
+
+                                metaFeatures.Add(metaFeature);
+                            }
+                            else if (feature is IInformationFeature infoFeature && memberNode.HasChildNodes)
+                            {
+                                informationFeatures.Add(infoFeature);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return (geoFeatures, metaFeatures, informationFeatures);
+        }
+
+        /// <summary>
         ///     Parses specified XMLDocument
         /// </summary>
         /// <param name="xmlDocument">XmlDocument</param>
@@ -70,47 +129,12 @@ namespace S1XViewer.Model
             await Task.Run(() =>
             {
                 XmlNodeList? memberNodes = xmlDocument.DocumentElement.ChildNodes;
-                if (memberNodes != null) { 
-                short i = 0;
-                    foreach (XmlNode memberNode in memberNodes)
-                    {
-                        var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
-                        Progress?.Invoke(percentage);
+                (geoFeatures, metaFeatures, informationFeatures) = RetrieveGeometriesFromXml(memberNodes, nsmgr, invertLonLat);
 
-                        IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr, false)?.DeepClone();
-                        if (feature != null)
-                        {
-                            if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
-                            {
-                                var geometryOfMemberNode = memberNode.SelectSingleNode("S128:geometry", nsmgr);
-                                if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
-                                {
-                                    geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
-                                    invertLonLat = _geometryBuilderFactory.InvertLonLat;
-                                }
-
-                                geoFeatures.Add(geoFeature);
-                            }
-                            else
-                            {
-                                if (feature is IMetaFeature metaFeature && memberNode.HasChildNodes)
-                                {
-                                    var geometryOfMemberNode = memberNode.SelectSingleNode("S128:geometry", nsmgr);
-                                    if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
-                                    {
-                                        metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
-                                        invertLonLat = _geometryBuilderFactory.InvertLonLat;
-                                    }
-
-                                    metaFeatures.Add(metaFeature);
-                                }
-                                else if (feature is IInformationFeature infoFeature && memberNode.HasChildNodes)
-                                {
-                                    informationFeatures.Add(infoFeature);
-                                }
-                            }
-                        }
-                    }
+                if (invertLonLat == false && IsAnyPositionInverted(geoFeatures, metaFeatures))
+                {
+                    invertLonLat = true;
+                    (geoFeatures, metaFeatures, informationFeatures) = RetrieveGeometriesFromXml(memberNodes, nsmgr, invertLonLat);
                 }
 
                 Progress?.Invoke(0);

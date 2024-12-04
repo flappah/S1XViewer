@@ -13,6 +13,8 @@ using GeoAPI.Geometries;
 using Esri.ArcGISRuntime.Geometry;
 using System.Globalization;
 using System.Windows.Media.Animation;
+using System.Runtime.InteropServices;
+using Microsoft.Isam.Esent.Interop;
 
 namespace S1XViewer.Model
 {
@@ -162,6 +164,74 @@ namespace S1XViewer.Model
             }
 
             return result;
+        }
+
+        /// <summary>
+        ///     Checks if any position in the supplied geo- meta features is inverted, i.e. lat > 90.0 or lat < -90.0
+        /// </summary>
+        /// <param name="geoFeatures"></param>
+        /// <param name="metaFeatures"></param>
+        /// <returns></returns>
+        protected bool IsAnyPositionInverted(List<IGeoFeature> geoFeatures, List<IMetaFeature> metaFeatures)
+        {
+            if (geoFeatures != null && geoFeatures.Count > 0) 
+            {
+                foreach (var feature in geoFeatures)
+                {
+                    if (feature.Geometry != null)
+                    {
+                        Esri.ArcGISRuntime.Geometry.Geometry boundary = feature.Geometry.Boundary();
+                        if (boundary != null)
+                        {
+
+                            switch (feature.Geometry)
+                            {
+                                case Esri.ArcGISRuntime.Geometry.Polyline:
+                                    foreach (var part in ((Esri.ArcGISRuntime.Geometry.Polyline)feature.Geometry).Parts)
+                                    {
+                                        foreach (var point in part.Points)
+                                        {
+                                            if (point.Y < -90.0 || point.Y > 90.0)
+                                            {
+                                                return true;
+                                            }
+                                        }
+                                    }
+
+                                    break;
+
+                                case Esri.ArcGISRuntime.Geometry.Polygon:
+                                    foreach (var part in ((Esri.ArcGISRuntime.Geometry.Polygon)feature.Geometry).Parts)
+                                    {
+                                        foreach (var point in part.Points)
+                                        {
+                                            if (point.Y < -90.0 || point.Y > 90.0)
+                                            {
+                                                return true;
+                                            }
+                                        }
+                                    }
+
+                                    break;
+
+                                case Esri.ArcGISRuntime.Geometry.MapPoint:
+                                    if (((Esri.ArcGISRuntime.Geometry.MapPoint)feature.Geometry).Y < -90.0 ||
+                                        ((Esri.ArcGISRuntime.Geometry.MapPoint)feature.Geometry).Y > 90.0)
+                                    { return true; }
+
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (metaFeatures !=null && metaFeatures.Count > 0)
+            {
+
+            }
+
+            return false;
         }
         
         /// <summary>

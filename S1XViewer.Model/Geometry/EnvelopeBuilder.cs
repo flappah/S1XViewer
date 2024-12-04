@@ -220,7 +220,7 @@ namespace S1XViewer.Model.Geometry
                 Esri.ArcGISRuntime.Geometry.Envelope createdEnvelope;
                 if (InvertLonLat == false)
                 {
-                    if (llY > 90.0 || urY > 90.0)
+                    if (llY < -90.0 || llY > 90.0 || urY < -90.0 || urY > 90.0)
                     {
                         createdEnvelope =
                             new Esri.ArcGISRuntime.Geometry.Envelope(llY, llX, urY, urX, SpatialReference.Create(_spatialReferenceSystem));
