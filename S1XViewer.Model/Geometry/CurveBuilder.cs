@@ -191,6 +191,7 @@ namespace S1XViewer.Model.Geometry
                     if (IsPositionInAnySegmentInverted(segments))
                     {
                         segments = InvertPositionsInSegments(segments);
+                        InvertLonLat = true;
                     }
 
                     var polyline = new Polyline(segments, SpatialReference.Create(_spatialReferenceSystem));

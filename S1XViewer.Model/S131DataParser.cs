@@ -2,19 +2,7 @@
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using S1XViewer.Base;
-using S1XViewer.Model.Interfaces;
-using S1XViewer.Storage.Interfaces;
-using S1XViewer.Types;
-using S1XViewer.Types.Interfaces;
-using System.Xml;
-using Microsoft.Isam.Esent.Interop;
 
 namespace S1XViewer.Model
 {
@@ -42,29 +30,6 @@ namespace S1XViewer.Model
         /// <param name="xmlDocument"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="hdf5FileName"></param>
-        /// <param name="selectedDateTime"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="xmlDocument"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
         public async override Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
         {
             if (xmlDocument is null || xmlDocument.DocumentElement == null)
@@ -72,9 +37,9 @@ namespace S1XViewer.Model
                 throw new ArgumentNullException(nameof(xmlDocument));
             }
 
-            var dataPackage = new S127DataPackage
+            var dataPackage = new S131DataPackage
             {
-                Type = S1xxTypes.S127,
+                Type = S1xxTypes.S131,
                 RawXmlData = xmlDocument
             };
 
@@ -96,28 +61,13 @@ namespace S1XViewer.Model
             if (boundingBoxNodes != null && boundingBoxNodes.Count > 0)
             {
                 dataPackage.BoundingBox = _geometryBuilderFactory.Create(boundingBoxNodes[0], nsmgr);
+                invertLonLat = _geometryBuilderFactory.InvertLonLat;
             }
-
-            // retrieve imembers
-            var informationFeatures = await Task.Run(() =>
-            {
-                XmlNodeList imemberNodes = xmlDocument.GetElementsByTagName("imember");
-                var localInfoFeaturesList = new List<IInformationFeature>();
-
-                foreach (XmlNode imemberNode in imemberNodes)
-                {
-                    IFeature? feature = _featureFactory.FromXml(imemberNode, nsmgr)?.DeepClone();
-                    if (feature is IInformationFeature informationFeature)
-                    {
-                        localInfoFeaturesList.Add(informationFeature);
-                    }
-                }
-                return localInfoFeaturesList;
-            });
-
+            
             // retrieve members
             var geoFeatures = new List<IGeoFeature>();
             var metaFeatures = new List<IMetaFeature>();
+            var informationFeatures = new List<IInformationFeature>();
 
             await Task.Run(() =>
             {
@@ -147,6 +97,7 @@ namespace S1XViewer.Model
                                     if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                                     {
                                         geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                        invertLonLat = _geometryBuilderFactory.InvertLonLat;
                                     }
 
                                     geoFeatures.Add(geoFeature);
@@ -159,9 +110,14 @@ namespace S1XViewer.Model
                                         if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                                         {
                                             metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                            invertLonLat = _geometryBuilderFactory.InvertLonLat;
                                         }
 
                                         metaFeatures.Add(metaFeature);
+                                    }
+                                    else if (feature is IInformationFeature informationFeature && featureNode.HasChildNodes)
+                                    {
+                                        informationFeatures.Add(informationFeature);
                                     }
                                 }
                             }
@@ -200,13 +156,50 @@ namespace S1XViewer.Model
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="xmlDocument"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
+        {
+            return ParseAsync(xmlDocument).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="hdf5FileName"></param>
         /// <param name="selectedDateTime"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override Task<IS1xxDataPackage> ParseAsync(string hdf5FileName, DateTime? selectedDateTime)
+        public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
         {
-            throw new NotImplementedException();
+            return new S131DataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawXmlData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <param name="selectedDateTime"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override async Task<IS1xxDataPackage> ParseAsync(string hdf5FileName, DateTime? selectedDateTime)
+        {
+            return new S131DataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawXmlData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
         }
     }
 }

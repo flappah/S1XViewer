@@ -356,6 +356,7 @@ namespace S1XViewer.Model.Geometry
                         if (IsPositionInAnySegmentInverted(segments))
                         {
                             segments = InvertPositionsInSegments(segments);
+                            InvertLonLat = true;
                         }
 
                         var polygon = new Polygon(segments, spatialReferenceSystem);

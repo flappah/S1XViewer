@@ -22,7 +22,6 @@ namespace S1XViewer.Model
 
         private readonly IDatasetReader _datasetReader;
         private readonly IGeometryBuilderFactory _geometryBuilderFactory;
-        private readonly IOptionsStorage _optionsStorage;
 
         /// <summary>
         ///     Empty constructor used for injection purposes
@@ -126,21 +125,6 @@ namespace S1XViewer.Model
             {
                 dataPackage.TiffFileName = tiffFileName;
             }
-        }
-
-        public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override async Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -380,6 +364,51 @@ namespace S1XViewer.Model
 
             Progress?.Invoke(100);
             return dataPackage;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hdf5FileName"></param>
+        /// <param name="selectedDateTime"></param>
+        /// <returns></returns>
+        public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
+        {
+            return ParseAsync(hdf5FileName, selectedDateTime).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="xmlDocument"></param>
+        /// <returns></returns>
+        public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
+        {
+            return new S102DataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawHdfData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="xmlDocument"></param>
+        /// <returns></returns>
+        public override async Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
+        {
+            return new S102DataPackage
+            {
+                Type = S1xxTypes.Null,
+                RawHdfData = null,
+                GeoFeatures = new IGeoFeature[0],
+                MetaFeatures = new IMetaFeature[0],
+                InformationFeatures = new IInformationFeature[0]
+            };
         }
     }
 }

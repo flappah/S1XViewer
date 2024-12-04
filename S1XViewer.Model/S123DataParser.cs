@@ -1,5 +1,4 @@
-﻿using S1XViewer.Base;
-using S1XViewer.Model.Interfaces;
+﻿using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
@@ -14,7 +13,6 @@ namespace S1XViewer.Model
 
         private readonly IGeometryBuilderFactory _geometryBuilderFactory;
         private readonly IFeatureFactory _featureFactory;
-        private readonly IOptionsStorage _optionsStorage;
 
         /// <summary>
         ///     For autofac initialization
@@ -155,85 +153,7 @@ namespace S1XViewer.Model
         /// <returns>IS1xxDataPackage</returns>
         public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
         {
-            var dataPackage = new S123DataPackage
-            {
-                Type = S1xxTypes.S123,
-                RawXmlData = xmlDocument
-            };
-
-            XmlNamespaceManager nsmgr = GetAllNamespaces(xmlDocument);
-
-            // retrieve boundingbox
-            var boundingBoxNodes = xmlDocument.GetElementsByTagName("gml:boundedBy");
-            if (boundingBoxNodes != null && boundingBoxNodes.Count > 0)
-            {
-                dataPackage.BoundingBox = _geometryBuilderFactory.Create(boundingBoxNodes[0], nsmgr);
-            }
-
-            // retrieve imembers
-            XmlNodeList imemberNodes = xmlDocument.GetElementsByTagName("imember");
-            var informationFeatures = new List<IInformationFeature>();
-            foreach (XmlNode imemberNode in imemberNodes)
-            {
-                IFeature? feature = _featureFactory.FromXml(imemberNode, nsmgr)?.DeepClone();
-                if (feature is IInformationFeature informationFeature)
-                {
-                    informationFeatures.Add(informationFeature);
-                }
-            }
-
-            // retrieve members
-            var geoFeatures = new List<IGeoFeature>();
-            var metaFeatures = new List<IMetaFeature>();
-            XmlNodeList memberNodes = xmlDocument.GetElementsByTagName("member");
-            foreach (XmlNode memberNode in memberNodes)
-            {
-                IFeature? feature = _featureFactory.FromXml(memberNode, nsmgr)?.DeepClone();
-                if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
-                {
-                    var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
-                    if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
-                    {
-                        geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
-                    }
-
-                    geoFeatures.Add(geoFeature);
-                }
-                else
-                {
-                    if (feature is IMetaFeature metaFeature && memberNode.HasChildNodes)
-                    {
-                        var geometryOfMemberNode = memberNode.FirstChild?.SelectSingleNode("geometry");
-                        if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
-                        {
-                            metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
-                        }
-
-                        metaFeatures.Add(metaFeature);
-                    }
-                }
-            }
-
-            // Populate links between features
-            foreach (IFeature infoFeature in informationFeatures)
-            {
-                ResolveLinks(infoFeature.Links, informationFeatures, metaFeatures, geoFeatures);
-            }
-
-            foreach (IFeature metaFeature in metaFeatures)
-            {
-                ResolveLinks(metaFeature.Links, informationFeatures, metaFeatures, geoFeatures);
-            }
-
-            foreach (IFeature geoFeature in geoFeatures)
-            {
-                ResolveLinks(geoFeature.Links, informationFeatures, metaFeatures, geoFeatures);
-            }
-
-            dataPackage.GeoFeatures = geoFeatures.ToArray();
-            dataPackage.MetaFeatures = metaFeatures.ToArray();
-            dataPackage.InformationFeatures = informationFeatures.ToArray();
-            return dataPackage;
+            return ParseAsync(xmlDocument).GetAwaiter().GetResult();
         }
 
         /// <summary>

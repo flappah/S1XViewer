@@ -2,7 +2,7 @@
 
 namespace S1XViewer.Types
 {
-    public class S131DataPackage : XmlDataPackage, IS128DataPackage
+    public class S131DataPackage : XmlDataPackage, IS131DataPackage
     {
         public S131DataPackage()
         {

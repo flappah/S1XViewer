@@ -218,15 +218,25 @@ namespace S1XViewer.Model.Geometry
                 }
 
                 Esri.ArcGISRuntime.Geometry.Envelope createdEnvelope;
-                if (InvertLonLat)
+                if (InvertLonLat == false)
                 {
-                    createdEnvelope =
-                        new Esri.ArcGISRuntime.Geometry.Envelope(llY, llX, urY, urX, SpatialReference.Create(_spatialReferenceSystem));
+                    if (llY > 90.0 || urY > 90.0)
+                    {
+                        createdEnvelope =
+                            new Esri.ArcGISRuntime.Geometry.Envelope(llY, llX, urY, urX, SpatialReference.Create(_spatialReferenceSystem));
+
+                        InvertLonLat = true;
+                    }
+                    else
+                    {
+                        createdEnvelope =
+                            new Esri.ArcGISRuntime.Geometry.Envelope(llX, llY, urX, urY, SpatialReference.Create(_spatialReferenceSystem));
+                    }
                 }
                 else
                 {
                     createdEnvelope =
-                        new Esri.ArcGISRuntime.Geometry.Envelope(llX, llY, urX, urY, SpatialReference.Create(_spatialReferenceSystem));
+                        new Esri.ArcGISRuntime.Geometry.Envelope(llY, llX, urY, urX, SpatialReference.Create(_spatialReferenceSystem));
                 }
 
                 return createdEnvelope;

@@ -1,5 +1,4 @@
-﻿using S1XViewer.Base;
-using S1XViewer.Model.Interfaces;
+﻿using S1XViewer.Model.Interfaces;
 using S1XViewer.Storage.Interfaces;
 using S1XViewer.Types;
 using S1XViewer.Types.Interfaces;
@@ -87,6 +86,7 @@ namespace S1XViewer.Model
                                 if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                                 {
                                     geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                    invertLonLat = _geometryBuilderFactory.InvertLonLat;
                                 }
 
                                 geoFeatures.Add(geoFeature);
@@ -99,6 +99,7 @@ namespace S1XViewer.Model
                                     if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                                     {
                                         metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
+                                        invertLonLat = _geometryBuilderFactory.InvertLonLat;
                                     }
 
                                     metaFeatures.Add(metaFeature);
@@ -147,101 +148,7 @@ namespace S1XViewer.Model
         /// <returns>IS1xxDataPackage</returns>
         public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
         {
-            var dataPackage = new S128DataPackage
-            {
-                Type = S1xxTypes.S128,
-                RawXmlData = xmlDocument
-            };
-
-            XmlNamespaceManager nsmgr = GetAllNamespaces(xmlDocument);
-
-            // retrieve boundingbox
-            var boundingBoxNodes = xmlDocument.GetElementsByTagName("gml:boundedBy");
-            if (boundingBoxNodes != null && boundingBoxNodes.Count > 0)
-            {
-                dataPackage.BoundingBox = _geometryBuilderFactory.Create(boundingBoxNodes[0], nsmgr);
-            }
-
-            // retrieve imembers
-            var informationFeatures = new List<IInformationFeature>();
-            //XmlNodeList imemberNodes = xmlDocument.GetElementsByTagName("imember");
-            //var informationFeatures = new List<IInformationFeature>();
-
-            //foreach (XmlNode imemberNode in imemberNodes)
-            //{
-            //    var feature = _featureFactory.FromXml(imemberNode, nsmgr).DeepClone();
-            //    if (feature is IInformationFeature informationFeature)
-            //    {
-            //        informationFeatures.Add(informationFeature);
-            //    }
-            //}
-
-            // retrieve members
-            var geoFeatures = new List<IGeoFeature>();
-            var metaFeatures = new List<IMetaFeature>();
-            XmlNodeList? memberNodes = xmlDocument.DocumentElement?.ChildNodes;
-            if (memberNodes != null)
-            {
-                short i = 0;
-                foreach (XmlNode memberNode in memberNodes)
-                {
-                    var percentage = ((double)i++ / (double)memberNodes.Count) * 100.0;
-                    Progress?.Invoke(percentage);
-
-                    var feature = _featureFactory.FromXml(memberNode, nsmgr, false)?.DeepClone();
-                    if (feature != null)
-                    {
-                        if (feature is IGeoFeature geoFeature && memberNode.HasChildNodes)
-                        {
-                            var geometryOfMemberNode = memberNode.SelectSingleNode("S128:geometry", nsmgr);
-                            if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
-                            {
-                                geoFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
-                            }
-
-                            geoFeatures.Add(geoFeature);
-                        }
-                        else
-                        {
-                            if (feature is IMetaFeature metaFeature && memberNode.HasChildNodes)
-                            {
-                                var geometryOfMemberNode = memberNode.SelectSingleNode("S128:geometry", nsmgr);
-                                if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
-                                {
-                                    metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
-                                }
-
-                                metaFeatures.Add(metaFeature);
-                            }
-                            else if (feature is IInformationFeature infoFeature && memberNode.HasChildNodes)
-                            {
-                                informationFeatures.Add(infoFeature);
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Populate links between features
-            foreach (IFeature infoFeature in informationFeatures)
-            {
-                ResolveLinks(infoFeature.Links, informationFeatures, metaFeatures, geoFeatures);
-            }
-
-            foreach (IFeature metaFeature in metaFeatures)
-            {
-                ResolveLinks(metaFeature.Links, informationFeatures, metaFeatures, geoFeatures);
-            }
-
-            foreach (IFeature geoFeature in geoFeatures)
-            {
-                ResolveLinks(geoFeature.Links, informationFeatures, metaFeatures, geoFeatures);
-            }
-
-            dataPackage.GeoFeatures = geoFeatures.ToArray();
-            dataPackage.MetaFeatures = metaFeatures.ToArray();
-            dataPackage.InformationFeatures = informationFeatures.ToArray();
-            return dataPackage;
+            return ParseAsync(xmlDocument).GetAwaiter().GetResult();
         }
 
         /// <summary>

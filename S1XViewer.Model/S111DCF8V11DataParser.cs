@@ -20,7 +20,6 @@ namespace S1XViewer.Model
 
         private readonly IDatasetReader _datasetReader;
         private readonly IGeometryBuilderFactory _geometryBuilderFactory;
-        private readonly IOptionsStorage _optionsStorage;
 
         /// <summary>
         ///     Empty constructor used for injection purposes
@@ -43,7 +42,6 @@ namespace S1XViewer.Model
         /// <param name="hdf5FileName">HDF5 file name</param>
         /// <param name="selectedDateTime">selected datetime to render data on</param>
         /// <returns>IS1xxDataPackage</returns>
-        /// <exception cref="NotImplementedException"></exception>
         public override async Task<IS1xxDataPackage> ParseAsync(string hdf5FileName, DateTime? selectedDateTime)
         {
             if (string.IsNullOrEmpty(hdf5FileName))
@@ -325,17 +323,9 @@ namespace S1XViewer.Model
         /// <param name="hdf5FileName">HDF5 file name</param>
         /// <param name="selectedDateTime">selected datetime to render data on</param>
         /// <returns>IS1xxDataPackage</returns>
-        /// <exception cref="NotImplementedException"></exception>
         public override IS1xxDataPackage Parse(string hdf5FileName, DateTime? selectedDateTime)
         {
-            return new S111DataPackage
-            {
-                Type = S1xxTypes.Null,
-                RawHdfData = null,
-                GeoFeatures = new IGeoFeature[0],
-                MetaFeatures = new IMetaFeature[0],
-                InformationFeatures = new IInformationFeature[0]
-            };
+            return ParseAsync(hdf5FileName, selectedDateTime).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -343,7 +333,6 @@ namespace S1XViewer.Model
         /// </summary>
         /// <param name="xmlDocument"></param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         public override async Task<IS1xxDataPackage> ParseAsync(XmlDocument xmlDocument)
         {
             return new S111DataPackage
@@ -361,8 +350,7 @@ namespace S1XViewer.Model
         /// </summary>
         /// <param name="xmlDocument"></param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
+         public override IS1xxDataPackage Parse(XmlDocument xmlDocument)
         {
             return new S111DataPackage
             {

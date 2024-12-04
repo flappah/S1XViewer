@@ -46,7 +46,10 @@ namespace S1XViewer.Model.Geometry
             {
                 locatedBuilder.InvertLonLat = InvertLonLat;
                 locatedBuilder.DefaultCRS = DefaultCRS;
-                return locatedBuilder.FromXml(node, mgr);
+                Esri.ArcGISRuntime.Geometry.Geometry? result = locatedBuilder.FromXml(node, mgr);
+
+                InvertLonLat = locatedBuilder.InvertLonLat;
+                return result;
             }
 
             return null;
