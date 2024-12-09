@@ -151,9 +151,12 @@ namespace S1XViewer.Model.Geometry
 
             if (srsNode != null)
             {
-                if (!int.TryParse(srsNode.Attributes.Find("srsName")?.Value.ToString().LastPart(char.Parse(":")), out int refSystem))
+                if (int.TryParse(srsNode.Attributes.Find("srsName")?.Value.ToString().LastPart(char.Parse(":")), out int refSystem) == false)
                 {
-                    refSystem = 0;
+                    if (int.TryParse(srsNode.Attributes.Find("srsName")?.Value.ToString().LastPart(char.Parse("/")), out refSystem) == false)
+                    { 
+                        refSystem = 0; 
+                    }
                 }
                 _spatialReferenceSystem = refSystem;
             }

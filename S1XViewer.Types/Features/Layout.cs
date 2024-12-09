@@ -28,7 +28,7 @@ namespace S1XViewer.Types.Features
                 if (mapPoint != null && File.Exists(Path.Combine(AppContext.BaseDirectory, @$"images\{GetSymbolName()}.png")))
                 {
                     var symbolUri = new Uri($"file:/{Path.Combine(AppContext.BaseDirectory, @$"images\{GetSymbolName()}.png")}");
-                    var symbol = new PictureMarkerSymbol(symbolUri) { Width = 34, Height = 13 };
+                    var symbol = new PictureMarkerSymbol(symbolUri) { Width = 13, Height = 13 };
 
                     var graphic = new Esri.ArcGISRuntime.UI.Graphic();
                     graphic.Geometry = mapPoint;

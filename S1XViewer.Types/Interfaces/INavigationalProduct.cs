@@ -5,6 +5,9 @@
         int ApproximateGridResolution { get; set; }
         int[] CompilationScale { get; set; }
         string DistributionStatus { get; set; }
+        int EditionNumber { get; set; } 
+        int MaximumDisplayScale { get; set; } 
+        int MinimumDisplayScale { get; set; } 
         string[] NavigationPurpose { get; set; }
         int OptimumDisplayScale { get; set; }
         string OriginalProductNumber { get; set; }

@@ -8,6 +8,9 @@ namespace S1XViewer.Types.Features
         public int ApproximateGridResolution { get; set; }
         public int[] CompilationScale { get; set; } = Array.Empty<int>();
         public string DistributionStatus { get; set; } = string.Empty;
+        public int EditionNumber { get; set; } = 0;
+        public int MaximumDisplayScale { get; set; } = 0;
+        public int MinimumDisplayScale { get; set; } = 0;
         public string[] NavigationPurpose { get; set; } = Array.Empty<string>();
         public int OptimumDisplayScale { get; set; }
         public string OriginalProductNumber { get; set; } = string.Empty;
@@ -65,9 +68,35 @@ namespace S1XViewer.Types.Features
                 DistributionStatus = distributionStatusNode.FirstChild?.InnerText ?? string.Empty;
             }
 
-            //editionNumber -> base parser
-            //maximumDisplayScale -> base parser
-            //minimumDisplayScale -> base parser
+            //public int EditionNumber { get; set; } = 0;
+            var editionNumberNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}editionNumber", mgr);
+            if (editionNumberNode != null && editionNumberNode.HasChildNodes)
+            {
+                if (int.TryParse(editionNumberNode.FirstChild?.InnerText, out int editionNumberValue))
+                {
+                    EditionNumber = editionNumberValue;
+                }
+            }
+
+            //public int MaximumDisplayScale { get; set; } = 0;
+            var maximumDisplayScaleNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}maximumDisplayScale", mgr);
+            if (maximumDisplayScaleNode != null && maximumDisplayScaleNode.HasChildNodes)
+            {
+                if (int.TryParse(maximumDisplayScaleNode.FirstChild?.InnerText, out int maximumDisplayScaleValue))
+                {
+                    MaximumDisplayScale = maximumDisplayScaleValue;
+                }
+            }
+
+            //public int MinimumDisplayScale { get; set; } = 0;
+            var minimumDisplayScaleNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}minimumDisplayScale", mgr);
+            if (minimumDisplayScaleNode != null && minimumDisplayScaleNode.HasChildNodes)
+            {
+                if (int.TryParse(minimumDisplayScaleNode.FirstChild?.InnerText, out int minimumDisplayScaleValue))
+                {
+                    MinimumDisplayScale = minimumDisplayScaleValue;
+                }
+            }
 
             //public string[] NavigationPurpose { get; set; } = new string[0];
             var navigationPurposeNodes = node.SelectNodes($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}navigationPurpose", mgr);

@@ -349,6 +349,7 @@ namespace S1XViewer.Model
 
                         CreateTiff(dataPackage);
 
+                        dataPackage.InvertLonLat = invertLonLat;
                         dataPackage.RawHdfData = hdf5S102Root;
                         if (geoFeatures.Count > 0)
                         {

@@ -31,7 +31,7 @@ namespace S1XViewer.Model
         /// <param name="nsmgr"></param>
         /// <param name="invertLonLat"></param>
         /// <returns></returns>
-        private (List<IGeoFeature> geoFeatures, List<IMetaFeature> metaFeatures, List<IInformationFeature> informationFeatures) RetrieveGeometriesFromXml(XmlNodeList? memberNodes, XmlNamespaceManager nsmgr, bool invertLonLat)
+        private (List<IGeoFeature> geoFeatures, List<IMetaFeature> metaFeatures, List<IInformationFeature> informationFeatures) RetrieveFeaturesFromXml(XmlNodeList? memberNodes, XmlNamespaceManager nsmgr, bool invertLonLat)
         {
             var geoFeatures = new List<IGeoFeature>();
             var metaFeatures = new List<IMetaFeature>();
@@ -71,7 +71,7 @@ namespace S1XViewer.Model
                             {
                                 if (feature is IMetaFeature metaFeature && featureNode.HasChildNodes)
                                 {
-                                    var geometryOfMemberNode = featureNode.SelectSingleNode("S131:geometry");
+                                    var geometryOfMemberNode = featureNode.SelectSingleNode("S131:geometry", nsmgr);
                                     if (geometryOfMemberNode != null && geometryOfMemberNode.HasChildNodes)
                                     {
                                         metaFeature.Geometry = _geometryBuilderFactory.Create(geometryOfMemberNode.ChildNodes[0], nsmgr);
@@ -140,12 +140,12 @@ namespace S1XViewer.Model
             await Task.Run(() =>
             {
                 XmlNodeList? memberNodes = xmlDocument.DocumentElement.SelectNodes("S131:members", nsmgr);
-                (geoFeatures, metaFeatures, informationFeatures) = RetrieveGeometriesFromXml(memberNodes, nsmgr, invertLonLat);
+                (geoFeatures, metaFeatures, informationFeatures) = RetrieveFeaturesFromXml(memberNodes, nsmgr, invertLonLat);
 
                 if (invertLonLat == false && IsAnyPositionInverted(geoFeatures, metaFeatures))
                 {
                     invertLonLat = true;
-                    (geoFeatures, metaFeatures, informationFeatures) = RetrieveGeometriesFromXml(memberNodes, nsmgr, invertLonLat);
+                    (geoFeatures, metaFeatures, informationFeatures) = RetrieveFeaturesFromXml(memberNodes, nsmgr, invertLonLat);
                 }
 
                 Progress?.Invoke(0);
@@ -170,6 +170,7 @@ namespace S1XViewer.Model
                 ResolveLinks(geoFeature.Links, informationFeatures, metaFeatures, geoFeatures);
             }
 
+            dataPackage.InvertLonLat = invertLonLat;
             dataPackage.GeoFeatures = geoFeatures.ToArray();
             dataPackage.MetaFeatures = metaFeatures.ToArray();
             dataPackage.InformationFeatures = informationFeatures.ToArray();

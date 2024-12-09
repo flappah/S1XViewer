@@ -166,7 +166,7 @@ namespace S1XViewer.Types.Features
                         return "TRMGEN91";
                 }
             }
-            else if (String.IsNullOrWhiteSpace(CategoryOfHarbourFacility.Trim()) == false)
+            else if (String.IsNullOrWhiteSpace(CategoryOfHarbourFacility?.Trim()) == false)
             {
                 switch(CategoryOfHarbourFacility.Trim())
                 {

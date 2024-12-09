@@ -6,9 +6,10 @@ namespace S1XViewer.Types.Features
 {
     public class PhysicalProduct : NavigationalProduct, IPhysicalProduct, IS128Feature
     {
+        public DateTime EditionDate { get; set; } = DateTime.MinValue;
         public string ISBN { get; set; } = string.Empty;
         public string PublicationNumber { get; set; } = string.Empty;
-        public DateTime ReferenceToNM { get; set; }
+        public DateTime ReferenceToNM { get; set; } = DateTime.MinValue;
         public string TypeOfPaper { get; set; } = string.Empty;
         public IPrintInformation PrintInformation { get; set; } = new PrintInformation();
 
@@ -58,6 +59,7 @@ namespace S1XViewer.Types.Features
                 UpdateDate = UpdateDate,
                 UpdateNumber = UpdateNumber,
 
+                EditionDate = EditionDate,
                 ISBN = ISBN,
                 PublicationNumber = PublicationNumber,
                 ReferenceToNM = ReferenceToNM,
@@ -76,6 +78,16 @@ namespace S1XViewer.Types.Features
             if (node == null || !node.HasChildNodes) return this;
 
             base.FromXml(node, mgr, nameSpacePrefix); // run the NavigationalProduct xml interpreter
+
+            //public DateTime EditionDate { get; set; } = DateTime.MinValue;
+            var editionDateNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}editionDate", mgr);
+            if (editionDateNode != null && editionDateNode.HasChildNodes)
+            {
+                if (DateTime.TryParse(editionDateNode.FirstChild?.InnerText, out DateTime editionDateNodeValue))
+                {
+                    EditionDate = editionDateNodeValue;
+                }
+            }
 
             //public string ISBN { get; set; } = string.Empty;
             var isbnNode = node.SelectSingleNode($"{(String.IsNullOrEmpty(nameSpacePrefix) ? "" : $"{nameSpacePrefix}:")}isbn", mgr);

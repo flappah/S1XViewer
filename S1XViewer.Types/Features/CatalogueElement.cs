@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace S1XViewer.Types.Features
 {
-    public abstract class CatalogueElement : GeoFeatureBase, IS128Feature, ICatalogueElement
+    public abstract class CatalogueElement : GeoFeatureBase, ICatalogueElement
     {
         // new for v2.0
         public string AgencyResponsibleForProduction { get; set; } = string.Empty;

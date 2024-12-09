@@ -47,7 +47,7 @@ namespace S1XViewer.Types.Features
                 if (mapPoint != null)
                 {
                     var symbolUri = new Uri($"file:/{Path.Combine(AppContext.BaseDirectory, @"images\TIDEHT01.png")}");
-                    var symbol = new PictureMarkerSymbol(symbolUri) { Width = 34, Height = 13 };
+                    var symbol = new PictureMarkerSymbol(symbolUri) { Width = 13, Height = 13 };
 
                     var graphic = new Esri.ArcGISRuntime.UI.Graphic();
                     graphic.Geometry = mapPoint;

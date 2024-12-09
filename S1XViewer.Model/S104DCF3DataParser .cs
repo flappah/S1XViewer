@@ -295,6 +295,7 @@ namespace S1XViewer.Model
 
                         }).ConfigureAwait(false);
 
+                        dataPackage.InvertLonLat = invertLonLat;
                         dataPackage.RawHdfData = hdf5S111Root;
                         if (geoFeatures.Count > 0)
                         {

@@ -30,11 +30,11 @@ namespace S1XViewer.Model.Geometry
 
             string geometryTypeString;
 
-            if (node.Name.Contains(false, "Envelope", "Curve", "Point", "Polygon", "Surface") == false)
+            if (node.Name.Contains(true, "EnvelopeProperty", "CurveProperty", "PointProperty", "PolygonProperty", "SurfaceProperty"))
             {
                 geometryTypeString = (node.HasChildNodes ? node.ChildNodes[0].Name : "").LastPart(char.Parse(":"));
             }
-            else
+            else 
             {
                 geometryTypeString = node.Name.LastPart(char.Parse(":"));
             }

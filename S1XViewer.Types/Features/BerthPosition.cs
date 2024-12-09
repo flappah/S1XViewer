@@ -180,7 +180,7 @@ namespace S1XViewer.Types.Features
         /// <returns></returns>
         public override string GetSymbolName()
         {
-            if (BollardNumber.Length == 0)
+            if (BollardNumber != null && BollardNumber.Length == 0)
             {
                 return "PILPNT02";
             }

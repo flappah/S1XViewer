@@ -215,7 +215,7 @@ namespace S1XViewer.Types
                 {
                     Esri.ArcGISRuntime.Data.Feature pointFeature = featureTable.CreateFeature();
                     pointFeature.SetAttributeValue(idField, Id);
-                    pointFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
+                    pointFeature.SetAttributeValue(nameField, FeatureName.Length == 0 ? "" : FeatureName?.First()?.Name);
                     pointFeature.Geometry = Geometry;
 
                     return ("PointFeatures", pointFeature, null);
@@ -228,7 +228,7 @@ namespace S1XViewer.Types
                 {
                     Esri.ArcGISRuntime.Data.Feature lineFeature = featureTable.CreateFeature();
                     lineFeature.SetAttributeValue(idField, Id);
-                    lineFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
+                    lineFeature.SetAttributeValue(nameField, FeatureName.Length == 0 ? "" : FeatureName?.First()?.Name);
                     lineFeature.Geometry = Geometry;
 
                     return ("LineFeatures", lineFeature, null);
@@ -241,7 +241,7 @@ namespace S1XViewer.Types
                 {
                     Esri.ArcGISRuntime.Data.Feature polyFeature = featureTable.CreateFeature();
                     polyFeature.SetAttributeValue(idField, Id);
-                    polyFeature.SetAttributeValue(nameField, FeatureName?.First()?.Name);
+                    polyFeature.SetAttributeValue(nameField, FeatureName.Length == 0 ? "" : FeatureName?.First()?.Name);
                     polyFeature.Geometry = Geometry;
 
                     return ("PolygonFeatures", polyFeature, null);

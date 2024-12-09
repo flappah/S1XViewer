@@ -290,6 +290,7 @@ namespace S1XViewer.Model
                         }
                     });
 
+                    dataPackage.InvertLonLat = invertLonLat;
                     dataPackage.RawHdfData = hdf5S104Root;
                     if (geoFeatures.Length > 0)
                     {

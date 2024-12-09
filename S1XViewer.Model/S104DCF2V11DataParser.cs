@@ -360,6 +360,7 @@ namespace S1XViewer.Model
                     geoFeatures.Add(geoFeature);
                 }
 
+                dataPackage.InvertLonLat = invertLonLat;
                 dataPackage.RawHdfData = hdf5S111Root;
                 if (geoFeatures.Count > 0)
                 {
