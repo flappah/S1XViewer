@@ -105,7 +105,7 @@ namespace S1XViewer.Types.Features
         /// <returns></returns>
         public override string GetSymbolName()
         {
-            switch (CategoryOfMooringWarpingFacility.Trim())
+            switch (CategoryOfMooringWarpingFacility?.Trim())
             {
                 case "1":
                     return "MORFAC03";

@@ -131,7 +131,7 @@ namespace S1XViewer.Types.Features
                         return "QUESMRK1";
                 }
             }
-            else if (CategoryOfHarbourFacility.Length > 0) 
+            else if (CategoryOfHarbourFacility?.Length > 0) 
             { 
                 if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("1")).Count() > 0) 
                 {

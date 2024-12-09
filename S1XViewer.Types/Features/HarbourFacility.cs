@@ -83,30 +83,31 @@ namespace S1XViewer.Types.Features
         /// <returns></returns>
         public override string GetSymbolName()
         {
-            if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("1")).Count() > 0)
+            if (CategoryOfHarbourFacility != null)
             {
-                return "ROLROL01";
+                if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("1")).Count() > 0)
+                {
+                    return "ROLROL01";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("4")).Count() > 0)
+                {
+                    return "HRBFAC09";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("5")).Count() > 0)
+                {
+                    return "SMCFAC02";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("12")).Count() > 0)
+                {
+                    return "SHPLFT92";
+                }
+                else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("13")).Count() > 0)
+                {
+                    return "STRADC92";
+                }
             }
-            else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("4")).Count() > 0)
-            {
-                return "HRBFAC09";
-            }
-            else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("5")).Count() > 0)
-            {
-                return "SMCFAC02";
-            }
-            else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("12")).Count() > 0)
-            {
-                return "SHPLFT92";
-            }
-            else if (CategoryOfHarbourFacility.ToList().Where(q => q.Trim().Equals("13")).Count() > 0)
-            {
-                return "STRADC92";
-            }
-            else
-            {
-                return "CHINFO07";
-            }
+
+            return "CHINFO07";
         }
     }
 }
