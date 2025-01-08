@@ -103,12 +103,13 @@ namespace S1XViewer
                 int i = 1;
                 Application.Current.Dispatcher.Invoke((Action)delegate
                 {
-                    foreach (var fileName in fileNames)
+                    foreach (string fileName in fileNames)
                     {
                         var newMenuItem = new RibbonMenuItem
                         {
                             Name = $"MenuItem{i++}",
-                            Header = fileName
+                            Header = fileName,
+                            Tag = fileName
                         };
                         newMenuItem.Click += AutoOpen_Click;
 
@@ -1083,13 +1084,16 @@ namespace S1XViewer
                     selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                     selectDatasetWindow.ShowDialog();
 
-                    var directory = System.Environment.CurrentDirectory;                   
+                    var directory = System.Environment.CurrentDirectory;
                     selectedFilename = @$"{directory}\{selectDatasetWindow.SelectedFilename}";
                 }
                 else if (productFileNames.Count == 1)
                 {
-                    selectedFilename = productFileNames[0];
-                }
+                    var directory = fullFileName.Replace(fullFileName.LastPart(@"\"), "");
+                    selectedFilename = directory.Substring(directory.Length - 1, 1) == @"\"
+                        ? $"{directory}{productFileNames[0]}"
+                        : @$"{directory}\{productFileNames[0]}";
+                }                    
 
                 var filename = selectedFilename.LastPart(@"\");
                 string optionalVersion = string.Empty;
