@@ -108,7 +108,11 @@ namespace S1XViewer
                         var newMenuItem = new RibbonMenuItem
                         {
                             Name = $"MenuItem{i++}",
-                            Header = fileName,
+                            Header = fileName.LastPart(@"\"),
+                            CanUserResizeHorizontally = true,
+                            Width = 200,
+                            ToolTipDescription = fileName,
+                            ToolTipTitle = $"Recent File",
                             Tag = fileName
                         };
                         newMenuItem.Click += AutoOpen_Click;
@@ -1638,7 +1642,7 @@ namespace S1XViewer
                 return recentFiles.Split(new[] { ',' });
             }
 
-            return new string[0];
+            return Array.Empty<string>();
         }
 
         /// <summary>
@@ -1680,7 +1684,7 @@ namespace S1XViewer
                     Header = newFileName.LastPart(@"\"),
                     CanUserResizeHorizontally = true,
                     Width = 200,
-                    ToolTipDescription = newFileName.LastPart(@"\"),
+                    ToolTipDescription = newFileName,
                     ToolTipTitle = $"Recent File",
                     Tag = newFileName
                 };
