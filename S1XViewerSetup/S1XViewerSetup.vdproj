@@ -15669,15 +15669,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:IHO S1X Standards Viewer"
-        "ProductCode" = "8:{F98A9DAB-D76B-473E-B56F-DDD497802FF9}"
-        "PackageCode" = "8:{5AB09305-BDA1-41C3-AEDD-F8FCA2AD91ED}"
+        "ProductCode" = "8:{EBAE4F7D-3E2D-4470-A833-9ED15DEDAD1A}"
+        "PackageCode" = "8:{A4BEAE9F-49D6-4D1D-8F38-F38A0FE803A3}"
         "UpgradeCode" = "8:{9365262E-4DE1-455B-A8F0-EB0020974CE0}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:2.3.1"
+        "ProductVersion" = "8:2.3.2"
         "Manufacturer" = "8:Netherlands Hydrographic Service"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -16219,7 +16219,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C1A0A090B6294D2C9D1DA52028B47047"
             {
-            "SourcePath" = "8:..\\S1XViewer\\obj\\Release\\net6.0-windows10.0.19041.0\\apphost.exe"
+            "SourcePath" = "8:..\\S1XViewer\\obj\\Debug\\net6.0-windows10.0.19041.0\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_91FD78E5650E41E4A4F3B1A7BB635144"
