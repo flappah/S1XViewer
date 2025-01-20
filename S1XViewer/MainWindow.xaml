@@ -11,7 +11,8 @@
         Icon="/Paomedia-Small-N-Flat-Map.ico"
         WindowStartupLocation="CenterOwner"       
         ResizeMode="CanResizeWithGrip"
-        Closing="MainWindow_Closing">
+        Closing="MainWindow_Closing"
+        Loaded="MainWindow_Loaded">
     
     <Window.Resources>
         <local:MapViewModel x:Key="MapViewModel" />

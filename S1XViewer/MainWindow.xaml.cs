@@ -7,6 +7,7 @@ using Esri.ArcGISRuntime.Rasters;
 using Esri.ArcGISRuntime.UI;
 using Esri.ArcGISRuntime.UI.Controls;
 using Microsoft.Win32;
+using Octokit;
 using S1XViewer.Base;
 using S1XViewer.HDF.Interfaces;
 using S1XViewer.Model.Interfaces;
@@ -43,12 +44,19 @@ namespace S1XViewer
         private bool _disposing = false;
         private bool _uiInitializing = true;
         private FeatureToolWindow? _featureToolWindow = null;
+        private string _providedAtStartUpFileName = String.Empty;
 
         /// <summary>
         ///     Basic initialization
         /// </summary>
         public MainWindow()
         {
+            var args = Environment.GetCommandLineArgs();
+            if (args.Length > 1)
+            {
+                _providedAtStartUpFileName = args[1];
+            }
+
             var splashScreen = new SplashScreen(@"images\S1XViewer_SplashScreen.png");
             splashScreen.Show(false, true);
 
@@ -101,7 +109,7 @@ namespace S1XViewer
             {
                 var fileNames = RetrieveRecentFiles();
                 int i = 1;
-                Application.Current.Dispatcher.Invoke((Action)delegate
+                System.Windows.Application.Current.Dispatcher.Invoke((Action)delegate
                 {
                     foreach (string fileName in fileNames)
                     {
@@ -158,10 +166,42 @@ namespace S1XViewer
             });
 
             splashScreen.Close(TimeSpan.FromSeconds(2));
+            _ = CheckGitHubNewVersion();           
+        }        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private async System.Threading.Tasks.Task CheckGitHubNewVersion()
+        {
+            var client = new GitHubClient(new ProductHeaderValue("S1XViewer"));
+            IReadOnlyList<Release> releases = await client.Repository.Release.GetAll("flappah", "S1XViewer");
+
+            if (releases.Count() > 0)
+            {
+                try
+                {
+                    string firstTagName = releases[0].TagName.Replace("V", "").Replace("v", "");
+                    var latestGitHubVersion = new Version(firstTagName);
+                    var localVersionString = Assembly.GetExecutingAssembly().GetName()?.Version?.ToString() ?? "";
+                    var localVersion = new Version(localVersionString);
+
+                    var versionComparison = localVersion.CompareTo(latestGitHubVersion);
+                    if (versionComparison < 0)
+                    {
+                        MessageBox.Show($"A newer version of the viewer is available on {releases[0].HtmlUrl}", "Newer Version Available", MessageBoxButton.OK);
+                    }
+                }
+                catch(Exception ex)
+                {
+
+                }
+            }
         }
 
         /// <summary>
-        ///     To handle closing the mainform when user presses the window its close button (X)
+        ///     To handle closing the form when user presses the window its close button (X)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -192,6 +232,19 @@ namespace S1XViewer
                     myMapView.Map = null;
                     myMapView = null;
                 }
+            }
+        }
+
+        /// <summary>
+        ///     To handle opening a file supplied as arguments during startup
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (String.IsNullOrEmpty(_providedAtStartUpFileName) == false)
+            {
+                OpenFile(_providedAtStartUpFileName);
             }
         }
 
@@ -267,7 +320,7 @@ namespace S1XViewer
                     {
                         // if no standard could be determined, ask the user
                         var selectStandardForm = new SelectStandardWindow();
-                        selectStandardForm.Owner = Application.Current.MainWindow;
+                        selectStandardForm.Owner = System.Windows.Application.Current.MainWindow;
                         selectStandardForm.ShowDialog();
                         productStandard = selectStandardForm.SelectedStandard;
                     }
@@ -379,7 +432,7 @@ namespace S1XViewer
                     {
                         // if no standard could be determined, ask the user
                         var selectStandardForm = new SelectStandardWindow();
-                        selectStandardForm.Owner = Application.Current.MainWindow;
+                        selectStandardForm.Owner = System.Windows.Application.Current.MainWindow;
                         selectStandardForm.ShowDialog();
                         productStandard = selectStandardForm.SelectedStandard;
                     }
@@ -400,6 +453,76 @@ namespace S1XViewer
                     buttonRefresh.Tag = selectedFilename;
                 }), null);
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selectedFileName"></param>
+        private void OpenFile(string selectedFilename)
+        {
+            _resetViewpoint = true;
+
+            if (selectedFilename.ToUpper().Contains("CATALOG") && selectedFilename.ToUpper().Contains(".XML"))
+            {
+                try
+                {
+                    _ = LoadExchangeSet(selectedFilename);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show($"Invalid exchange-set file or invalid XML contents! '{selectedFilename.LastPart(@"\\")}'");
+                }
+            }
+            else if (selectedFilename.ToUpper().Contains(".XML") || selectedFilename.ToUpper().Contains(".GML"))
+            {
+                _ = LoadGMLFile("", selectedFilename);
+            }
+            else if (selectedFilename.ToUpper().Contains(".H5") || selectedFilename.ToUpper().Contains(".HDF5"))
+            {
+                // filename contains the IHO product standard. First 3 chars indicate the standard to use!
+                string productStandard;
+                if (selectedFilename.Contains(@"\"))
+                {
+                    var fileName = selectedFilename.LastPart(@"\");
+                    if (fileName.Substring(0, 1) == "S")
+                    {
+                        productStandard = fileName.Substring(1, 3);
+                    }
+                    else
+                    {
+                        productStandard = fileName.Substring(0, 3);
+                    }
+                }
+                else
+                {
+                    productStandard = selectedFilename.Substring(0, 3);
+                }
+
+                if (productStandard.IsNumeric() == false)
+                {
+                    // if no standard could be determined, ask the user
+                    var selectStandardForm = new SelectStandardWindow();
+                    selectStandardForm.Owner = System.Windows.Application.Current.MainWindow;
+                    selectStandardForm.ShowDialog();
+                    productStandard = selectStandardForm.SelectedStandard;
+                }
+                else
+                {
+                    productStandard = $"S{productStandard}";
+                }
+
+                _ = LoadHDF5File(productStandard, selectedFilename, null);
+            }
+            else if (selectedFilename.Contains(".031"))
+            {
+                _ = LoadENCFile(selectedFilename);
+            }
+
+            _syncContext?.Post(new SendOrPostCallback(o =>
+            {
+                buttonRefresh.Tag = selectedFilename;
+            }), null);
         }
 
         /// <summary>
@@ -443,69 +566,7 @@ namespace S1XViewer
                     Directory.SetCurrentDirectory(currentFolder);
                 }
 
-                var selectedFilename = openFileDialog.FileName;
-                _resetViewpoint = true;
-
-                if (selectedFilename.ToUpper().Contains("CATALOG") && selectedFilename.ToUpper().Contains(".XML"))
-                {
-                    try
-                    {
-                        _ = LoadExchangeSet(selectedFilename);
-                    }
-                    catch (Exception)
-                    {
-                        MessageBox.Show($"Invalid exchange-set file or invalid XML contents! '{selectedFilename.LastPart(@"\\")}'");
-                    }
-                }
-                else if (selectedFilename.ToUpper().Contains(".XML") || selectedFilename.ToUpper().Contains(".GML"))
-                {
-                    _ = LoadGMLFile("", selectedFilename);
-                }
-                else if (selectedFilename.ToUpper().Contains(".H5") || selectedFilename.ToUpper().Contains(".HDF5"))
-                {
-                    // filename contains the IHO product standard. First 3 chars indicate the standard to use!
-                    string productStandard;
-                    if (selectedFilename.Contains(@"\"))
-                    {
-                        var fileName = selectedFilename.LastPart(@"\");
-                        if (fileName.Substring(0, 1) == "S")
-                        {
-                            productStandard = fileName.Substring(1, 3);
-                        }
-                        else
-                        {
-                            productStandard = fileName.Substring(0, 3);
-                        }
-                    }
-                    else
-                    {
-                        productStandard = selectedFilename.Substring(0, 3);
-                    }
-
-                    if (productStandard.IsNumeric() == false)
-                    {
-                        // if no standard could be determined, ask the user
-                        var selectStandardForm = new SelectStandardWindow();
-                        selectStandardForm.Owner = Application.Current.MainWindow;
-                        selectStandardForm.ShowDialog();
-                        productStandard = selectStandardForm.SelectedStandard;
-                    }
-                    else
-                    {
-                        productStandard = $"S{productStandard}";
-                    }
-
-                    _ = LoadHDF5File(productStandard, selectedFilename, null);
-                }
-                else if (selectedFilename.Contains(".031"))
-                {
-                    _ = LoadENCFile(selectedFilename);
-                }
-
-                _syncContext?.Post(new SendOrPostCallback(o =>
-                {
-                    buttonRefresh.Tag = selectedFilename;
-                }), null);
+                OpenFile(openFileDialog.FileName);
             }
         }
 
@@ -801,10 +862,12 @@ namespace S1XViewer
                 var featureRendererManager = _container.Resolve<IFeatureRendererManager>();
                 var colorSchemeNames = featureRendererManager.RetrieveColorRampNames();
 
-                var colorSchemesForm = new DefineColourSchemeWindow();
-                colorSchemesForm.Owner = Application.Current.MainWindow;
-                colorSchemesForm.FeatureRendererManager = featureRendererManager;
-                colorSchemesForm.Standard = "S102";
+                var colorSchemesForm = new DefineColourSchemeWindow
+                {
+                    Owner = System.Windows.Application.Current.MainWindow,
+                    FeatureRendererManager = featureRendererManager,
+                    Standard = "S102"
+                };
                 colorSchemesForm.comboBoxColorSchemes.ItemsSource = colorSchemeNames.ToList();
                 colorSchemesForm.ShowDialog();
             }
@@ -849,7 +912,7 @@ namespace S1XViewer
                     {
                         // if no standard could be determined, ask the user
                         var selectStandardForm = new SelectStandardWindow();
-                        selectStandardForm.Owner = Application.Current.MainWindow;
+                        selectStandardForm.Owner = System.Windows.Application.Current.MainWindow;
                         selectStandardForm.ShowDialog();
                         productStandard = selectStandardForm.SelectedStandard;
                     }
@@ -1084,7 +1147,7 @@ namespace S1XViewer
                 if (productFileNames.Count > 1)
                 {
                     var selectDatasetWindow = new SelectDatasetWindow();
-                    selectDatasetWindow.Owner = Application.Current.MainWindow;
+                    selectDatasetWindow.Owner = System.Windows.Application.Current.MainWindow;
                     selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                     selectDatasetWindow.ShowDialog();
 
@@ -1154,7 +1217,7 @@ namespace S1XViewer
                         }
 
                         var selectDateTimeWindow = new SelectDateTimeWindow();
-                        selectDateTimeWindow.Owner = Application.Current.MainWindow;
+                        selectDateTimeWindow.Owner = System.Windows.Application.Current.MainWindow;
                         selectDateTimeWindow.textblockInfo.Text = $"Values available from {beginTime.ToUniversalTime().ToString()} UTC to {endTime.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
                         selectDateTimeWindow.FirstValidDate = beginTime.ToUniversalTime();
                         selectDateTimeWindow.LastValidDate = endTime.ToUniversalTime();
@@ -1180,7 +1243,7 @@ namespace S1XViewer
             else if (productFileNames.Count > 1)
             {
                 var selectDatasetWindow = new SelectDatasetWindow();
-                selectDatasetWindow.Owner = Application.Current.MainWindow; 
+                selectDatasetWindow.Owner = System.Windows.Application.Current.MainWindow; 
                 selectDatasetWindow.dataGrid.ItemsSource = exchangeSetLoader.DatasetInfoItems;
                 selectDatasetWindow.ShowDialog();
 
@@ -1341,7 +1404,7 @@ namespace S1XViewer
                         timeframePresentInFile.end != DateTime.MinValue)
                     {
                         var selectDateTimeWindow = new SelectDateTimeWindow();
-                        selectDateTimeWindow.Owner = Application.Current.MainWindow;
+                        selectDateTimeWindow.Owner = System.Windows.Application.Current.MainWindow;
                         selectDateTimeWindow.textblockInfo.Text = $"Values available from {timeframePresentInFile.start.ToUniversalTime().ToString()} UTC to {timeframePresentInFile.end.ToUniversalTime().ToString()} UTC. Select a Date and a Time.";
                         selectDateTimeWindow.FirstValidDate = timeframePresentInFile.start.ToUniversalTime();
                         selectDateTimeWindow.LastValidDate = timeframePresentInFile.end.ToUniversalTime();

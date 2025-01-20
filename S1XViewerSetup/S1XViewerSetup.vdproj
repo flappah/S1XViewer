@@ -15669,8 +15669,8 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:IHO S1X Standards Viewer"
-        "ProductCode" = "8:{EBAE4F7D-3E2D-4470-A833-9ED15DEDAD1A}"
-        "PackageCode" = "8:{A4BEAE9F-49D6-4D1D-8F38-F38A0FE803A3}"
+        "ProductCode" = "8:{F3DFE7EF-BE42-4E8B-9F55-1FA2F9EDCF97}"
+        "PackageCode" = "8:{0AF26356-CF8E-41F6-AC0F-0D900E613415}"
         "UpgradeCode" = "8:{9365262E-4DE1-455B-A8F0-EB0020974CE0}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
