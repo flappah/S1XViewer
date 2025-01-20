@@ -244,6 +244,9 @@ namespace S1XViewer
         {
             if (String.IsNullOrEmpty(_providedAtStartUpFileName) == false)
             {
+                var newCurrentPath = _providedAtStartUpFileName.Substring(0, _providedAtStartUpFileName.LastIndexOf(@"\"));
+                Directory.SetCurrentDirectory(newCurrentPath);
+
                 OpenFile(_providedAtStartUpFileName);
             }
         }
